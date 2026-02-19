@@ -1,5 +1,6 @@
 import serial
 import time
+from atCommandExample import at_command_comms
 
 PORT = '/dev/ttyUSB2'
 BAUD = 115200
@@ -10,38 +11,6 @@ BAUD = 115200
 #using a ser. function.
 ser = serial.Serial(PORT, BAUD, timeout=0.1)
 
-#function for using AT commands in python. Call this function by inputing the AT command and timeout from AT command pdf
-# and you will receive the response in string format
-def at_command_comms(command, timeout):
-    #clear the serial data so that the only data read is the info in the port being used in ser.
-    ser.reset_input_buffer()
-    #input AT command
-    ser.write((command + "\r\n").encode())
-    
-    start_time = time.time()
-    full_response = ""
-    
-    print(f"--- Sending: {command} (Waiting up to {timeout}s) ---")
-    
-    while (time.time() - start_time) < timeout:
-        #if there are more than 0 bytes in the serial RAM (return data from AT commands), then proceed with the following code
-        if ser.in_waiting > 0:
-            # Read everything available and append it
-            # Since the ser.in_waiting results in data, that is what will be read and decoded to string
-            # .decode converts the received data from AT commands from Bytes to string by using the utf-8 look-up table conversions
-            new_data = ser.read(ser.in_waiting).decode('utf-8', errors='ignore')
-            full_response += new_data
-            
-            # Print live so you see the scan results as they come in. This is done by the flush=True
-            print(new_data, end="")
-            
-            # Stop ONLY when we see the final status from the modem
-            if "OK" in full_response or "ERROR" in full_response:
-                break
-        
-        time.sleep(0.05) # Check the "mailbox" every 100ms
-        
-    return full_response
 
 def main():
     # 1. Power on full functionality

@@ -1,0 +1,71 @@
+"""
+Module: models/rules.py
+Purpose: Define system limits, thresholds, identities, or protocol behavior - must stay consistent across deployments unless explicitly configured
+Dependencies: ALL
+Author: Ginna
+
+"""
+
+
+#Sampling Behavior Constants
+SAMPLES_PER_SESSION = 5
+SAMPLE_INTERVAL_SECONDS = 60
+AVERAGING_WINDOW_SECONDS = 300  # 5 minutes
+
+
+#RF Valid Ranges
+MIN_VALID_RSRP = -150
+MAX_VALID_RSRP = -30
+
+MIN_VALID_RSRQ = -30
+MAX_VALID_RSRQ = 0
+
+MIN_VALID_SINR = -20
+MAX_VALID_SINR = 40
+
+
+#Default Thresholds
+# when nothing is set by the user
+DEFAULT_MIN_RSRP = -105.0
+DEFAULT_MIN_RSRQ = -15.0
+DEFAULT_MIN_SINR = 5.0
+DEFAULT_MIN_RSSI = -100.0
+
+
+#SNMP Constants
+SNMP_PORT = 162
+SNMP_COMMUNITY = "public"
+SNMP_VERSION = 2
+
+
+#Alarm Severity Labels
+SEVERITY_NORMAL = "NORMAL"
+SEVERITY_WARNING = "WARNING"
+SEVERITY_CRITICAL = "CRITICAL"
+
+
+#Storage Rules
+LOG_RETENTION_DAYS = 7
+MAX_STORAGE_GB = 1
+
+
+#Hardware Expectations
+MAX_ALLOWED_POWER_WATTS = 30
+MAX_ALLOWED_TEMP_C = 80
+
+
+#Identity Verification Rules
+PCI_MATCH_REQUIRED = True
+BAND_MATCH_REQUIRED = True
+EARFCN_MATCH_REQUIRED = True
+
+
+#AT Command Strings
+AT_CMD_SERVING_CELL = 'AT+QENG="servingcell"'
+AT_CMD_NEIGHBOR_CELL = 'AT+QENG="neighbourcell"'
+
+
+#System Timing Constants
+VPN_RETRY_INTERVAL = 30
+MODEM_BOOT_TIMEOUT = 60
+SNMP_RETRY_LIMIT = 3

@@ -8,7 +8,7 @@ Author: Ginna
 
 
 #Sampling Behavior Constants
-SAMPLES_PER_SESSION = 5
+SAMPLES_PER_SESSION = 5 #change
 SAMPLE_INTERVAL_SECONDS = 60
 AVERAGING_WINDOW_SECONDS = 300  # 5 minutes
 
@@ -33,9 +33,11 @@ DEFAULT_MIN_RSSI = -100.0
 
 
 #SNMP Constants
-SNMP_PORT = 162
-SNMP_COMMUNITY = "public"
-SNMP_VERSION = 2
+SNMP_MANAGER_PORT = 161 #? or 162 (162 for agent) idk
+SNMP_AGENT_PORT = 162
+SNMP_MANAGER_IP = 2 #change
+SNMP_COMMUNITY = "public" #? #NOT “public”, make it a random string
+SNMP_VERSION = 2 #might need 3 - most likely 2 because we have an openVPN
 
 
 #Alarm Severity Labels
@@ -46,7 +48,7 @@ SEVERITY_CRITICAL = "CRITICAL"
 
 #Storage Rules
 LOG_RETENTION_DAYS = 7
-MAX_STORAGE_GB = 1
+MAX_STORAGE_GB = 1 
 
 
 #Hardware Expectations

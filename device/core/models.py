@@ -6,7 +6,6 @@ Author: Ginna
 
 """
 
-
 from datetime import datetime   
 from dataclasses import dataclass
  
@@ -23,7 +22,7 @@ class KPIReading: #this represents one raw modem sample - the modem will take mu
 
 class AveragedKPI:
     start_time: datetime #start and end time is naive - not realying on time zones
-    end_time: datetime  # also this is a timer for how long to wait before storing - window
+    end_time: datetime  #also this is a timer for how long to wait before storing - window
     avg_rssi: float
     avg_rsrp: float
     avg_rsrq: float
@@ -38,7 +37,7 @@ class SignalIdentity: #what is expected for the values and compares with incomin
     band: str
     bandwidth_mhz: float
 
-class MonitoringThresholds:  # this uses the alarm limits/ranges that are defined in the GUI
+class MonitoringThresholds:  #this uses the alarm limits/ranges that are defined in the GUI
     min_rsrp: float
     min_rsrq: float
     min_sinr: float
@@ -46,8 +45,8 @@ class MonitoringThresholds:  # this uses the alarm limits/ranges that are define
 
 class AlarmEvent: #uses this when an alarm event happens
     timestamp: datetime
-    severity: str  # NORMAL, WARNING, CRITICAL
-    reason: str # example: RSRP below threshold, modem disconnected, etc.
+    severity: str  #NORMAL, WARNING, CRITICAL
+    reason: str #example: RSRP below threshold, modem disconnected, etc.
     kpi_snapshot: AveragedKPI #when alarm is fired, you freeze that data that causes it (??)
 
 class SNMPTrapPayload: #this class doesn't send anything, it justs represents the structured data that will be sent #primarly for organization, helps to keep transport logic separate from monitoring logic
@@ -77,6 +76,6 @@ class SystemHealthStatus:
     temperature_c: float
     power_ok: bool
 
-class SamplingSession: # Cleaner architecture. Helps debugging. Helps test reproducibility. #this just shows the data in a specific window before being averaged #called by AveragedKPI to be used
+class SamplingSession: #Cleaner architecture. Helps debugging. Helps test reproducibility. #this just shows the data in a specific window before being averaged #called by AveragedKPI to be used
     session_start: datetime
     readings: list[KPIReading]

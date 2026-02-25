@@ -64,6 +64,7 @@ class DeviceConfig:
     snmp_manager_ip: str
     admin_username: str
     password_hash: str
+    #if this is the device config, then the number of bands as well as a list of the set bands should be placed here to be used in KPI collection
 
 class StorageRecord: #Represents a single row in SQLite. or in our json file
     timestamp: datetime
@@ -77,6 +78,9 @@ class SystemHealthStatus:
     temperature_c: float
     power_ok: bool
 
+@dataclass
 class SamplingSession: # Cleaner architecture. Helps debugging. Helps test reproducibility. #this just shows the data in a specific window before being averaged #called by AveragedKPI to be used
     session_start: datetime
     readings: list[KPIReading]
+
+

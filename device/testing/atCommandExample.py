@@ -40,8 +40,18 @@ def at_command_comms(command, timeout):
                 break
         
         time.sleep(0.05) # Check the "mailbox" every 100ms
-        
-    return full_response
+
+    # send back clean, easier to handle data
+    #remove OK after a successful response and use strip() to remove spaces or indents before or after the response
+    if "OK" in full_response:
+        return full_response.replace("OK", "").strip()
+    
+    #return ERROR anyways to notify an unsuccessful AT command
+    elif "ERROR" in full_response:
+        return "ERROR"
+    else:
+        return full_response.strip()
+
 
 def main():
     # 1. Power on full functionality

@@ -2,7 +2,7 @@ import time # Assuming you'll use this for the web server
 from datetime import datetime, timedelta
 from atCommandExample import at_command_comms
 from core.models import KPIReading, SamplingSession
-from core.constants import AT_CMD_SERVING_CELL, AT_CMD_5G_BAND_CONFIG, AT_CMD_LTE_BAND_CONFIG, MIN_VALID_RSRP, MAX_VALID_RSRP
+from core.constants import AT_CMD_ALL_CELL_INFO, MIN_VALID_RSRP, MAX_VALID_RSRP
 from core.constants import MIN_VALID_RSRQ, MAX_VALID_RSRQ, MIN_VALID_SINR, MAX_VALID_SINR, MIN_VALID_RSSI, MAX_VALID_RSSI
 import re
 

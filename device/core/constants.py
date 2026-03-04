@@ -69,7 +69,7 @@ EARFCN_MATCH_REQUIRED = True
 AT_CMD_SERVING_CELL = 'AT+QENG="servingcell"'
 AT_CMD_NEIGHBOR_CELL = 'AT+QENG="neighbourcell"'
 AT_CMD_FULL_FUNCTIONALITY = 'AT+CFUN=1'
-AT_CMD_AVAILABLE_SERVING_CELL = 'AT+QSCAN=3' #Will likely not use this in full code
+AT_CMD_ALL_CELL_INFO = 'AT+QSCAN=3' #Will likely not use this in full code
 AT_CMD_5G_BAND_CONFIG = 'AT+QNWPREFCFG="nr5g_band",' #When using this for the KPI collection, we will have to add the band # at the end of this to set bands
 AT_CMD_LTE_BAND_CONFIG = 'AT+QNWPREFCFG="lte_band",' #When using this for the KPI collection, we will have to add the band # at the end of this to set bands
 

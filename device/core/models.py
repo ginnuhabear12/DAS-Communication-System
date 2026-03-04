@@ -8,17 +8,34 @@ Author: Ginna
 
 from datetime import datetime   
 from dataclasses import dataclass
+from typing import Optional
+
  
 @dataclass #eliminates boilerplate and makes the code cleaner
+#This is the base class containing fields common to all cellular scans.
 class KPIReading: #this represents one raw modem sample - the modem will take multiple of these before averaging
-    timestamp: datetime   #need to account for timezones & daylight saving - use class datetime.tzinfo #need to be aware
-    rssi: float
-    rsrp: float
-    rsrq: float
-    sinr: float
-    pci: int
-    earfcn: int
-    band: str #string because contains letters and numbers
+    timestamp: datetime  #need to account for timezones & daylight saving - use class datetime.tzinfo #need to be aware
+    rat: str       # NR5G or LTE
+    mcc: int       # Mobile Country Code
+    mnc: int       # Mobile Network Code
+    pci: int       # Physical Cell ID
+    earfcn: int    # Frequency Channel (called ARFCN in 5G)
+
+@dataclass
+#Subclass of KPI reading for LTE specific metrics.
+class LTEKPI(KPIReading):
+    rsrp: float   
+    rsrq: float   
+    rssi: float   
+    sinr: float   
+
+@dataclass
+#Subclass for 5GNR specific metrics.
+class NR5GKPI(KPIReading):
+    ss_rsrp: float 
+    ss_rsrq: float 
+    ss_sinr: float 
+    # Note: QSCAN 5G results often omit RSSI as it's less relevant than SS-metrics
 
 class AveragedKPI:
     start_time: datetime #start and end time is naive - not realying on time zones

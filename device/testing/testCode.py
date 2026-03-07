@@ -125,5 +125,34 @@ for cell in serving_cells_5g:
 
 
 
+import serial
+import time
+from atCommandExample import at_command_comms
 
+bands = ['n71', 'n41', 'b2', 'b12', 'b66']
+
+for band in bands:
+    
+  
+
+    if band.startswith('b'):
+         band_num = band[1:]
+         at_command_comms(f'AT+QNWPREFCFG="lte_band",{band_num}', 0.3)
+         print("\n Begin Modem restart prior to selecting and scanning new band")
+         print("\n This will take max 30 seconds")
+         at_command_comms("AT+CFUN=0", 15)
+         at_command_comms("AT+CFUN=1", 15)
+         time.sleep(3)
+         print(at_command_comms("AT+QCSQ", 0.3))
+       
+   
+    elif band.startswith('n'):
+         band_num = band[1:]
+         at_command_comms(f'AT+QNWPREFCFG="nr5g_band",{band_num}', 0.3)
+         print("\n Begin Modem restart prior to selecting and scanning new band")
+         print("\n This will take max 30 seconds")
+         at_command_comms("AT+CFUN=0", 15)
+         at_command_comms("AT+CFUN=1", 15)
+         time.sleep(3)
+         print(at_command_comms("AT+QCSQ", 0.3))
 

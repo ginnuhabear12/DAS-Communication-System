@@ -59,6 +59,7 @@ def main():
     
     # 2. Scan for BOTH LTE and 5G (Parameter 3)
     # This can take 30-60 seconds, so we set a long timeout
+    
     results = at_command_comms("AT+QSCAN=3", 60)
     
     print("\n--- Scan Complete ---")

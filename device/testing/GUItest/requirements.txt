@@ -1,0 +1,6 @@
+//This text file is used for installing, 
+//so when someone needs to install libraries they use
+//pip install -r requirements.txt and it installs all
+//the libraries listed in here. Can also generate it 
+//automatically from the environment with 
+//pip freeze > requirements.txt

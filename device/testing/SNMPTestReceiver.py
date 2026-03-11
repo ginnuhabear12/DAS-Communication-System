@@ -13,7 +13,7 @@ snmpEngine = engine.SnmpEngine()
 # Use 0.0.0.0 to accept from other devices on the network
 # Use 1162 for non-root testing; change to 162 if running as sudo/admin
 LISTEN_IP = "0.0.0.0"
-LISTEN_PORT = 1162
+LISTEN_PORT = 1162 # same reason as sender - eventually change to 162
 
 config.addTransport(
     snmpEngine,

@@ -11,14 +11,14 @@ from pysnmp.hlapi import (
 )
 
 # Configuration for the Customer's NMS
-NMS_IP = "127.0.0.1"     # change to your test bench / NMS IP
-NMS_PORT = 1162      # traps usually go to 162
+NMS_IP = "127.0.0.1"     # change to your test bench / NMS IP - right  now it is set to run locally 
+NMS_PORT = 1162      # traps usually go to 162, 1162 is a tester port, but Wireshark won't recognize it as SNMP, it will be decoded as UDP
 COMMUNITY = "public"
 
 def send_cellular_alarm(rsrp_value: int, status_msg: str) -> None:
     """Sends an SNMP v2c TRAP representing a cellular signal alarm."""
 
-    # These OIDs would be defined in your Private MIB
+    # These OIDs would be defined in your Private MIB, im pretty sure we define our own OID for each scenario, but everything before ".12345..." has to stay the same
     OID_RSRP = "1.3.6.1.4.1.12345.1.1.0"
     OID_STATUS = "1.3.6.1.4.1.12345.1.2.0"
 
@@ -47,6 +47,6 @@ def send_cellular_alarm(rsrp_value: int, status_msg: str) -> None:
 
 if __name__ == "__main__":
     print("Simulating DAS Signal Failure...")
-    send_cellular_alarm(-115, "Critical: RSRP below threshold")
+    send_cellular_alarm(-115, "Critical: RSRP below threshold")  # this is what is displayed in Wireshark
 
 print("Sending to:", NMS_IP, NMS_PORT)

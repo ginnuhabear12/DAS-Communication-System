@@ -143,7 +143,8 @@ for band in bands:
          at_command_comms("AT+CFUN=0", 15)
          at_command_comms("AT+CFUN=1", 15)
          time.sleep(3)
-         print(at_command_comms("AT+QCSQ", 0.3))
+         print(at_command_comms('AT+QENG="neighbourcell"',0.3))
+         #print(at_command_comms("AT+QCSQ", 0.3))
        
    
     elif band.startswith('n'):
@@ -154,5 +155,6 @@ for band in bands:
          at_command_comms("AT+CFUN=0", 15)
          at_command_comms("AT+CFUN=1", 15)
          time.sleep(3)
-         print(at_command_comms("AT+QCSQ", 0.3))
+         #print(at_command_comms("AT+QCSQ", 0.3))
+         print(at_command_comms('AT+QENG="neighbourcell"',0.3))
 

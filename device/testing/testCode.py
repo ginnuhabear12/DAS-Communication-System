@@ -2,6 +2,10 @@ import time # Assuming you'll use this for the web server
 from datetime import datetime, timedelta
 import re
 
+
+
+
+# TEST CODE FOR PARSING OF QSCAN VALUES
 # --- PRE-EXISTING STORAGE (Mocking Class Attributes) ---
 serving_cells_lte = []
 serving_cells_5g = []
@@ -123,38 +127,51 @@ for cell in serving_cells_5g:
 
 
 
-
+#TEST CODE FOR MODEM FUNCTIONALITY TESTS 0.1.3.1 
 
 import serial
 import time
 from atCommandExample import at_command_comms
 
-bands = ['n71', 'n41', 'b2', 'b12', 'b66']
+bands = ['n2', 'n41', 'b2', 'b5', 'b12', 'b66']
+at_command_comms("AT+CFUN=1", 15)
+time.sleep(10)
+at_command_comms('AT+QNWPREFCFG="mode_pref",AUTO', 3)
+
+nrBand = []
+lteBand = []
+
 
 for band in bands:
-    
-  
+     band.strip()
+     if band.startswith('b'):
+          lteBand.append(band)
+     elif band.startswith('n'):
+          nrBand.append(band)
+          
+     
 
-    if band.startswith('b'):
-         band_num = band[1:]
-         at_command_comms(f'AT+QNWPREFCFG="lte_band",{band_num}', 0.3)
-         print("\n Begin Modem restart prior to selecting and scanning new band")
-         print("\n This will take max 30 seconds")
-         at_command_comms("AT+CFUN=0", 15)
-         at_command_comms("AT+CFUN=1", 15)
-         time.sleep(3)
-         print(at_command_comms('AT+QENG="neighbourcell"',0.3))
-         #print(at_command_comms("AT+QCSQ", 0.3))
-       
-   
-    elif band.startswith('n'):
-         band_num = band[1:]
-         at_command_comms(f'AT+QNWPREFCFG="nr5g_band",{band_num}', 0.3)
-         print("\n Begin Modem restart prior to selecting and scanning new band")
-         print("\n This will take max 30 seconds")
-         at_command_comms("AT+CFUN=0", 15)
-         at_command_comms("AT+CFUN=1", 15)
-         time.sleep(3)
-         #print(at_command_comms("AT+QCSQ", 0.3))
-         print(at_command_comms('AT+QENG="neighbourcell"',0.3))
+for band in nrBand:
+     band_num = band[1:]
+     at_command_comms(f'AT+QNWPREFCFG="nr5g_band",{band_num}', 0.3)
+     at_command_comms("AT+CPIN?",15)
+     time.sleep(3)
+     at_command_comms("AT+QNWINFO", 0.3)
+      #print(at_command_comms("AT+QCSQ", 0.3))
+     print(at_command_comms('AT+QENG="servingcell"',0.3))
+     print(at_command_comms("AT+QRSRP",0.3))
+
+at_command_comms("AT+COPS=2", 180)
+
+for band in lteBand:
+    band_num = band[1:]
+    at_command_comms(f'AT+QNWPREFCFG="lte_band",{band_num}', 0.3)
+    at_command_comms("AT+CPIN?",15)
+    time.sleep(3)
+    at_command_comms("AT+QNWINFO", 0.3)
+    #print(at_command_comms("AT+QCSQ", 0.3))
+    print(at_command_comms('AT+QENG="servingcell"',0.3))
+  
+at_command_comms("AT+COPS=0", 180)
+
 

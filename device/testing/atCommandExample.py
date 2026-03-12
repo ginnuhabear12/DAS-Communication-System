@@ -56,7 +56,9 @@ def at_command_comms(command, timeout):
 def main():
     # 1. Power on full functionality
     at_command_comms("AT+CFUN=1", 2)
-    
+    time.sleep(10)
+    at_command_comms("AT+COPS=2", 180)
+    time.sleep(2)
     # 2. Scan for BOTH LTE and 5G (Parameter 3)
     # This can take 30-60 seconds, so we set a long timeout
     

@@ -91,7 +91,7 @@ class AveragedKPI:
     rat:          str
     band:         int
     pci:          int
-    sample_count: int
+    sample_count: int = 5
  
  
 @dataclass

@@ -11,42 +11,128 @@ from dataclasses import dataclass
 from typing import Optional
 
  
-@dataclass #eliminates boilerplate and makes the code cleaner
-#This is the base class containing fields common to all cellular scans.
-class KPIReading: #this represents one raw modem sample - the modem will take multiple of these before averaging
-    timestamp: datetime  #need to account for timezones & daylight saving - use class datetime.tzinfo #need to be aware
-    rat: str       # NR5G or LTE
-    mcc: int       # Mobile Country Code
-    mnc: int       # Mobile Network Code
-    pci: int       # Physical Cell ID
-    earfcn: int    # Frequency Channel (called ARFCN in 5G)
+@dataclass
+class KPIReading:
+    """
+    One raw modem sample from QENG.
+ 
+    Attributes:
+        timestamp: Time the sample was taken.
+        rat:       Radio access technology — "LTE" or "NR5G".
+        band:      Raw band number as returned by QENG (e.g. 4, 41).
+        pci:       Physical Cell ID.
+    """
+    timestamp: datetime
+    rat:       str
+    band:      int
+    pci:       int
 
 @dataclass
-#Subclass of KPI reading for LTE specific metrics.
 class LTEKPI(KPIReading):
-    rsrp: float   
-    rsrq: float   
-    rssi: float   
-    sinr: float   
-
-@dataclass
-#Subclass for 5GNR specific metrics.
-class NR5GKPI(KPIReading):
-    ss_rsrp: float 
-    ss_rsrq: float 
-    ss_sinr: float 
-    # Note: QSCAN 5G results often omit RSSI as it's less relevant than SS-metrics
-
-class AveragedKPI:
-    start_time: datetime #start and end time is naive - not realying on time zones
-    end_time: datetime  #also this is a timer for how long to wait before storing - window
-    avg_rssi: float
-    avg_rsrp: float
-    avg_rsrq: float
-    avg_sinr: float
-    pci: int
+    """
+    Instantaneous LTE sample from QENG.
+ 
+    Attributes:
+        earfcn: LTE frequency channel number.
+        rsrp:   Reference Signal Received Power (dBm).
+        rsrq:   Reference Signal Received Quality (dB).
+        rssi:   Received Signal Strength Indicator (dBm).
+        sinr:   Signal to Interference & Noise Ratio (dB).
+ 
+    Note:
+        Any field value > 1000 indicates an invalid/unavailable reading.
+    """
     earfcn: int
-    band: str
+    rsrp:   float
+    rsrq:   float
+    rssi:   float
+    sinr:   float
+ 
+ 
+@dataclass
+class NR5GKPI(KPIReading):
+    """
+    Instantaneous NR5G sample from QENG.
+    RSSI is omitted — not reported in QENG NR5G results.
+ 
+    Attributes:
+        arfcn:   NR5G absolute radio frequency channel number.
+        ss_rsrp: SS-RSRP — Synchronization Signal RSRP (dBm).
+        ss_rsrq: SS-RSRQ — Synchronization Signal RSRQ (dB).
+        ss_sinr: SS-SINR — Synchronization Signal SINR (dB).
+ 
+    Note:
+        Any field value > 1000 indicates an invalid/unavailable reading.
+    """
+    arfcn:   int
+    ss_rsrp: float
+    ss_rsrq: float
+    ss_sinr: float
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Averaged KPI Classes
+# ══════════════════════════════════════════════════════════════════════════════
+ 
+@dataclass
+class AveragedKPI:
+    """
+    Base class for a time-window averaged KPI result.
+ 
+    Attributes:
+        start_time:   Timestamp of the first sample in the window.
+        end_time:     Timestamp of the last sample in the window.
+        rat:          Radio access technology — "LTE" or "NR5G".
+        band:         Raw band number (e.g. 4, 41) — same as instantaneous.
+        pci:          Physical Cell ID shared across the window's samples.
+        sample_count: Number of samples in the window (typically 5).
+    """
+    start_time:   datetime
+    end_time:     datetime
+    rat:          str
+    band:         int
+    pci:          int
+    sample_count: int
+ 
+ 
+@dataclass
+class AveragedLTEKPI(AveragedKPI):
+    """
+    Averaged result for one LTE band window.
+ 
+    KPI fields are None when the majority of that window's
+    samples were invalid — meaning an INVALID_KPI alarm was
+    already sent and no meaningful average could be computed.
+ 
+    Attributes:
+        earfcn:   LTE frequency channel number.
+        avg_rsrp: Mean RSRP (dBm), or None if majority invalid.
+        avg_rsrq: Mean RSRQ (dB),  or None if majority invalid.
+        avg_rssi: Mean RSSI (dBm), or None if majority invalid.
+        avg_sinr: Mean SINR (dB),  or None if majority invalid.
+    """
+    earfcn:   int          = 0
+    avg_rsrp: float | None = None
+    avg_rsrq: float | None = None
+    avg_rssi: float | None = None
+    avg_sinr: float | None = None
+ 
+ 
+@dataclass
+class AveragedNR5GKPI(AveragedKPI):
+    """
+    Averaged result for one NR5G band window.
+    No avg_rssi — RSSI is not reported in QENG NR5G results.
+ 
+    Attributes:
+        arfcn:       NR5G absolute radio frequency channel number.
+        avg_ss_rsrp: Mean SS-RSRP (dBm), or None if majority invalid.
+        avg_ss_rsrq: Mean SS-RSRQ (dB),  or None if majority invalid.
+        avg_ss_sinr: Mean SS-SINR (dB),  or None if majority invalid.
+    """
+    arfcn:       int          = 0
+    avg_ss_rsrp: float | None = None
+    avg_ss_rsrq: float | None = None
+    avg_ss_sinr: float | None = None
 
 class SignalIdentity: #what is expected for the values and compares with incoming modem data
     pci: int

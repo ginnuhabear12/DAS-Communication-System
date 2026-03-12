@@ -1,5 +1,5 @@
 import asyncio
-from pysnmp.hlapi.v3arch.asyncio import (
+from pysnmp.hlapi.asyncio import (
     SnmpEngine,
     CommunityData,
     UdpTransportTarget,
@@ -11,8 +11,8 @@ from pysnmp.hlapi.v3arch.asyncio import (
     sendNotification,
 )
 
-NMS_IP = "10.231.136.163"   # laptop IP for testing - change to company server IP in production
-NMS_PORT = 1162              # change to 162 in production
+NMS_IP = "10.231.136.163"
+NMS_PORT = 1162
 COMMUNITY = "public"
 
 async def send_cellular_alarm(rsrp_value: int, status_msg: str) -> None:
@@ -22,7 +22,7 @@ async def send_cellular_alarm(rsrp_value: int, status_msg: str) -> None:
     errorIndication, errorStatus, errorIndex, varBinds = await sendNotification(
         snmpEngine,
         CommunityData(COMMUNITY, mpModel=1),
-        await UdpTransportTarget.create((NMS_IP, NMS_PORT)),
+        UdpTransportTarget((NMS_IP, NMS_PORT)),
         ContextData(),
         "trap",
         NotificationType(

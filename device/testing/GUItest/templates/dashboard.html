@@ -13,13 +13,6 @@
   <link rel="stylesheet" href="{{ url_for('static', path='css/adminlte.min.css') }}">
 
   <style>
-    .status-badge {
-      font-size: 0.85rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-    }
     .kpi-card {
       border-left: 4px solid;
       transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -39,26 +32,11 @@
       letter-spacing: 0.08em;
       color: #6c757d;
     }
-    .signal-bar-wrap {
-      display: flex;
-      align-items: flex-end;
-      gap: 3px;
-      height: 24px;
-    }
-    .signal-bar {
-      width: 6px;
-      border-radius: 2px;
-      background: #dee2e6;
-    }
-    .signal-bar.active { background: #28a745; }
     .device-info-table td { vertical-align: middle; padding: 6px 10px; }
     .device-info-table td:first-child { color: #6c757d; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; width: 120px; }
     .log-row-warning { background: #fff3cd !important; }
     .log-row-normal { background: #f0fff4 !important; }
     .brand-text { font-size: 1rem; font-weight: 700; letter-spacing: 0.04em; }
-    .info-box-icon { border-radius: 4px 0 0 4px; }
-    .navbar-badge { font-size: 0.6rem; }
-    .sidebar-mini .brand-link { padding: 14px 16px; }
     .alert-banner {
       border-left: 4px solid #17a2b8;
       background: #e8f7fb;
@@ -145,7 +123,6 @@
 
   <!-- Content Wrapper -->
   <div class="content-wrapper">
-    <!-- Page Header -->
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
@@ -162,7 +139,6 @@
       </div>
     </div>
 
-    <!-- Main Content -->
     <section class="content">
       <div class="container-fluid">
 
@@ -270,30 +246,12 @@
               <div class="card-body p-0">
                 <table class="table device-info-table mb-0">
                   <tbody>
-                    <tr>
-                      <td>PCI</td>
-                      <td><strong>{{ data.pci }}</strong></td>
-                    </tr>
-                    <tr>
-                      <td>Band</td>
-                      <td><strong>{{ data.band }}</strong></td>
-                    </tr>
-                    <tr>
-                      <td>EARFCN</td>
-                      <td><strong>{{ data.earfcn }}</strong></td>
-                    </tr>
-                    <tr>
-                      <td>Cell ID</td>
-                      <td><strong>{{ data.cell_id }}</strong></td>
-                    </tr>
-                    <tr>
-                      <td>Site</td>
-                      <td><strong>{{ data.site_name }}</strong></td>
-                    </tr>
-                    <tr>
-                      <td>Device ID</td>
-                      <td><strong>{{ data.device_id }}</strong></td>
-                    </tr>
+                    <tr><td>PCI</td><td><strong>{{ data.pci }}</strong></td></tr>
+                    <tr><td>Band</td><td><strong>{{ data.band }}</strong></td></tr>
+                    <tr><td>EARFCN</td><td><strong>{{ data.earfcn }}</strong></td></tr>
+                    <tr><td>Cell ID</td><td><strong>{{ data.cell_id }}</strong></td></tr>
+                    <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
+                    <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -328,7 +286,7 @@
                       <td>{{ log.rsrp }}</td>
                       <td>{{ log.sinr }}</td>
                       <td>
-                        <span class="badge badge-{{ 'warning' if log.status == 'Warning' else 'success' }}">
+                        <span style="background-color: {{ '#ffc107' if log.status == 'Warning' else '#28a745' }}; color: {{ '#000' if log.status == 'Warning' else '#fff' }}; font-size: 0.82rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; display: inline-block;">
                           {{ log.status }}
                         </span>
                       </td>

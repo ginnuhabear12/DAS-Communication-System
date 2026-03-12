@@ -1,4 +1,4 @@
-
+#eventually downloard requirements.txt so every device has that file
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles

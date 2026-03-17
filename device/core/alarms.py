@@ -9,9 +9,8 @@ Steps (to be built out incrementally):
     3. Average remaining valid values → check against thresholds → SNMP threshold alarm
     4. Populate AveragedKPI objects with results
 """
- 
-from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
 
+from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
 # KPI values below these limits trigger a threshold alarm.
@@ -28,7 +27,7 @@ NR5G_THRESHOLDS = {
     "ss_rsrq": -15.0,
     "ss_sinr": 0.0,
 }
- 
+
 INVALID_SENTINEL = 500  # Values above this are considered invalid
 
 

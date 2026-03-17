@@ -1,7 +1,7 @@
 import socket
 
 LISTEN_IP = "0.0.0.0"
-LISTEN_PORT = 1162
+LISTEN_PORT = 9162
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((LISTEN_IP, LISTEN_PORT))

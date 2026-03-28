@@ -2,13 +2,18 @@
 alarms.py — KPI Window Alarm Processing for DAS Communication System
 ---------------------------------------------------------------------
 Processes a window of 5 SamplingSession instances to evaluate KPI health.
- 
-Steps (to be built out incrementally):
+
+Steps:
     1. Loop through each band index across all 5 sessions
-    2. Check for invalid KPI values (majority > 1000) → SNMP invalid alarm
+    2. Check for invalid KPI values (last 3 > INVALID_SENTINEL) → SNMP invalid alarm
     3. Average remaining valid values → check against thresholds → SNMP threshold alarm
     4. Populate AveragedKPI objects with results
 """
+
+
+from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
+from snmpSend import send_invalid_kpi_alarm, send_threshold_alarm
+
 
 from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
 
@@ -21,7 +26,7 @@ LTE_THRESHOLDS = {
     "rssi": -95.0,
     "sinr": 0.0,
 }
- 
+
 NR5G_THRESHOLDS = {
     "ss_rsrp": -110.0,
     "ss_rsrq": -15.0,
@@ -35,56 +40,53 @@ INVALID_SENTINEL = 500  # Values above this are considered invalid
 def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float | None:
     """
     Evaluate one KPI across a 5-sample window.
- 
+
     Checks if the last 3 values are all invalid (> INVALID_SENTINEL).
-    If so, sends an invalid alarm and returns None.
+    If so, sends an SNMP invalid alarm and returns None.
     If not, averages the valid values, checks against threshold,
-    sends a threshold alarm if needed, and returns the average.
- 
+    sends an SNMP threshold alarm if needed, and returns the average.
+
     Args:
         kpi_name:  Name of the KPI being checked (e.g. "rsrp", "ss_sinr").
         values:    List of 5 float values in chronological order.
         threshold: The minimum acceptable value for this KPI.
         band:      Band number, used in alarm messages.
- 
+
     Returns:
         The averaged float value, or None if the KPI was invalid.
     """
     last_3 = values[2], values[3], values[4]
- 
+
     # ── Step 1: Invalid check ─────────────────────────────────────────────────
     if all(v > INVALID_SENTINEL for v in last_3):
-        print(f"[INVALID] Band {band} | {kpi_name.upper()}: last 3 samples invalid")
-        # TODO: send SNMP invalid KPI alarm
-        #   send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=3)
+        print(f"[INVALID]   Band {band} | {kpi_name.upper()}: last 3 samples invalid")
+        send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=3)
         return None
- 
+
     # ── Step 2: Average valid samples ─────────────────────────────────────────
     valid_values = [v for v in values if v <= INVALID_SENTINEL]
     avg = sum(valid_values) / len(valid_values)
- 
+
     # ── Step 3: Threshold check ───────────────────────────────────────────────
     if avg < threshold:
         print(
             f"[THRESHOLD] Band {band} | {kpi_name.upper()}: "
             f"avg = {avg:.1f}, below threshold ({threshold:.1f})"
         )
-        # TODO: send SNMP threshold alarm
-        #   send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
- 
+        send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
+
     return avg
- 
- 
+
+
 def process_window(sessions: list[SamplingSession]) -> None:
     """
     Process a 5-session KPI window and trigger alarms where necessary.
- 
+
     Args:
         sessions: A list of exactly 5 SamplingSession instances, each
                   containing readings for all configured bands in order.
     """
-    
-    
+
     # ── Print all input values ────────────────────────────────────────────────
     print("── Input Sessions ──────────────────────────────────────")
     for i, session in enumerate(sessions):
@@ -106,29 +108,27 @@ def process_window(sessions: list[SamplingSession]) -> None:
                 )
     print("────────────────────────────────────────────────────────")
     print()
-    
-    
-    
+
     # Number of bands is derived from the first session —
     # all sessions are confirmed to have the same band order and count
     num_bands = len(sessions[0].readings)
- 
+
     for band_index in range(num_bands):
- 
+
         # Collect the reading for this band from each of the 5 sessions
         band_readings = []
         for session in sessions:
             band_readings.append(session.readings[band_index])
- 
+
         # band_readings now holds 5 readings all belonging to the same band,
         # one from each session in chronological order.
         # Grab shared info from the first reading for this band
         first = band_readings[0]
         band  = first.band
- 
+
         # ── LTE ──────────────────────────────────────────────────────────────
         if isinstance(first, LTEKPI):
- 
+
             averaged = AveragedLTEKPI(
                 start_time = sessions[0].session_start,
                 end_time   = sessions[-1].session_start,
@@ -137,7 +137,7 @@ def process_window(sessions: list[SamplingSession]) -> None:
                 pci        = first.pci,
                 earfcn     = first.earfcn,
             )
- 
+
             # Check each KPI in order — results stored directly in averaged object
             averaged.avg_rsrp = check_kpi(
                 "rsrp",
@@ -163,10 +163,10 @@ def process_window(sessions: list[SamplingSession]) -> None:
                 LTE_THRESHOLDS["sinr"],
                 band,
             )
- 
+
         # ── NR5G ─────────────────────────────────────────────────────────────
         elif isinstance(first, NR5GKPI):
- 
+
             averaged = AveragedNR5GKPI(
                 start_time = sessions[0].session_start,
                 end_time   = sessions[-1].session_start,
@@ -175,7 +175,7 @@ def process_window(sessions: list[SamplingSession]) -> None:
                 pci        = first.pci,
                 arfcn      = first.arfcn,
             )
- 
+
             averaged.avg_ss_rsrp = check_kpi(
                 "ss_rsrp",
                 [r.ss_rsrp for r in band_readings],
@@ -194,7 +194,7 @@ def process_window(sessions: list[SamplingSession]) -> None:
                 NR5G_THRESHOLDS["ss_sinr"],
                 band,
             )
- 
+
         # averaged is now fully populated for this band —
         # ready for storage when that logic is implemented
         # TODO: store averaged object

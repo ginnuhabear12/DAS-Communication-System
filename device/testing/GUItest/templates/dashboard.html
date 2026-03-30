@@ -63,7 +63,7 @@
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         <span class="nav-link text-muted" style="font-size:0.8rem;">
-          <i class="far fa-clock mr-1"></i> Last update: {{ data.last_update }}
+          <i class="far fa-clock mr-1"></i> Last update: <span id="last-update">{{ data.last_update }}</span>
         </span>
       </li>
       <li class="nav-item">
@@ -144,52 +144,52 @@
 
         <!-- Alert Banner -->
         <div class="alert-banner mb-3">
-          <i class="fas fa-info-circle mr-2"></i> {{ data.alert_message }}
+          <i class="fas fa-info-circle mr-2"></i> <span id="alert-message">{{ data.alert_message }}</span>
         </div>
 
         <!-- Status Info Boxes -->
         <div class="row">
           <div class="col-md-3 col-sm-6">
             <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.device_status == 'ONLINE' else 'danger' }} elevation-1">
+              <span class="info-box-icon bg-{{ 'success' if data.device_status == 'ONLINE' else 'danger' }} elevation-1" id="icon-device-status">
                 <i class="fas fa-server"></i>
               </span>
               <div class="info-box-content">
                 <span class="info-box-text">Device Status</span>
-                <span class="info-box-number">{{ data.device_status }}</span>
+                <span class="info-box-number" id="device-status">{{ data.device_status }}</span>
               </div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.modem_status == 'CONNECTED' else 'warning' }} elevation-1">
+              <span class="info-box-icon bg-{{ 'success' if data.modem_status == 'CONNECTED' else 'warning' }} elevation-1" id="icon-modem-status">
                 <i class="fas fa-wifi"></i>
               </span>
               <div class="info-box-content">
                 <span class="info-box-text">Modem Status</span>
-                <span class="info-box-number">{{ data.modem_status }}</span>
+                <span class="info-box-number" id="modem-status">{{ data.modem_status }}</span>
               </div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.vpn_status == 'ACTIVE' else 'warning' }} elevation-1">
+              <span class="info-box-icon bg-{{ 'success' if data.vpn_status == 'ACTIVE' else 'warning' }} elevation-1" id="icon-vpn-status">
                 <i class="fas fa-shield-alt"></i>
               </span>
               <div class="info-box-content">
                 <span class="info-box-text">VPN Status</span>
-                <span class="info-box-number">{{ data.vpn_status }}</span>
+                <span class="info-box-number" id="vpn-status">{{ data.vpn_status }}</span>
               </div>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
             <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.snmp_status == 'RUNNING' else 'danger' }} elevation-1">
+              <span class="info-box-icon bg-{{ 'success' if data.snmp_status == 'RUNNING' else 'danger' }} elevation-1" id="icon-snmp-status">
                 <i class="fas fa-network-wired"></i>
               </span>
               <div class="info-box-content">
                 <span class="info-box-text">SNMP Status</span>
-                <span class="info-box-number">{{ data.snmp_status }}</span>
+                <span class="info-box-number" id="snmp-status">{{ data.snmp_status }}</span>
               </div>
             </div>
           </div>
@@ -201,7 +201,7 @@
             <div class="card kpi-card" style="border-left-color:#007bff;">
               <div class="card-body">
                 <div class="kpi-label">RSSI</div>
-                <div class="kpi-value text-primary">{{ data.rssi }}</div>
+                <div class="kpi-value text-primary" id="rssi">{{ data.rssi }}</div>
                 <small class="text-muted">Received Signal Strength</small>
               </div>
             </div>
@@ -210,7 +210,7 @@
             <div class="card kpi-card" style="border-left-color:#28a745;">
               <div class="card-body">
                 <div class="kpi-label">RSRP</div>
-                <div class="kpi-value text-success">{{ data.rsrp }}</div>
+                <div class="kpi-value text-success" id="rsrp">{{ data.rsrp }}</div>
                 <small class="text-muted">Reference Signal Received Power</small>
               </div>
             </div>
@@ -219,7 +219,7 @@
             <div class="card kpi-card" style="border-left-color:#ffc107;">
               <div class="card-body">
                 <div class="kpi-label">RSRQ</div>
-                <div class="kpi-value text-warning">{{ data.rsrq }}</div>
+                <div class="kpi-value text-warning" id="rsrq">{{ data.rsrq }}</div>
                 <small class="text-muted">Reference Signal Received Quality</small>
               </div>
             </div>
@@ -228,7 +228,7 @@
             <div class="card kpi-card" style="border-left-color:#17a2b8;">
               <div class="card-body">
                 <div class="kpi-label">SINR</div>
-                <div class="kpi-value text-info">{{ data.sinr }}</div>
+                <div class="kpi-value text-info" id="sinr">{{ data.sinr }}</div>
                 <small class="text-muted">Signal to Interference + Noise Ratio</small>
               </div>
             </div>
@@ -246,10 +246,10 @@
               <div class="card-body p-0">
                 <table class="table device-info-table mb-0">
                   <tbody>
-                    <tr><td>PCI</td><td><strong>{{ data.pci }}</strong></td></tr>
-                    <tr><td>Band</td><td><strong>{{ data.band }}</strong></td></tr>
-                    <tr><td>EARFCN</td><td><strong>{{ data.earfcn }}</strong></td></tr>
-                    <tr><td>Cell ID</td><td><strong>{{ data.cell_id }}</strong></td></tr>
+                    <tr><td>PCI</td><td><strong id="pci">{{ data.pci }}</strong></td></tr>
+                    <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
+                    <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
+                    <tr><td>Cell ID</td><td><strong id="cell-id">{{ data.cell_id }}</strong></td></tr>
                     <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
                     <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
                   </tbody>
@@ -270,7 +270,7 @@
                 </div>
               </div>
               <div class="card-body p-0">
-                <table class="table table-sm table-hover mb-0">
+                <table class="table table-sm table-hover mb-0" id="kpi-log-table">
                   <thead class="thead-light">
                     <tr>
                       <th>Time</th>
@@ -320,5 +320,99 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE -->
 <script src="{{ url_for('static', path='js/adminlte.min.js') }}"></script>
+
+<script>
+  const STATUS_COLORS = {
+    'device-status': { ONLINE:    'success', _default: 'danger'  },
+    'modem-status':  { CONNECTED: 'success', _default: 'warning' },
+    'vpn-status':    { ACTIVE:    'success', _default: 'warning' },
+    'snmp-status':   { RUNNING:   'success', _default: 'danger'  },
+  };
+
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value ?? '—';
+  }
+
+  function updateStatusBox(fieldId, value) {
+    setText(fieldId, value);
+    const icon = document.getElementById('icon-' + fieldId);
+    if (!icon) return;
+    const map = STATUS_COLORS[fieldId];
+    const colorClass = (map && map[value]) ? map[value] : map._default;
+    // Strip existing bg-* class and apply new one
+    icon.className = icon.className.replace(/\bbg-\w+\b/g, '').trim();
+    icon.classList.add('bg-' + colorClass);
+  }
+
+  function updateLogTable(logs) {
+    const tbody = document.querySelector('#kpi-log-table tbody');
+    if (!tbody || !Array.isArray(logs)) return;
+    tbody.innerHTML = logs.map(log => {
+      const isWarning = log.status === 'Warning';
+      return `
+        <tr class="${isWarning ? 'log-row-warning' : 'log-row-normal'}">
+          <td>${log.time ?? '—'}</td>
+          <td>${log.rsrp ?? '—'}</td>
+          <td>${log.sinr ?? '—'}</td>
+          <td>
+            <span style="
+              background-color: ${isWarning ? '#ffc107' : '#28a745'};
+              color: ${isWarning ? '#000' : '#fff'};
+              font-size: 0.82rem;
+              padding: 3px 12px;
+              border-radius: 20px;
+              font-weight: 600;
+              display: inline-block;">
+              ${log.status ?? '—'}
+            </span>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  async function refreshStatus() {
+    let data;
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) return;
+      data = await res.json();
+    } catch (e) {
+      console.warn('Poll failed:', e);
+      return;
+    }
+
+    // Navbar
+    setText('last-update', data.last_update);
+
+    // Alert banner
+    setText('alert-message', data.alert_message);
+
+    // Status info boxes (text + icon color)
+    updateStatusBox('device-status', data.device_status);
+    updateStatusBox('modem-status',  data.modem_status);
+    updateStatusBox('vpn-status',    data.vpn_status);
+    updateStatusBox('snmp-status',   data.snmp_status);
+
+    // KPI cards
+    setText('rssi', data.rssi);
+    setText('rsrp', data.rsrp);
+    setText('rsrq', data.rsrq);
+    setText('sinr', data.sinr);
+
+    // Cell info table
+    setText('pci',     data.pci);
+    setText('band',    data.band);
+    setText('earfcn',  data.earfcn);
+    setText('cell-id', data.cell_id);
+
+    // Log table rows
+    updateLogTable(data.logs);
+  }
+
+  // Poll every 5 seconds
+  setInterval(refreshStatus, 5000);
+</script>
+
 </body>
 </html>

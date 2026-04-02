@@ -142,58 +142,95 @@
     <section class="content">
       <div class="container-fluid">
 
-        <!-- Alert Banner -->
-        <div class="alert-banner mb-3">
-          <i class="fas fa-info-circle mr-2"></i> <span id="alert-message">{{ data.alert_message }}</span>
+      <!-- Config Card -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card card-warning card-outline">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fas fa-cog mr-2"></i>Device Configuration</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Site Name</label>
+                <input type="text" class="form-control" id="cfg-site-name">
+              </div>
+              <div class="form-group">
+                <label>Device ID</label>
+                <input type="text" class="form-control" id="cfg-device-id">
+              </div>
+              <div class="form-group">
+                <label>Poll Interval (seconds)</label>
+                <input type="number" class="form-control" id="cfg-poll-interval">
+              </div>
+              <div class="form-group">
+                <label>SNMP Host</label>
+                <input type="text" class="form-control" id="cfg-snmp-host">
+              </div>
+              <div class="form-group">
+                <label>SNMP Community</label>
+                <input type="text" class="form-control" id="cfg-snmp-community">
+              </div>
+              <button class="btn btn-warning" onclick="saveConfig()">
+                <i class="fas fa-save mr-1"></i> Save Configuration
+              </button>
+              <span id="cfg-status" class="ml-3 text-muted" style="font-size:0.85rem;"></span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Status Info Boxes -->
-        <div class="row">
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.device_status == 'ONLINE' else 'danger' }} elevation-1" id="icon-device-status">
-                <i class="fas fa-server"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">Device Status</span>
-                <span class="info-box-number" id="device-status">{{ data.device_status }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.modem_status == 'CONNECTED' else 'warning' }} elevation-1" id="icon-modem-status">
-                <i class="fas fa-wifi"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">Modem Status</span>
-                <span class="info-box-number" id="modem-status">{{ data.modem_status }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.vpn_status == 'ACTIVE' else 'warning' }} elevation-1" id="icon-vpn-status">
-                <i class="fas fa-shield-alt"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">VPN Status</span>
-                <span class="info-box-number" id="vpn-status">{{ data.vpn_status }}</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.snmp_status == 'RUNNING' else 'danger' }} elevation-1" id="icon-snmp-status">
-                <i class="fas fa-network-wired"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">SNMP Status</span>
-                <span class="info-box-number" id="snmp-status">{{ data.snmp_status }}</span>
-              </div>
+      <!-- Alert Banner -->
+      <div class="alert-banner mb-3">
+        <i class="fas fa-info-circle mr-2"></i> <span id="alert-message">{{ data.alert_message }}</span>
+      </div>
+
+      <!-- Status Info Boxes -->
+      <div class="row">
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.device_status == 'ONLINE' else 'danger' }} elevation-1" id="icon-device-status">
+              <i class="fas fa-server"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">Device Status</span>
+              <span class="info-box-number" id="device-status">{{ data.device_status }}</span>
             </div>
           </div>
         </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.modem_status == 'CONNECTED' else 'warning' }} elevation-1" id="icon-modem-status">
+              <i class="fas fa-wifi"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">Modem Status</span>
+              <span class="info-box-number" id="modem-status">{{ data.modem_status }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.vpn_status == 'ACTIVE' else 'warning' }} elevation-1" id="icon-vpn-status">
+              <i class="fas fa-shield-alt"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">VPN Status</span>
+              <span class="info-box-number" id="vpn-status">{{ data.vpn_status }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.snmp_status == 'RUNNING' else 'danger' }} elevation-1" id="icon-snmp-status">
+              <i class="fas fa-network-wired"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">SNMP Status</span>
+              <span class="info-box-number" id="snmp-status">{{ data.snmp_status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
         <!-- KPI Cards -->
         <div class="row">
@@ -412,6 +449,52 @@
 
   // Poll every 5 seconds
   setInterval(refreshStatus, 5000);
+
+// Load config into the form when the page loads
+async function loadConfig() {
+    try {
+        const res = await fetch('/api/config');
+        const cfg = await res.json();
+        document.getElementById('cfg-site-name').value      = cfg.site_name      ?? '';
+        document.getElementById('cfg-device-id').value      = cfg.device_id      ?? '';
+        document.getElementById('cfg-poll-interval').value  = cfg.poll_interval  ?? 30;
+        document.getElementById('cfg-snmp-host').value      = cfg.snmp_host      ?? '';
+        document.getElementById('cfg-snmp-community').value = cfg.snmp_community ?? '';
+    } catch (e) {
+        console.warn('Could not load config:', e);
+    }
+}
+
+// Save form values back to config.json on the server
+async function saveConfig() {
+    const config = {
+        site_name:       document.getElementById('cfg-site-name').value,
+        device_id:       document.getElementById('cfg-device-id').value,
+        poll_interval:   parseInt(document.getElementById('cfg-poll-interval').value),
+        snmp_host:       document.getElementById('cfg-snmp-host').value,
+        snmp_community:  document.getElementById('cfg-snmp-community').value,
+    };
+
+    const statusEl = document.getElementById('cfg-status');
+    try {
+        const res = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        const result = await res.json();
+        statusEl.textContent = result.status === 'saved' ? '✓ Saved successfully' : '✗ Save failed';
+        statusEl.style.color = result.status === 'saved' ? 'green' : 'red';
+    } catch (e) {
+        statusEl.textContent = '✗ Error saving config';
+        statusEl.style.color = 'red';
+    }
+}
+
+// Run on page load
+loadConfig();
+
+
 </script>
 
 </body>

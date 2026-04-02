@@ -1,0 +1,7 @@
+{
+    "site_name": "abc",
+    "device_id": "44444",
+    "poll_interval": 3,
+    "snmp_host": "3",
+    "snmp_community": "3"
+}

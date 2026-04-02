@@ -5,8 +5,10 @@ from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 from pathlib import Path
 import asyncio
+import json
 
 BASE_DIR = Path(__file__).resolve().parent
+CONFIG_PATH = BASE_DIR / "config.json"
 
 # Shared in-memory cache — update this dict from your poller
 latest_data = {
@@ -15,20 +17,22 @@ latest_data = {
     # ... all your fields
 }
 
+import json
+
 async def poll_device():
-    """Background loop — replace the body with your real data source."""
     while True:
         try:
-            # Example: SSH into modem, call SNMP, hit a local API, etc.
-            # result = await fetch_modem_stats()
-            latest_data.update({
-                "device_status": "ONLINE",
-                "rsrp": "-95 dBm",
-                "last_update": "...",
-            })
+            with open(BASE_DIR / "device_data.json", "r") as f:
+                fresh = json.load(f)
+            latest_data.update(fresh)
+        except FileNotFoundError:
+            latest_data["alert_message"] = "device_data.json not found"
+        except json.JSONDecodeError:
+            latest_data["alert_message"] = "device_data.json is invalid JSON"
         except Exception as e:
-            latest_data["device_status"] = f"ERROR: {e}"
-        await asyncio.sleep(30)  # poll every 30 seconds
+            latest_data["alert_message"] = f"Error: {e}"
+
+        await asyncio.sleep(5)  # re-reads the file every 5 seconds
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -49,3 +53,22 @@ def dashboard(request: Request):
     return templates.TemplateResponse(
         "dashboard.html", {"request": request, "data": latest_data}
     )
+@app.get("/api/config")
+def get_config():
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            return JSONResponse(json.load(f))
+    except FileNotFoundError:
+        return JSONResponse({"error": "config.json not found"}, status_code=404)
+
+@app.post("/api/config")
+async def save_config(request: Request):
+    try:
+        new_config = await request.json()
+        print("Received config:", new_config)  # <-- add this
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(new_config, f, indent=4)
+        return JSONResponse({"status": "saved"})
+    except Exception as e:
+        print("Error saving config:", e)  # <-- add this
+        return JSONResponse({"error": str(e)}, status_code=500)

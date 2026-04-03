@@ -96,18 +96,7 @@
             <a href="#" class="nav-link active">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>Dashboard</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-line"></i>
-              <p>KPI Trends</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-bell"></i>
-              <p>Alarms</p>
+
             </a>
           </li>
           <li class="nav-item">
@@ -170,6 +159,38 @@
                 <label>SNMP Community</label>
                 <input type="text" class="form-control" id="cfg-snmp-community">
               </div>
+              <div class="form-group">
+                <label>RSSI Threshold (dBm)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-RSSI-threshold-min" placeholder="Min" min="-100" max="100">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-RSSI-threshold-max" placeholder="Max" min="-100" max="100">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>RSRP Threshold (dBm)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-RSRP-threshold-min" placeholder="Min" min="-140" max="-44">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-RSRP-threshold-max" placeholder="Max" min="-140" max="-44">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>RSRQ Threshold (dB)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-RSRQ-threshold-min" placeholder="Min" min="-20" max="0">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-RSRQ-threshold-max" placeholder="Max" min="-20" max="0">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>SINR Threshold (dB)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-SINR-threshold-min" placeholder="Min" min="-20" max="30">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-SINR-threshold-max" placeholder="Max" min="-20" max="30">
+                </div>
+              </div>
               <button class="btn btn-warning" onclick="saveConfig()">
                 <i class="fas fa-save mr-1"></i> Save Configuration
               </button>
@@ -178,6 +199,28 @@
           </div>
         </div>
       </div>
+
+              <!-- Device Info + Log Table -->
+        <div class="row">
+          <!-- Device Info -->
+          <div class="col-md-4">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-broadcast-tower mr-2"></i>Cell Info</h3>
+              </div>
+              <div class="card-body p-0">
+                <table class="table device-info-table mb-0">
+                  <tbody>
+                    <tr><td>PCI</td><td><strong id="pci">{{ data.pci }}</strong></td></tr>
+                    <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
+                    <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
+                    <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
+                    <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
       <!-- Alert Banner -->
       <div class="alert-banner mb-3">
@@ -272,28 +315,7 @@
           </div>
         </div>
 
-        <!-- Device Info + Log Table -->
-        <div class="row">
-          <!-- Device Info -->
-          <div class="col-md-4">
-            <div class="card card-primary card-outline">
-              <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-broadcast-tower mr-2"></i>Cell Info</h3>
-              </div>
-              <div class="card-body p-0">
-                <table class="table device-info-table mb-0">
-                  <tbody>
-                    <tr><td>PCI</td><td><strong id="pci">{{ data.pci }}</strong></td></tr>
-                    <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
-                    <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
-                    <tr><td>Cell ID</td><td><strong id="cell-id">{{ data.cell_id }}</strong></td></tr>
-                    <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
-                    <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+
 
           <!-- Log Table -->
           <div class="col-md-8">
@@ -441,7 +463,8 @@
     setText('pci',     data.pci);
     setText('band',    data.band);
     setText('earfcn',  data.earfcn);
-    setText('cell-id', data.cell_id);
+    setText('site',    data.site_name);
+    
 
     // Log table rows
     updateLogTable(data.logs);
@@ -460,6 +483,10 @@ async function loadConfig() {
         document.getElementById('cfg-poll-interval').value  = cfg.poll_interval  ?? 30;
         document.getElementById('cfg-snmp-host').value      = cfg.snmp_host      ?? '';
         document.getElementById('cfg-snmp-community').value = cfg.snmp_community ?? '';
+        document.getElementById('cfg-RSSI-threshold').value = cfg.rssi_threshold ?? '';
+        document.getElementById('cfg-RSRP-threshold').value = cfg.rsrp_threshold ?? '';
+        document.getElementById('cfg-RSRQ-threshold').value = cfg.rsrq_threshold ?? '';
+        document.getElementById('cfg-SINR-threshold').value = cfg.sinr_threshold ?? '';
     } catch (e) {
         console.warn('Could not load config:', e);
     }
@@ -473,6 +500,14 @@ async function saveConfig() {
         poll_interval:   parseInt(document.getElementById('cfg-poll-interval').value),
         snmp_host:       document.getElementById('cfg-snmp-host').value,
         snmp_community:  document.getElementById('cfg-snmp-community').value,
+        rssi_threshold_min: parseInt(document.getElementById('cfg-RSSI-threshold-min').value),
+        rssi_threshold_max: parseInt(document.getElementById('cfg-RSSI-threshold-max').value),
+        rsrp_threshold_min: parseInt(document.getElementById('cfg-RSRP-threshold-min').value),
+        rsrp_threshold_max: parseInt(document.getElementById('cfg-RSRP-threshold-max').value),
+        rsrq_threshold_min: parseInt(document.getElementById('cfg-RSRQ-threshold-min').value),
+        rsrq_threshold_max: parseInt(document.getElementById('cfg-RSRQ-threshold-max').value),
+        sinr_threshold_min: parseInt(document.getElementById('cfg-SINR-threshold-min').value),
+        sinr_threshold_max: parseInt(document.getElementById('cfg-SINR-threshold-max').value),
     };
 
     const statusEl = document.getElementById('cfg-status');

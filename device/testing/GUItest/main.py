@@ -65,10 +65,10 @@ def get_config():
 async def save_config(request: Request):
     try:
         new_config = await request.json()
-        print("Received config:", new_config)  # <-- add this
+        print("Received config:", new_config)  
         with open(CONFIG_PATH, "w") as f:
             json.dump(new_config, f, indent=4)
         return JSONResponse({"status": "saved"})
     except Exception as e:
-        print("Error saving config:", e)  # <-- add this
+        print("Error saving config:", e) 
         return JSONResponse({"error": str(e)}, status_code=500)

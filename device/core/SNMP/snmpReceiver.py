@@ -26,7 +26,7 @@ from pysnmp.proto.api import v2c
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 LISTEN_IP   = "0.0.0.0"
-LISTEN_PORT = 1162        # Change to 162 in production
+LISTEN_PORT = 162        # Change to 162 in production
 
 # ── Our varbind OIDs (must match snmpSend.py) ─────────────────────────────────
 OID_BAND   = (1, 3, 6, 1, 4, 1, 12345, 2, 1, 0)

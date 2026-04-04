@@ -38,7 +38,7 @@ from pysnmp.hlapi.asyncio import (
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 NMS_IP    = "10.231.136.163"
-NMS_PORT  = 1162               # Change to 162 in production
+NMS_PORT  = 162               # Change to 162 in production
 COMMUNITY = "public"
 
 # ── OID Definitions ───────────────────────────────────────────────────────────

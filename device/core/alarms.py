@@ -10,9 +10,12 @@ Steps:
     4. Populate AveragedKPI objects with results
 """
 
+
 from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
 from snmpSend import send_invalid_kpi_alarm, send_threshold_alarm
 
+
+from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
 # KPI values below these limits trigger a threshold alarm.

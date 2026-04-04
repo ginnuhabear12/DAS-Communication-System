@@ -17,8 +17,12 @@ Varbind OIDs expected (from snmpSend.py):
 import socket
 from datetime import datetime
 
+LISTEN_IP = "0.0.0.0"
+LISTEN_PORT = 9162
+
 from pyasn1.codec.ber import decoder as ber_decoder
 from pysnmp.proto.api import v2c
+
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 LISTEN_IP   = "0.0.0.0"

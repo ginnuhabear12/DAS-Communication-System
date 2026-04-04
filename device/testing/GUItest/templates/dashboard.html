@@ -63,7 +63,7 @@
     <ul class="navbar-nav ml-auto">
       <li class="nav-item">
         <span class="nav-link text-muted" style="font-size:0.8rem;">
-          <i class="far fa-clock mr-1"></i> Last update: {{ data.last_update }}
+          <i class="far fa-clock mr-1"></i> Last update: <span id="last-update">{{ data.last_update }}</span>
         </span>
       </li>
       <li class="nav-item">
@@ -96,18 +96,7 @@
             <a href="#" class="nav-link active">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>Dashboard</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-chart-line"></i>
-              <p>KPI Trends</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-bell"></i>
-              <p>Alarms</p>
+
             </a>
           </li>
           <li class="nav-item">
@@ -142,100 +131,76 @@
     <section class="content">
       <div class="container-fluid">
 
-        <!-- Alert Banner -->
-        <div class="alert-banner mb-3">
-          <i class="fas fa-info-circle mr-2"></i> {{ data.alert_message }}
-        </div>
-
-        <!-- Status Info Boxes -->
-        <div class="row">
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.device_status == 'ONLINE' else 'danger' }} elevation-1">
-                <i class="fas fa-server"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">Device Status</span>
-                <span class="info-box-number">{{ data.device_status }}</span>
-              </div>
+      <!-- Config Card -->
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card card-warning card-outline">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fas fa-cog mr-2"></i>Device Configuration</h3>
             </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.modem_status == 'CONNECTED' else 'warning' }} elevation-1">
-                <i class="fas fa-wifi"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">Modem Status</span>
-                <span class="info-box-number">{{ data.modem_status }}</span>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Site Name</label>
+                <input type="text" class="form-control" id="cfg-site-name">
               </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.vpn_status == 'ACTIVE' else 'warning' }} elevation-1">
-                <i class="fas fa-shield-alt"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">VPN Status</span>
-                <span class="info-box-number">{{ data.vpn_status }}</span>
+              <div class="form-group">
+                <label>Device ID</label>
+                <input type="text" class="form-control" id="cfg-device-id">
               </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-{{ 'success' if data.snmp_status == 'RUNNING' else 'danger' }} elevation-1">
-                <i class="fas fa-network-wired"></i>
-              </span>
-              <div class="info-box-content">
-                <span class="info-box-text">SNMP Status</span>
-                <span class="info-box-number">{{ data.snmp_status }}</span>
+              <div class="form-group">
+                <label>Poll Interval (seconds)</label>
+                <input type="number" class="form-control" id="cfg-poll-interval">
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- KPI Cards -->
-        <div class="row">
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#007bff;">
-              <div class="card-body">
-                <div class="kpi-label">RSSI</div>
-                <div class="kpi-value text-primary">{{ data.rssi }}</div>
-                <small class="text-muted">Received Signal Strength</small>
+              <div class="form-group">
+                <label>SNMP Host</label>
+                <input type="text" class="form-control" id="cfg-snmp-host">
               </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#28a745;">
-              <div class="card-body">
-                <div class="kpi-label">RSRP</div>
-                <div class="kpi-value text-success">{{ data.rsrp }}</div>
-                <small class="text-muted">Reference Signal Received Power</small>
+              <div class="form-group">
+                <label>SNMP Community</label>
+                <input type="text" class="form-control" id="cfg-snmp-community">
               </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#ffc107;">
-              <div class="card-body">
-                <div class="kpi-label">RSRQ</div>
-                <div class="kpi-value text-warning">{{ data.rsrq }}</div>
-                <small class="text-muted">Reference Signal Received Quality</small>
+              <div class="form-group">
+                <label>RSSI Threshold (dBm)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-RSSI-threshold-min" placeholder="Min" min="-100" max="100">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-RSSI-threshold-max" placeholder="Max" min="-100" max="100">
+                </div>
               </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#17a2b8;">
-              <div class="card-body">
-                <div class="kpi-label">SINR</div>
-                <div class="kpi-value text-info">{{ data.sinr }}</div>
-                <small class="text-muted">Signal to Interference + Noise Ratio</small>
+              <div class="form-group">
+                <label>RSRP Threshold (dBm)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-RSRP-threshold-min" placeholder="Min" min="-140" max="-44">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-RSRP-threshold-max" placeholder="Max" min="-140" max="-44">
+                </div>
               </div>
+              <div class="form-group">
+                <label>RSRQ Threshold (dB)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-RSRQ-threshold-min" placeholder="Min" min="-20" max="0">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-RSRQ-threshold-max" placeholder="Max" min="-20" max="0">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>SINR Threshold (dB)</label>
+                <div class="d-flex align-items-center" style="gap:8px;">
+                  <input type="number" class="form-control" id="cfg-SINR-threshold-min" placeholder="Min" min="-20" max="30">
+                  <span class="text-muted">to</span>
+                  <input type="number" class="form-control" id="cfg-SINR-threshold-max" placeholder="Max" min="-20" max="30">
+                </div>
+              </div>
+              <button class="btn btn-warning" onclick="saveConfig()">
+                <i class="fas fa-save mr-1"></i> Save Configuration
+              </button>
+              <span id="cfg-status" class="ml-3 text-muted" style="font-size:0.85rem;"></span>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Device Info + Log Table -->
+              <!-- Device Info + Log Table -->
         <div class="row">
           <!-- Device Info -->
           <div class="col-md-4">
@@ -246,10 +211,9 @@
               <div class="card-body p-0">
                 <table class="table device-info-table mb-0">
                   <tbody>
-                    <tr><td>PCI</td><td><strong>{{ data.pci }}</strong></td></tr>
-                    <tr><td>Band</td><td><strong>{{ data.band }}</strong></td></tr>
-                    <tr><td>EARFCN</td><td><strong>{{ data.earfcn }}</strong></td></tr>
-                    <tr><td>Cell ID</td><td><strong>{{ data.cell_id }}</strong></td></tr>
+                    <tr><td>PCI</td><td><strong id="pci">{{ data.pci }}</strong></td></tr>
+                    <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
+                    <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
                     <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
                     <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
                   </tbody>
@@ -257,6 +221,101 @@
               </div>
             </div>
           </div>
+
+      <!-- Alert Banner -->
+      <div class="alert-banner mb-3">
+        <i class="fas fa-info-circle mr-2"></i> <span id="alert-message">{{ data.alert_message }}</span>
+      </div>
+
+      <!-- Status Info Boxes -->
+      <div class="row">
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.device_status == 'ONLINE' else 'danger' }} elevation-1" id="icon-device-status">
+              <i class="fas fa-server"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">Device Status</span>
+              <span class="info-box-number" id="device-status">{{ data.device_status }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.modem_status == 'CONNECTED' else 'warning' }} elevation-1" id="icon-modem-status">
+              <i class="fas fa-wifi"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">Modem Status</span>
+              <span class="info-box-number" id="modem-status">{{ data.modem_status }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.vpn_status == 'ACTIVE' else 'warning' }} elevation-1" id="icon-vpn-status">
+              <i class="fas fa-shield-alt"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">VPN Status</span>
+              <span class="info-box-number" id="vpn-status">{{ data.vpn_status }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.snmp_status == 'RUNNING' else 'danger' }} elevation-1" id="icon-snmp-status">
+              <i class="fas fa-network-wired"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">SNMP Status</span>
+              <span class="info-box-number" id="snmp-status">{{ data.snmp_status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- KPI Cards -->
+        <div class="row">
+          <div class="col-md-3 col-sm-6">
+            <div class="card kpi-card" style="border-left-color:#007bff;">
+              <div class="card-body">
+                <div class="kpi-label">RSSI</div>
+                <div class="kpi-value text-primary" id="rssi">{{ data.rssi }}</div>
+                <small class="text-muted">Received Signal Strength</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card kpi-card" style="border-left-color:#28a745;">
+              <div class="card-body">
+                <div class="kpi-label">RSRP</div>
+                <div class="kpi-value text-success" id="rsrp">{{ data.rsrp }}</div>
+                <small class="text-muted">Reference Signal Received Power</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card kpi-card" style="border-left-color:#ffc107;">
+              <div class="card-body">
+                <div class="kpi-label">RSRQ</div>
+                <div class="kpi-value text-warning" id="rsrq">{{ data.rsrq }}</div>
+                <small class="text-muted">Reference Signal Received Quality</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card kpi-card" style="border-left-color:#17a2b8;">
+              <div class="card-body">
+                <div class="kpi-label">SINR</div>
+                <div class="kpi-value text-info" id="sinr">{{ data.sinr }}</div>
+                <small class="text-muted">Signal to Interference + Noise Ratio</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
 
           <!-- Log Table -->
           <div class="col-md-8">
@@ -270,7 +329,7 @@
                 </div>
               </div>
               <div class="card-body p-0">
-                <table class="table table-sm table-hover mb-0">
+                <table class="table table-sm table-hover mb-0" id="kpi-log-table">
                   <thead class="thead-light">
                     <tr>
                       <th>Time</th>
@@ -320,5 +379,158 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE -->
 <script src="{{ url_for('static', path='js/adminlte.min.js') }}"></script>
+
+<script>
+  const STATUS_COLORS = {
+    'device-status': { ONLINE:    'success', _default: 'danger'  },
+    'modem-status':  { CONNECTED: 'success', _default: 'warning' },
+    'vpn-status':    { ACTIVE:    'success', _default: 'warning' },
+    'snmp-status':   { RUNNING:   'success', _default: 'danger'  },
+  };
+
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value ?? '—';
+  }
+
+  function updateStatusBox(fieldId, value) {
+    setText(fieldId, value);
+    const icon = document.getElementById('icon-' + fieldId);
+    if (!icon) return;
+    const map = STATUS_COLORS[fieldId];
+    const colorClass = (map && map[value]) ? map[value] : map._default;
+    // Strip existing bg-* class and apply new one
+    icon.className = icon.className.replace(/\bbg-\w+\b/g, '').trim();
+    icon.classList.add('bg-' + colorClass);
+  }
+
+  function updateLogTable(logs) {
+    const tbody = document.querySelector('#kpi-log-table tbody');
+    if (!tbody || !Array.isArray(logs)) return;
+    tbody.innerHTML = logs.map(log => {
+      const isWarning = log.status === 'Warning';
+      return `
+        <tr class="${isWarning ? 'log-row-warning' : 'log-row-normal'}">
+          <td>${log.time ?? '—'}</td>
+          <td>${log.rsrp ?? '—'}</td>
+          <td>${log.sinr ?? '—'}</td>
+          <td>
+            <span style="
+              background-color: ${isWarning ? '#ffc107' : '#28a745'};
+              color: ${isWarning ? '#000' : '#fff'};
+              font-size: 0.82rem;
+              padding: 3px 12px;
+              border-radius: 20px;
+              font-weight: 600;
+              display: inline-block;">
+              ${log.status ?? '—'}
+            </span>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  async function refreshStatus() {
+    let data;
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) return;
+      data = await res.json();
+    } catch (e) {
+      console.warn('Poll failed:', e);
+      return;
+    }
+
+    // Navbar
+    setText('last-update', data.last_update);
+
+    // Alert banner
+    setText('alert-message', data.alert_message);
+
+    // Status info boxes (text + icon color)
+    updateStatusBox('device-status', data.device_status);
+    updateStatusBox('modem-status',  data.modem_status);
+    updateStatusBox('vpn-status',    data.vpn_status);
+    updateStatusBox('snmp-status',   data.snmp_status);
+
+    // KPI cards
+    setText('rssi', data.rssi);
+    setText('rsrp', data.rsrp);
+    setText('rsrq', data.rsrq);
+    setText('sinr', data.sinr);
+
+    // Cell info table
+    setText('pci',     data.pci);
+    setText('band',    data.band);
+    setText('earfcn',  data.earfcn);
+    setText('site',    data.site_name);
+    
+
+    // Log table rows
+    updateLogTable(data.logs);
+  }
+
+  // Poll every 5 seconds
+  setInterval(refreshStatus, 5000);
+
+// Load config into the form when the page loads
+async function loadConfig() {
+    try {
+        const res = await fetch('/api/config');
+        const cfg = await res.json();
+        document.getElementById('cfg-site-name').value      = cfg.site_name      ?? '';
+        document.getElementById('cfg-device-id').value      = cfg.device_id      ?? '';
+        document.getElementById('cfg-poll-interval').value  = cfg.poll_interval  ?? 30;
+        document.getElementById('cfg-snmp-host').value      = cfg.snmp_host      ?? '';
+        document.getElementById('cfg-snmp-community').value = cfg.snmp_community ?? '';
+        document.getElementById('cfg-RSSI-threshold').value = cfg.rssi_threshold ?? '';
+        document.getElementById('cfg-RSRP-threshold').value = cfg.rsrp_threshold ?? '';
+        document.getElementById('cfg-RSRQ-threshold').value = cfg.rsrq_threshold ?? '';
+        document.getElementById('cfg-SINR-threshold').value = cfg.sinr_threshold ?? '';
+    } catch (e) {
+        console.warn('Could not load config:', e);
+    }
+}
+
+// Save form values back to config.json on the server
+async function saveConfig() {
+    const config = {
+        site_name:       document.getElementById('cfg-site-name').value,
+        device_id:       document.getElementById('cfg-device-id').value,
+        poll_interval:   parseInt(document.getElementById('cfg-poll-interval').value),
+        snmp_host:       document.getElementById('cfg-snmp-host').value,
+        snmp_community:  document.getElementById('cfg-snmp-community').value,
+        rssi_threshold_min: parseInt(document.getElementById('cfg-RSSI-threshold-min').value),
+        rssi_threshold_max: parseInt(document.getElementById('cfg-RSSI-threshold-max').value),
+        rsrp_threshold_min: parseInt(document.getElementById('cfg-RSRP-threshold-min').value),
+        rsrp_threshold_max: parseInt(document.getElementById('cfg-RSRP-threshold-max').value),
+        rsrq_threshold_min: parseInt(document.getElementById('cfg-RSRQ-threshold-min').value),
+        rsrq_threshold_max: parseInt(document.getElementById('cfg-RSRQ-threshold-max').value),
+        sinr_threshold_min: parseInt(document.getElementById('cfg-SINR-threshold-min').value),
+        sinr_threshold_max: parseInt(document.getElementById('cfg-SINR-threshold-max').value),
+    };
+
+    const statusEl = document.getElementById('cfg-status');
+    try {
+        const res = await fetch('/api/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+        const result = await res.json();
+        statusEl.textContent = result.status === 'saved' ? '✓ Saved successfully' : '✗ Save failed';
+        statusEl.style.color = result.status === 'saved' ? 'green' : 'red';
+    } catch (e) {
+        statusEl.textContent = '✗ Error saving config';
+        statusEl.style.color = 'red';
+    }
+}
+
+// Run on page load
+loadConfig();
+
+
+</script>
+
 </body>
 </html>

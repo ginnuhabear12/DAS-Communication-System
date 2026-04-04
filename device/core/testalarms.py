@@ -36,7 +36,7 @@ session1 = SamplingSession(
     readings = [
         # Band 4 — LTE — all valid, in range
         LTEKPI(
-            timestamp = t1, rat = "LTE", band = 4, pci = 101,
+            timestamp =t1 , rat = "LTE", band = 4, pci = 101,
             earfcn = 1600, rsrp = -100.0, rsrq = -8.0, rssi = -80.0, sinr = 10.0,
         ),
         # Band 12 — LTE — RSRP valid in first 2 sessions, SINR below threshold
@@ -165,3 +165,5 @@ if __name__ == "__main__":
     print("=" * 60)
     print("Test complete — verify output matches expected alarms above")
     print("=" * 60)
+
+   

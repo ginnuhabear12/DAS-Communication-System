@@ -1,0 +1,22 @@
+{
+    "device_status": "ONLINE",
+    "modem_status": "CONNECTED",
+    "vpn_status": "ACTIVE",
+    "snmp_status": "RUNNING",
+    "rssi": "-80 dBm",
+    "rsrp": "-95 dBm",
+    "rsrq": "-10 dB",
+    "sinr": "18 dB",
+    "pci": "146",
+    "band": "n41",
+    "earfcn": "5230",
+    "site_name": "DAS",
+    "last_update": "2026-03-12 19:10:00",
+    "alert_message": "No active alarms",
+    "logs": [
+        {"time": "19:11", "rsrp": "-94 dBm", "sinr": "19 dB", "status": "Normal"},
+        {"time": "19:02", "rsrp": "-95 dBm", "sinr": "18 dB", "status": "Normal"},
+        {"time": "19:03", "rsrp": "-101 dBm", "sinr": "12 dB", "status": "Warning"},
+        {"time": "19:03", "rsrp": "-101 dBm", "sinr": "12 dB", "status": "Critical"}
+    ]
+}

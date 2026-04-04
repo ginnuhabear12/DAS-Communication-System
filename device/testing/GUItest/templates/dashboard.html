@@ -50,88 +50,35 @@
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
-  <!-- Navbar -->
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="/" class="nav-link">Home</a>
-      </li>
-    </ul>
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item">
-        <span class="nav-link text-muted" style="font-size:0.8rem;">
-          <i class="far fa-clock mr-1"></i> Last update: <span id="last-update">{{ data.last_update }}</span>
-        </span>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-          <i class="fas fa-expand-arrows-alt"></i>
-        </a>
-      </li>
-    </ul>
-  </nav>
-
-  <!-- Sidebar -->
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <a href="/" class="brand-link">
-      <img src="https://adminlte.io/themes/v3/dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity:.8">
-      <span class="brand-text font-weight-light">DAS Monitor</span>
-    </a>
-    <div class="sidebar">
-      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-        <div class="image">
-          <i class="fas fa-broadcast-tower fa-2x ml-1 mt-1 text-white"></i>
+ <!-- Content Wrapper -->
+<div class="content-wrapper">
+  <div class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1 class="m-0" id="page-title">Dashboard <small class="text-muted" style="font-size:0.9rem;">{{ data.device_id }}</small></h1>
         </div>
-        <div class="info">
-          <a href="#" class="d-block">{{ data.site_name }}</a>
-          <small class="text-muted">{{ data.device_id }}</small>
-        </div>
-      </div>
-      <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-          <li class="nav-item">
-            <a href="#" class="nav-link active">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>Dashboard</p>
-
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-cog"></i>
-              <p>Settings</p>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </aside>
-
-  <!-- Content Wrapper -->
-  <div class="content-wrapper">
-    <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">Dashboard <small class="text-muted" style="font-size:0.9rem;">{{ data.device_id }}</small></h1>
-          </div>
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
-          </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item active" id="breadcrumb-active">Dashboard</li>
+          </ol>
         </div>
       </div>
     </div>
+  </div>
 
-    <section class="content">
-      <div class="container-fluid">
+  <!-- ===== SECTION: CONFIG ===== -->
 
-      <!-- Config Card -->
+  <!-- Back to Dashboard Button -->
+  <div class="mb-3">
+    <button class="btn btn-secondary btn-sm" onclick="showSection('dashboard')">
+      <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+    </button>
+  </div>
+
+  <section class="content" id="section-config" style="display:none;">
+    <div class="container-fluid">
       <div class="row">
         <div class="col-md-6">
           <div class="card card-warning card-outline">
@@ -152,12 +99,102 @@
                 <input type="number" class="form-control" id="cfg-poll-interval">
               </div>
               <div class="form-group">
-                <label>SNMP Host</label>
-                <input type="text" class="form-control" id="cfg-snmp-host">
+                <label>IP Address</label>
+                <div class="d-flex align-items-center" style="gap:4px;">
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-1" min="0" max="255" placeholder="0" style="width:70px;">
+                  <span class="text-muted font-weight-bold">.</span>
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-2" min="0" max="255" placeholder="0" style="width:70px;">
+                  <span class="text-muted font-weight-bold">.</span>
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-3" min="0" max="255" placeholder="0" style="width:70px;">
+                  <span class="text-muted font-weight-bold">.</span>
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-4" min="0" max="255" placeholder="0" style="width:70px;">
+                </div>
               </div>
               <div class="form-group">
                 <label>SNMP Community</label>
                 <input type="text" class="form-control" id="cfg-snmp-community">
+              </div>
+              <div class="form-group">
+                <label>RAT (Radio Access Technology)</label>
+                <select class="form-control" id="cfg-rat" onchange="updateRATFields()">
+                  <option value="">-- Select RAT --</option>
+                  <option value="LTE">LTE</option>
+                  <option value="5G">5G NR</option>
+                </select>
+              </div>
+              <!-- LTE Fields -->
+              <div class="form-group" id="rat-lte-fields" style="display:none;">
+                <label>EARFCN</label>
+                <select class="form-control" id="cfg-earfcn">
+                  <option value="">-- Select EARFCN --</option>
+                  <optgroup label="Band 2 (1900 MHz)">
+                    <option value="600">600 – Band 2</option>
+                    <option value="625">625 – Band 2</option>
+                    <option value="650">650 – Band 2</option>
+                  </optgroup>
+                  <optgroup label="Band 4 (AWS-1)">
+                    <option value="1200">1200 – Band 4</option>
+                    <option value="1300">1300 – Band 4</option>
+                    <option value="1400">1400 – Band 4</option>
+                  </optgroup>
+                  <optgroup label="Band 5 (850 MHz)">
+                    <option value="2400">2400 – Band 5</option>
+                    <option value="2450">2450 – Band 5</option>
+                  </optgroup>
+                  <optgroup label="Band 12 (700 MHz)">
+                    <option value="5010">5010 – Band 12</option>
+                    <option value="5050">5050 – Band 12</option>
+                    <option value="5090">5090 – Band 12</option>
+                  </optgroup>
+                  <optgroup label="Band 13 (700 MHz)">
+                    <option value="5180">5180 – Band 13</option>
+                    <option value="5230">5230 – Band 13</option>
+                  </optgroup>
+                  <optgroup label="Band 17 (700 MHz)">
+                    <option value="5730">5730 – Band 17</option>
+                    <option value="5780">5780 – Band 17</option>
+                    <option value="5830">5830 – Band 17</option>
+                  </optgroup>
+                  <optgroup label="Band 66 (AWS-3)">
+                    <option value="66436">66436 – Band 66</option>
+                    <option value="66486">66486 – Band 66</option>
+                    <option value="66536">66536 – Band 66</option>
+                  </optgroup>
+                </select>
+              </div>
+              <!-- 5G Fields -->
+              <div class="form-group" id="rat-5g-fields" style="display:none;">
+                <label>NR Band</label>
+                <select class="form-control" id="cfg-nr-band">
+                  <option value="">-- Select NR Band --</option>
+                  <optgroup label="Sub-6 GHz">
+                    <option value="n2">n2 – 1900 MHz</option>
+                    <option value="n5">n5 – 850 MHz</option>
+                    <option value="n7">n7 – 2600 MHz</option>
+                    <option value="n12">n12 – 700 MHz</option>
+                    <option value="n14">n14 – 758 MHz</option>
+                    <option value="n17">n17 – 700 MHz</option>
+                    <option value="n25">n25 – 1900 MHz</option>
+                    <option value="n30">n30 – 2300 MHz</option>
+                    <option value="n38">n38 – 2600 MHz TDD</option>
+                    <option value="n41">n41 – 2500 MHz</option>
+                    <option value="n48">n48 – CBRS 3.5 GHz</option>
+                    <option value="n66">n66 – AWS-3</option>
+                    <option value="n71">n71 – 600 MHz</option>
+                    <option value="n77">n77 – 3.7 GHz</option>
+                    <option value="n78">n78 – 3.5 GHz</option>
+                  </optgroup>
+                  <optgroup label="mmWave">
+                    <option value="n257">n257 – 28 GHz</option>
+                    <option value="n258">n258 – 26 GHz</option>
+                    <option value="n260">n260 – 39 GHz</option>
+                    <option value="n261">n261 – 28 GHz</option>
+                  </optgroup>
+                </select>
+                <div class="mt-2">
+                  <label>NR-ARFCN <small class="text-muted">(optional)</small></label>
+                  <input type="number" class="form-control" id="cfg-nr-arfcn" placeholder="e.g. 632628">
+                </div>
               </div>
               <div class="form-group">
                 <label>RSSI Threshold (dBm)</label>
@@ -199,32 +236,23 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
 
-              <!-- Device Info + Log Table -->
-        <div class="row">
-          <!-- Device Info -->
-          <div class="col-md-4">
-            <div class="card card-primary card-outline">
-              <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-broadcast-tower mr-2"></i>Cell Info</h3>
-              </div>
-              <div class="card-body p-0">
-                <table class="table device-info-table mb-0">
-                  <tbody>
-                    <tr><td>PCI</td><td><strong id="pci">{{ data.pci }}</strong></td></tr>
-                    <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
-                    <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
-                    <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
-                    <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+  <!-- ===== SECTION: DASHBOARD ===== -->
+  <section class="content" id="section-dashboard" style="display:block;">
+    <div class="container-fluid">
 
       <!-- Alert Banner -->
       <div class="alert-banner mb-3">
         <i class="fas fa-info-circle mr-2"></i> <span id="alert-message">{{ data.alert_message }}</span>
+      </div>
+
+      <!-- Device Configuration Button -->
+      <div class="mb-3 text-right">
+        <button class="btn btn-warning btn-sm" onclick="showSection('config')">
+          <i class="fas fa-cog mr-1"></i> Device Configuration
+        </button>
       </div>
 
       <!-- Status Info Boxes -->
@@ -258,6 +286,8 @@
             </span>
             <div class="info-box-content">
               <span class="info-box-text">VPN Status</span>
+              <span class="info-box-content">
+              <span class="info-box-text">VPN Status</span>
               <span class="info-box-number" id="vpn-status">{{ data.vpn_status }}</span>
             </div>
           </div>
@@ -275,103 +305,125 @@
         </div>
       </div>
 
-        <!-- KPI Cards -->
-        <div class="row">
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#007bff;">
-              <div class="card-body">
-                <div class="kpi-label">RSSI</div>
-                <div class="kpi-value text-primary" id="rssi">{{ data.rssi }}</div>
-                <small class="text-muted">Received Signal Strength</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#28a745;">
-              <div class="card-body">
-                <div class="kpi-label">RSRP</div>
-                <div class="kpi-value text-success" id="rsrp">{{ data.rsrp }}</div>
-                <small class="text-muted">Reference Signal Received Power</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#ffc107;">
-              <div class="card-body">
-                <div class="kpi-label">RSRQ</div>
-                <div class="kpi-value text-warning" id="rsrq">{{ data.rsrq }}</div>
-                <small class="text-muted">Reference Signal Received Quality</small>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <div class="card kpi-card" style="border-left-color:#17a2b8;">
-              <div class="card-body">
-                <div class="kpi-label">SINR</div>
-                <div class="kpi-value text-info" id="sinr">{{ data.sinr }}</div>
-                <small class="text-muted">Signal to Interference + Noise Ratio</small>
-              </div>
+      <!-- KPI Cards -->
+      <div class="row">
+        <div class="col-md-3 col-sm-6">
+          <div class="card kpi-card" style="border-left-color:#007bff;">
+            <div class="card-body">
+              <div class="kpi-label">RSSI</div>
+              <div class="kpi-value text-primary" id="rssi">{{ data.rssi }}</div>
+              <small class="text-muted">Received Signal Strength</small>
             </div>
           </div>
         </div>
-
-
-
-          <!-- Log Table -->
-          <div class="col-md-8">
-            <div class="card card-info card-outline">
-              <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-list-alt mr-2"></i>Recent KPI Log</h3>
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="card-body p-0">
-                <table class="table table-sm table-hover mb-0" id="kpi-log-table">
-                  <thead class="thead-light">
-                    <tr>
-                      <th>Time</th>
-                      <th>RSRP</th>
-                      <th>SINR</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for log in logs %}
-                    <tr class="{{ 'log-row-warning' if log.status == 'Warning' else 'log-row-normal' }}">
-                      <td>{{ log.time }}</td>
-                      <td>{{ log.rsrp }}</td>
-                      <td>{{ log.sinr }}</td>
-                      <td>
-                        <span style="background-color: {{ '#ffc107' if log.status == 'Warning' else '#28a745' }}; color: {{ '#000' if log.status == 'Warning' else '#fff' }}; font-size: 0.82rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; display: inline-block;">
-                          {{ log.status }}
-                        </span>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="card kpi-card" style="border-left-color:#28a745;">
+            <div class="card-body">
+              <div class="kpi-label">RSRP</div>
+              <div class="kpi-value text-success" id="rsrp">{{ data.rsrp }}</div>
+              <small class="text-muted">Reference Signal Received Power</small>
             </div>
           </div>
         </div>
-
+        <div class="col-md-3 col-sm-6">
+          <div class="card kpi-card" style="border-left-color:#ffc107;">
+            <div class="card-body">
+              <div class="kpi-label">RSRQ</div>
+              <div class="kpi-value text-warning" id="rsrq">{{ data.rsrq }}</div>
+              <small class="text-muted">Reference Signal Received Quality</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="card kpi-card" style="border-left-color:#17a2b8;">
+            <div class="card-body">
+              <div class="kpi-label">SINR</div>
+              <div class="kpi-value text-info" id="sinr">{{ data.sinr }}</div>
+              <small class="text-muted">Signal to Interference + Noise Ratio</small>
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
-  </div>
 
-  <!-- Footer -->
-  <footer class="main-footer">
-    <strong>DAS Monitoring System &copy; 2026</strong>
-    <div class="float-right d-none d-sm-inline-block">
-      <b>Device:</b> {{ data.device_id }} &nbsp;|&nbsp;
-      <b>Site:</b> {{ data.site_name }}
+      <!-- Device Info + Log Table -->
+      <div class="row">
+        <!-- Cell Info -->
+        <div class="col-md-4">
+          <div class="card card-primary card-outline">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fas fa-broadcast-tower mr-2"></i>Cell Info</h3>
+            </div>
+            <div class="card-body p-0">
+              <table class="table device-info-table mb-0">
+                <tbody>
+                  <tr><td>PCI</td><td><strong id="pci">{{ data.pci }}</strong></td></tr>
+                  <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
+                  <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
+                  <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
+                  <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- Log Table -->
+        <div class="col-md-8">
+          <div class="card card-info card-outline">
+            <div class="card-header">
+              <h3 class="card-title"><i class="fas fa-list-alt mr-2"></i>Recent KPI Log</h3>
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                  <i class="fas fa-minus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <table class="table table-sm table-hover mb-0" id="kpi-log-table">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Time</th>
+                    <th>RSRP</th>
+                    <th>SINR</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for log in logs %}
+                  <tr class="{{ 'log-row-warning' if log.status == 'Warning' else 'log-row-normal' }}">
+                    <td>{{ log.time }}</td>
+                    <td>{{ log.rsrp }}</td>
+                    <td>{{ log.sinr }}</td>
+                    <td>
+                      <span style="background-color: {{ '#ffc107' if log.status == 'Warning' else '#28a745' }}; color: {{ '#000' if log.status == 'Warning' else '#fff' }}; font-size: 0.82rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; display: inline-block;">
+                        {{ log.status }}
+                      </span>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-  </footer>
+  </section>
 
 </div>
+
+<!-- Footer -->
+<footer class="main-footer">
+  <strong>DAS Monitoring System &copy; 2026</strong>
+  <div class="float-right d-none d-sm-inline-block">
+    <b>Device:</b> {{ data.device_id }} &nbsp;|&nbsp;
+    <b>Site:</b> {{ data.site_name }}
+  </div>
+</footer>
+
+
+
+
 
 <!-- jQuery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -381,6 +433,25 @@
 <script src="{{ url_for('static', path='js/adminlte.min.js') }}"></script>
 
 <script>
+  function showSection(name) {
+    document.getElementById('section-dashboard').style.display = name === 'dashboard' ? 'block' : 'none';
+    document.getElementById('section-config').style.display    = name === 'config'    ? 'block' : 'none';
+
+    document.getElementById('page-title').innerHTML =
+      name === 'dashboard'
+        ? 'Dashboard <small class="text-muted" style="font-size:0.9rem;">{{ data.device_id }}</small>'
+        : 'Device Configuration';
+
+    document.getElementById('breadcrumb-active').textContent =
+      name === 'dashboard' ? 'Dashboard' : 'Settings';
+
+    const navDash = document.getElementById('nav-dashboard');
+    const navCfg  = document.getElementById('nav-config');
+    if (navDash) navDash.classList.toggle('active', name === 'dashboard');
+    if (navCfg)  navCfg.classList.toggle('active', name === 'config');
+  }
+
+
   const STATUS_COLORS = {
     'device-status': { ONLINE:    'success', _default: 'danger'  },
     'modem-status':  { CONNECTED: 'success', _default: 'warning' },
@@ -473,6 +544,14 @@
   // Poll every 5 seconds
   setInterval(refreshStatus, 5000);
 
+
+// for RAT - function controls which fields are shown or hidden based on what the user picks in the RAT dropdown.
+function updateRATFields() {  // this line is called every time the dropdown changes via onchange="updateRATFields()"
+  const rat = document.getElementById('cfg-rat').value;  //Reads whatever the user currently has selected in the RAT dropdown
+  document.getElementById('rat-lte-fields').style.display = rat === 'LTE' ? 'block' : 'none';   //if read LTE meanu drops down, if not hide it 
+  document.getElementById('rat-5g-fields').style.display  = rat === '5G'  ? 'block' : 'none';
+}
+
 // Load config into the form when the page loads
 async function loadConfig() {
     try {
@@ -481,8 +560,22 @@ async function loadConfig() {
         document.getElementById('cfg-site-name').value      = cfg.site_name      ?? '';
         document.getElementById('cfg-device-id').value      = cfg.device_id      ?? '';
         document.getElementById('cfg-poll-interval').value  = cfg.poll_interval  ?? 30;
-        document.getElementById('cfg-snmp-host').value      = cfg.snmp_host      ?? '';
+        const octets = (cfg.snmp_host ?? '0.0.0.0').split('.');
+        document.getElementById('cfg-snmp-host-1').value = octets[0] ?? 0;
+        document.getElementById('cfg-snmp-host-2').value = octets[1] ?? 0;
+        document.getElementById('cfg-snmp-host-3').value = octets[2] ?? 0;
+        document.getElementById('cfg-snmp-host-4').value = octets[3] ?? 0;
         document.getElementById('cfg-snmp-community').value = cfg.snmp_community ?? '';
+        const rat = cfg.rat ?? '';
+        document.getElementById('cfg-rat').value = rat;
+        updateRATFields();  // show/hide correct fields first
+
+        if (rat === 'LTE') {
+            document.getElementById('cfg-earfcn').value   = cfg.earfcn   ?? '';
+        } else if (rat === '5G') {
+            document.getElementById('cfg-nr-band').value  = cfg.nr_band  ?? '';
+            document.getElementById('cfg-nr-arfcn').value = cfg.nr_arfcn ?? '';
+        }
         document.getElementById('cfg-RSSI-threshold').value = cfg.rssi_threshold ?? '';
         document.getElementById('cfg-RSRP-threshold').value = cfg.rsrp_threshold ?? '';
         document.getElementById('cfg-RSRQ-threshold').value = cfg.rsrq_threshold ?? '';
@@ -498,8 +591,20 @@ async function saveConfig() {
         site_name:       document.getElementById('cfg-site-name').value,
         device_id:       document.getElementById('cfg-device-id').value,
         poll_interval:   parseInt(document.getElementById('cfg-poll-interval').value),
-        snmp_host:       document.getElementById('cfg-snmp-host').value,
+        snmp_host: [
+            document.getElementById('cfg-snmp-host-1').value || '0',
+            document.getElementById('cfg-snmp-host-2').value || '0',
+            document.getElementById('cfg-snmp-host-3').value || '0',
+            document.getElementById('cfg-snmp-host-4').value || '0'
+        ].join('.'),
         snmp_community:  document.getElementById('cfg-snmp-community').value,
+        rat:      document.getElementById('cfg-rat').value,
+        earfcn:   document.getElementById('cfg-rat').value === 'LTE' 
+                    ? document.getElementById('cfg-earfcn').value   : null,
+        nr_band:  document.getElementById('cfg-rat').value === '5G'  
+                    ? document.getElementById('cfg-nr-band').value  : null,
+        nr_arfcn: document.getElementById('cfg-rat').value === '5G'  
+                    ? parseInt(document.getElementById('cfg-nr-arfcn').value) || null : null,
         rssi_threshold_min: parseInt(document.getElementById('cfg-RSSI-threshold-min').value),
         rssi_threshold_max: parseInt(document.getElementById('cfg-RSSI-threshold-max').value),
         rsrp_threshold_min: parseInt(document.getElementById('cfg-RSRP-threshold-min').value),
@@ -509,6 +614,27 @@ async function saveConfig() {
         sinr_threshold_min: parseInt(document.getElementById('cfg-SINR-threshold-min').value),
         sinr_threshold_max: parseInt(document.getElementById('cfg-SINR-threshold-max').value),
     };
+
+    function showSection(name) {
+      document.getElementById('section-dashboard').style.display = name === 'dashboard' ? 'block' : 'none';
+      document.getElementById('section-config').style.display    = name === 'config'    ? 'block' : 'none';
+
+      // Update page title
+      document.getElementById('page-title').innerHTML =
+        name === 'dashboard'
+          ? 'Dashboard <small class="text-muted" style="font-size:0.9rem;">{{ data.device_id }}</small>'
+          : 'Device Configuration';
+
+      // Update breadcrumb
+      document.getElementById('breadcrumb-active').textContent =
+        name === 'dashboard' ? 'Dashboard' : 'Settings';
+
+      // Update sidebar active state (if sidebar is present)
+      const navDash = document.getElementById('nav-dashboard');
+      const navCfg  = document.getElementById('nav-config');
+      if (navDash) navDash.classList.toggle('active', name === 'dashboard');
+      if (navCfg)  navCfg.classList.toggle('active', name === 'config');
+    }
 
     const statusEl = document.getElementById('cfg-status');
     try {
@@ -524,6 +650,22 @@ async function saveConfig() {
         statusEl.textContent = '✗ Error saving config';
         statusEl.style.color = 'red';
     }
+
+    function showSection(name) {
+  // Show/hide sections
+      document.getElementById('section-dashboard').style.display = name === 'dashboard' ? 'block' : 'none';
+      document.getElementById('section-config').style.display    = name === 'config'    ? 'block' : 'none';
+
+      // Update active state on sidebar links
+      document.getElementById('nav-dashboard').classList.toggle('active', name === 'dashboard');
+      document.getElementById('nav-config').classList.toggle('active', name === 'config');
+
+      // Also update the page header
+      document.querySelector('.content-header h1').innerHTML =
+        name === 'dashboard'
+          ? 'Dashboard <small class="text-muted" style="font-size:0.9rem;">{{ data.device_id }}</small>'
+          : 'Device Configuration';
+  }
 }
 
 // Run on page load

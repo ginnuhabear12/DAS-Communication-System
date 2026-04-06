@@ -27,6 +27,8 @@ GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/core/device_data_test
 MAX_DAYS = 7
 
 
+
+
 def _averaged_to_dict(avg) -> dict:
     """
     Converts an AveragedLTEKPI or AveragedNR5GKPI object into a dictionary

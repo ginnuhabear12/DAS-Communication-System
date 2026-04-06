@@ -112,6 +112,7 @@ def process_window(sessions: list[SamplingSession]) -> None:
     # Number of bands is derived from the first session —
     # all sessions are confirmed to have the same band order and count
     num_bands = len(sessions[0].readings)
+    averaged_results = []  # Collect each band's averaged result before file operations
 
     for band_index in range(num_bands):
 
@@ -197,4 +198,6 @@ def process_window(sessions: list[SamplingSession]) -> None:
 
         # averaged is now fully populated for this band —
         # ready for storage when that logic is implemented
-        # TODO: store averaged object
+        
+        # Append completed averaged object — prevents overwrite on next band iteration
+        averaged_results.append(averaged)

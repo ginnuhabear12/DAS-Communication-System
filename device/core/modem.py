@@ -38,8 +38,7 @@ def at_command_comms(command, timeout):
             new_data = ser.read(ser.in_waiting).decode('utf-8', errors='ignore')
             full_response += new_data
             
-            # end="" is to be able to read the incoming data in an organized way even if the incoming data comes in spurts
-            print(new_data, end="")
+          
             
             # Stop ONLY when we see the final status from the modem
             if "OK" in full_response or "ERROR" in full_response:

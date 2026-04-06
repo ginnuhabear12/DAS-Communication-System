@@ -1,0 +1,11 @@
+{
+    "device_status": "ONLINE",
+    "modem_status": "CONNECTED",
+    "vpn_status": "ACTIVE",
+    "snmp_status": "RUNNING",
+    "site_name": "DAS",
+    "last_update": "",
+    "alert_message": "No active alarms",
+    "bands": [],
+    "logs": []
+}

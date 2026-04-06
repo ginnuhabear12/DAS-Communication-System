@@ -11,7 +11,7 @@ Author: Ginna
 SAMPLES_PER_SESSION = 5 #change
 SAMPLE_INTERVAL_SECONDS = 60
 AVERAGING_WINDOW_SECONDS = 300  # 5 minutes
-
+BANDS = []
 
 #RF Valid Ranges
 MIN_VALID_RSRP = -150
@@ -72,6 +72,8 @@ AT_CMD_FULL_FUNCTIONALITY = 'AT+CFUN=1'
 AT_CMD_ALL_CELL_INFO = 'AT+QSCAN=3' #Will likely not use this in full code
 AT_CMD_5G_BAND_CONFIG = 'AT+QNWPREFCFG="nr5g_band",' #When using this for the KPI collection, we will have to add the band # at the end of this to set bands
 AT_CMD_LTE_BAND_CONFIG = 'AT+QNWPREFCFG="lte_band",' #When using this for the KPI collection, we will have to add the band # at the end of this to set bands
+AT_CMD_COPS_AUTO       = 'AT+COPS=0'   # Auto mode — modem registers on best available (needed for NR5G)
+AT_CMD_COPS_DEREGISTER = 'AT+COPS=2'   # Manual/deregister — needed before switching to LTE-only bands
 
 #System Timing Constants
 VPN_RETRY_INTERVAL = 30

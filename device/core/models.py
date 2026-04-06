@@ -1,8 +1,6 @@
 """
 Module: models/core.py
 Purpose: Defines all objects in the system and set parameters - runtime data
-Dependencies: ALL
-Author: Ginna
 
 """
 

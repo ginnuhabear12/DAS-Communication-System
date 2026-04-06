@@ -32,8 +32,6 @@ def at_command_comms(command, timeout):
             new_data = ser.read(ser.in_waiting).decode('utf-8', errors='ignore')
             full_response += new_data
             
-            # end="" is to be able to read the incoming data in an organized way even if the incoming data comes in spurts
-            print(new_data, end="")
             
             # Stop ONLY when we see the final status from the modem
             if "OK" in full_response or "ERROR" in full_response:
@@ -55,6 +53,10 @@ def at_command_comms(command, timeout):
 
 def main():
     # 1. Power on full functionality
+    at_command_comms('AT+QESIM="lpa_enable",1', 2)
+    at_command_comms('AT+QESIM="eid"', 2)
+
+    time.sleep(1)
     at_command_comms("AT+CFUN=1", 2)
     time.sleep(10)
     at_command_comms("AT+COPS=2", 180)

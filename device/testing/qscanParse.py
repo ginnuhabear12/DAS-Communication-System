@@ -133,7 +133,7 @@ import serial
 import time
 from atCommandExample import at_command_comms
 
-bands = ['n2', 'n41', 'b2', 'b5', 'b12', 'b66']
+bands = ['n2', 'b2', 'b5', 'b12', 'b66']
 at_command_comms("AT+CFUN=1", 15)
 time.sleep(10)
 at_command_comms('AT+QNWPREFCFG="mode_pref",AUTO', 3)
@@ -143,7 +143,7 @@ lteBand = []
 
 
 for band in bands:
-     band.strip()
+     band = band.strip()
      if band.startswith('b'):
           lteBand.append(band)
      elif band.startswith('n'):

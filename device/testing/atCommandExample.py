@@ -65,6 +65,7 @@ def main():
     # This can take 30-60 seconds, so we set a long timeout
     
     results = at_command_comms("AT+QSCAN=3", 60)
+    print(results)
     
     print("\n--- Scan Complete ---")
 

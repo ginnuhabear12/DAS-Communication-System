@@ -1,0 +1,38 @@
+{
+    "date": "20260407",
+    "entries": [
+        {
+            "start_time": "17:59:57",
+            "end_time": "17:59:57",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 12,
+                    "pci": 100
+                }
+            ]
+        },
+        {
+            "start_time": "18:02:08",
+            "end_time": "18:02:08",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 12,
+                    "pci": 100
+                }
+            ]
+        },
+        {
+            "start_time": "18:12:02",
+            "end_time": "18:12:02",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 12,
+                    "pci": 100
+                }
+            ]
+        }
+    ]
+}

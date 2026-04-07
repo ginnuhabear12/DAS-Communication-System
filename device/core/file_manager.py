@@ -15,7 +15,7 @@ from models import AveragedLTEKPI, AveragedNR5GKPI
 
 # ── File Paths ────────────────────────────────────────────────────────────────
 # Directory where daily KPI files are stored on the microSD
-KPI_DIR = "/home/das/DAS-Communication-System/device/core/kpi_data.json"
+KPI_DIR = "/home/das/DAS-Communication-System/device/core/kpi_data"
 
 # Path to the JSON file that feeds the live GUI
 # SUBJECT TO CHANGE — this is a test file, final path to be confirmed with partner
@@ -95,9 +95,13 @@ def update_gui_json(averaged_results: list) -> None:
             "logs":          []
         }
 
+    if not averaged_results: # safety check — if we have no results, we shouldn't update the GUI with empty data
+        return
     # Update only the fields that change every window
     data["last_update"] = averaged_results[0].end_time.strftime("%Y-%m-%d %H:%M:%S")
     data["bands"]       = [_averaged_to_dict(avg) for avg in averaged_results]
+
+   
 
     # Write the updated data back to the file
     with open(GUI_JSON_PATH, "w") as f:
@@ -126,11 +130,11 @@ def append_to_daily_file(averaged_results: list) -> None:
     # exist_ok=True means it won't throw an error if it already exists
     os.makedirs(KPI_DIR, exist_ok=True)
 
-    # Build today's filename using ISO date format (e.g. kpi_2026-04-05.json)
+    # Build today's filename using ISO date format (e.g. 2026-04-05_kpi.json)
     # ISO format is important — it ensures files sort correctly by date
     # when we need to find and delete the oldest one
-    today    = date.today().isoformat()
-    filepath = os.path.join(KPI_DIR, f"kpi_{today}.json")
+    today    = date.today().strftime("%Y%m%d")
+    filepath = os.path.join(KPI_DIR, f"{today}_kpi.json")
 
     # Check if today's file already exists
     # This single check covers both the "new day" and "fresh boot" scenarios —
@@ -178,3 +182,22 @@ def append_to_daily_file(averaged_results: list) -> None:
     if len(files) > MAX_DAYS:
         os.remove(files[0])
         print(f"[CLEANUP] Removed oldest KPI file: {files[0]}")
+
+if __name__ == "__main__":
+    print("script started")
+    class Dummy:
+        rat = "LTE"
+        band = 12
+        pci = 100
+        earfcn = 5035
+        avg_rssi = -70
+        avg_rsrp = -95
+        avg_rsrq = -10
+        avg_sinr = 5
+        avg_ss_rsrp = 7
+        start_time = end_time = __import__("datetime").datetime.now()
+
+    avg = Dummy()
+
+    update_gui_json([avg])
+    append_to_daily_file([avg])

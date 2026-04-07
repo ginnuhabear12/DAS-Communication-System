@@ -4,8 +4,14 @@
     "vpn_status": "ACTIVE",
     "snmp_status": "RUNNING",
     "site_name": "DAS",
-    "last_update": "",
+    "last_update": "2026-04-07 18:12:02",
     "alert_message": "No active alarms",
-    "bands": [],
+    "bands": [
+        {
+            "rat": "LTE",
+            "band": 12,
+            "pci": 100
+        }
+    ],
     "logs": []
 }

@@ -15,7 +15,7 @@ from models import AveragedLTEKPI, AveragedNR5GKPI
 
 # ── File Paths ────────────────────────────────────────────────────────────────
 # Directory where daily KPI files are stored on the microSD
-KPI_DIR = "/home/das/kpi_data"
+KPI_DIR = "/home/das/DAS-Communication-System/device/core/kpi_data.json"
 
 # Path to the JSON file that feeds the live GUI
 # SUBJECT TO CHANGE — this is a test file, final path to be confirmed with partner
@@ -26,15 +26,12 @@ GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/core/device_data_test
 # Maximum number of daily KPI files to keep before deleting the oldest
 MAX_DAYS = 7
 
-
-
-
 def _averaged_to_dict(avg) -> dict:
     """
     Converts an AveragedLTEKPI or AveragedNR5GKPI object into a dictionary
     that matches the structure of device_data_test.json for GUI display.
     None values (invalid KPIs) are preserved as null in the JSON file.
-    
+
     SUBJECT TO CHANGE — field names and structure should be confirmed 
     with partner once GUI multi-band support is implemented.
     """
@@ -107,8 +104,6 @@ def update_gui_json(averaged_results: list) -> None:
         json.dump(data, f, indent=4)
 
     print(f"[FILE] GUI JSON updated at {data['last_update']}")
-
-
 
 
 def append_to_daily_file(averaged_results: list) -> None:

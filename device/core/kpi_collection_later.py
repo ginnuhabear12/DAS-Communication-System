@@ -8,6 +8,7 @@ Author:
 
 from datetime import datetime
 from models import LTEKPI, NR5GKPI, SamplingSession
+from constants import AT_CMD_5G_BAND_CONFIG, AT_CMD_LTE_BAND_CONFIG, AT_CMD_SERVING_CELL
 from modem import at_command_comms
 import time
 
@@ -60,13 +61,17 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
         parts = []
         for item in raw_list:
             item = item.strip()
+            if item == '-':
+                print(f"[PARSER] Band {band}: '-' value encountered — substituting sentinel 9999.")
+                parts.append(9999)
+                continue
             try:
                 parts.append(int(item))
             except ValueError:
                 try:
                     parts.append(float(item))
                 except ValueError:
-                    parts.append(item)   # keep as string e.g. "LTE", "FDD", "-"
+                    parts.append(item)  # keep as string e.g. "LTE", "FDD"
 
         # After stripping +QENG: and quotes, the fields line up as:
         # [0]=servingcell, [1]=state, [2]=RAT, [3]=duplex,
@@ -278,4 +283,92 @@ def instKPIcollection(nr5g_bands, lte_bands):
             print(f"[NR5G] Band {band}: configuration failed — {e}")
             readings.append(dummy_kpi)
             continue
+<<<<<<< HEAD:device/core/kpi_collection.py
         
+=======
+
+    # ── LTE Band Loop ─────────────────────────────────────────────────────────────
+    # Detach from network before LTE loop so the modem can be directed
+    # to specific LTE bands without NR5G interference.
+    print("[SESSION] Sending AT+COPS=2 — detaching for LTE band scanning...")
+    send_at_command_with_retry('AT+COPS=2', 180)
+    print("Waiting 10 seconds after mode switch")
+    time.sleep(10)
+
+    for band in lte_bands:
+
+        # Extract the numeric part of the band string (e.g. 'b2' → '2')
+        band_num = band[1:]
+
+        # Initialize a dummy LTEKPI with sentinel values (9999).
+        # This is appended if band configuration fails or no cell is found.
+        dummy_kpi = LTEKPI(
+            timestamp = datetime.now(),
+            rat       = "LTE",
+            band      = int(band_num),
+            pci       = 9999,
+            earfcn    = 9999,
+            rsrp      = 9999,
+            rsrq      = 9999,
+            rssi      = 9999,
+            sinr      = 9999,
+        )
+
+        try:
+            # Configure the modem to search on this specific LTE band.
+            print(f"[LTE] Configuring band {band}...")
+            send_at_command_with_retry(AT_CMD_LTE_BAND_CONFIG + band_num, 0.3)
+
+            # Wait 2 seconds for the modem to complete its cell search
+            # on the newly configured band before querying serving cell info.
+            time.sleep(2)
+
+            # ── Serving Cell Query with Retry ─────────────────────────────────
+            # SEARCH is a transient state — the modem may still be scanning.
+            # We try up to 3 times with a 1 second wait between each attempt.
+            kpi = None
+            for attempt in range(3):
+                raw_response = send_at_command_with_retry(AT_CMD_SERVING_CELL, 0.3)
+                kpi = parse_serving_cell(raw_response, band)
+
+                if kpi is not None:
+                    # Valid reading received — no need to retry
+                    break
+
+                print(f"[LTE] Band {band}: SEARCH on attempt {attempt + 1}/3 — waiting 1s...")
+                time.sleep(1)
+
+            # Band verification — confirms the returned KPI actually belongs
+            # to the band we configured. If the modem returned a different band,
+            # we treat it as no valid reading.
+            if kpi is not None and kpi.band != int(band_num):
+                print(f"[LTE] Band {band}: returned wrong band (got band={kpi.band}) — storing dummy.")
+                kpi = None
+
+            # If all 3 attempts returned None, the band is genuinely
+            # unavailable — append the dummy KPI initialized at the top.
+            if kpi is None:
+                print(f"[LTE] Band {band}: no cell found after 3 attempts — storing dummy KPI.")
+                readings.append(dummy_kpi)
+            else:
+                print(f"[LTE] Band {band}: collected — RSRP={kpi.rsrp}, RSRQ={kpi.rsrq}, SINR={kpi.sinr}")
+                readings.append(kpi)
+
+        except Exception as e:
+            # Band configuration failed after all retries.
+            # Log the failure, append the dummy KPI to preserve index
+            # alignment across all 5 sessions, and move to the next band.
+            print(f"[LTE] Band {band}: configuration failed — {e}")
+            readings.append(dummy_kpi)
+            continue
+
+    # ── Post-LTE Reset ────────────────────────────────────────────────────────
+    # Reset modem to auto-registration for NR5G on the next session.
+    # Skipped entirely if no NR5G bands are configured — avoids an
+    # unnecessary AT+COPS=0 and 10 second cooldown for LTE-only setups.
+    if nr5g_bands:
+        print("[SESSION] Sending AT+COPS=0 — resetting modem for next session NR5G...")
+        send_at_command_with_retry('AT+COPS=0', 180)
+        print("[SESSION] Waiting 10 seconds after mode switch...")
+        time.sleep(10)
+>>>>>>> 561f10e9f3ef808da769a3be69ec32381f1b96b4:device/core/kpi_collection_later.py

@@ -20,18 +20,6 @@ from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI,
 # ── Thresholds ────────────────────────────────────────────────────────────────
 # KPI values below these limits trigger a threshold alarm.
 # Adjust per deployment requirements.
-LTE_THRESHOLDS = {
-    "rsrp": -110.0,
-    "rsrq": -15.0,
-    "rssi": -95.0,
-    "sinr": 0.0,
-}
-
-NR5G_THRESHOLDS = {
-    "ss_rsrp": -110.0,
-    "ss_rsrq": -15.0,
-    "ss_sinr": 0.0,
-}
 
 INVALID_SENTINEL = 500  # Values above this are considered invalid
 
@@ -60,7 +48,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     # ── Step 1: Invalid check ─────────────────────────────────────────────────
     if all(v > INVALID_SENTINEL for v in last_3):
         print(f"[INVALID]   Band {band} | {kpi_name.upper()}: last 3 samples invalid")
-        send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=3)
+        #send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=3)
         return None
 
     # ── Step 2: Average valid samples ─────────────────────────────────────────
@@ -73,12 +61,12 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
             f"[THRESHOLD] Band {band} | {kpi_name.upper()}: "
             f"avg = {avg:.1f}, below threshold ({threshold:.1f})"
         )
-        send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
+        #send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
 
     return avg
 
 
-def process_window(sessions: list[SamplingSession]) -> None:
+def process_window(sessions: list[SamplingSession], lte_thresholds: dict, nr5g_thresholds: dict) -> list:
     """
     Process a 5-session KPI window and trigger alarms where necessary.
 
@@ -201,5 +189,11 @@ def process_window(sessions: list[SamplingSession]) -> None:
         
         # Append completed averaged object — prevents overwrite on next band iteration
         averaged_results.append(averaged)
+<<<<<<< HEAD
     print("hey",averaged_results)
           # For debugging — shows the final averaged object for this band
+=======
+
+    # Return averaged results to the main script for file writing
+    return averaged_results
+>>>>>>> 561f10e9f3ef808da769a3be69ec32381f1b96b4

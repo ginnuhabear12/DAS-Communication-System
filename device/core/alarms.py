@@ -66,7 +66,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     return avg
 
 
-def process_window(sessions: list[SamplingSession], lte_thresholds: dict, nr5g_thresholds: dict) -> list:
+def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_THRESHOLDS: dict) -> list:
     """
     Process a 5-session KPI window and trigger alarms where necessary.
 

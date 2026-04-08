@@ -189,6 +189,11 @@ def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_T
         
         # Append completed averaged object — prevents overwrite on next band iteration
         averaged_results.append(averaged)
+<<<<<<< HEAD
+    print("hey",averaged_results)
+          # For debugging — shows the final averaged object for this band
+=======
 
     # Return averaged results to the main script for file writing
     return averaged_results
+>>>>>>> 561f10e9f3ef808da769a3be69ec32381f1b96b4

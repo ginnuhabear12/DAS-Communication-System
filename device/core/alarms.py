@@ -201,3 +201,5 @@ def process_window(sessions: list[SamplingSession]) -> None:
         
         # Append completed averaged object — prevents overwrite on next band iteration
         averaged_results.append(averaged)
+    print("hey",averaged_results)
+          # For debugging — shows the final averaged object for this band

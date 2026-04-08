@@ -203,7 +203,7 @@ def instKPIcollection(nr5g_bands, lte_bands):
     send_at_command_with_retry('AT+COPS=0', 180)
 
 
-    # ── NR5G Band Loop ────────────────────────────────────────────────────────────
+# ── NR5G Band Loop ────────────────────────────────────────────────────────────
 # Loops through each NR5G band, configures the modem, queries the serving
 # cell, and appends the result to the readings list.
 # AT+COPS=0 was already sent in the setup so the modem can reach NR5G cells.
@@ -278,3 +278,4 @@ def instKPIcollection(nr5g_bands, lte_bands):
             print(f"[NR5G] Band {band}: configuration failed — {e}")
             readings.append(dummy_kpi)
             continue
+        

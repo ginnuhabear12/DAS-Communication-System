@@ -175,7 +175,7 @@ def append_to_daily_file(averaged_results: list) -> None:
     # ── 7-day retention cleanup ───────────────────────────────────────────────
     # Find all daily KPI files and sort them chronologically
     # ISO date filenames (kpi_YYYY-MM-DD.json) sort correctly as plain strings
-    files = sorted(glob.glob(os.path.join(KPI_DIR, "kpi_*.json")))
+    files = sorted(glob.glob(os.path.join(KPI_DIR, "*_kpi.json")))
 
     # If we have more than MAX_DAYS files, delete the oldest one
     # files[0] is always the oldest because of the chronological sort above

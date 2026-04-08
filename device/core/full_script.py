@@ -50,7 +50,7 @@ print("[STARTUP] Modem initialized — beginning collection loop.")
 # Band Configuration — hardcoded for testing
 # ══════════════════════════════════════════════════════════════════════════════
 nr5g_bands = []   # e.g. ['n2', 'n66'] — fill in before testing
-lte_bands  = []   # e.g. ['b2', 'b5', 'b12'] — fill in before testing
+lte_bands  = ['b2', 'b5', 'b66', 'b13', 'b12', 'b17']   # e.g. ['b2', 'b5', 'b12'] — fill in before testing
 
 # ── Thresholds — set before testing ──────────────────────────────────────────
 lte_thresholds = {

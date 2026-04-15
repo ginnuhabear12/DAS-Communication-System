@@ -1,8 +1,6 @@
 """
 Module: models/rules.py
 Purpose: Define system limits, thresholds, identities, or protocol behavior - must stay consistent across deployments unless explicitly configured
-Dependencies: ALL
-Author: Ginna
 
 """
 

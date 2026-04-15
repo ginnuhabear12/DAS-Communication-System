@@ -4,8 +4,69 @@
     "vpn_status": "ACTIVE",
     "snmp_status": "RUNNING",
     "site_name": "DAS",
-    "last_update": "",
+    "last_update": "2026-04-08 16:31:05",
     "alert_message": "No active alarms",
-    "bands": [],
+    "bands": [
+        {
+            "rat": "LTE",
+            "band": 2,
+            "pci": 447,
+            "earfcn": 675,
+            "avg_rssi": -68.8,
+            "avg_rsrp": -98.0,
+            "avg_rsrq": -9.8,
+            "avg_sinr": 11.6
+        },
+        {
+            "rat": "LTE",
+            "band": 5,
+            "pci": 336,
+            "earfcn": 2450,
+            "avg_rssi": -68.8,
+            "avg_rsrp": -101.8,
+            "avg_rsrq": -15.6,
+            "avg_sinr": 1.2
+        },
+        {
+            "rat": "LTE",
+            "band": 66,
+            "pci": 366,
+            "earfcn": 67061,
+            "avg_rssi": -75.4,
+            "avg_rsrp": -106.0,
+            "avg_rsrq": -11.6,
+            "avg_sinr": 6.8
+        },
+        {
+            "rat": "LTE",
+            "band": 13,
+            "pci": 359,
+            "earfcn": 5230,
+            "avg_rssi": -66.6,
+            "avg_rsrp": -106.0,
+            "avg_rsrq": -20.0,
+            "avg_sinr": -8.799999999999999
+        },
+        {
+            "rat": "LTE",
+            "band": 12,
+            "pci": 312,
+            "earfcn": 5110,
+            "avg_rssi": -63.0,
+            "avg_rsrp": -96.6,
+            "avg_rsrq": -16.2,
+            "avg_sinr": -2.8
+        },
+        {
+            "rat": "LTE",
+            "band": 17,
+            "pci": 312,
+            "earfcn": 5780,
+            "avg_rssi": -62.4,
+            "avg_rsrp": -96.2,
+            "avg_rsrq": -16.0,
+            "avg_sinr": -1.6
+        }
+    ],
     "logs": []
 }

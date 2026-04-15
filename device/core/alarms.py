@@ -20,18 +20,6 @@ from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI,
 # ── Thresholds ────────────────────────────────────────────────────────────────
 # KPI values below these limits trigger a threshold alarm.
 # Adjust per deployment requirements.
-LTE_THRESHOLDS = {
-    "rsrp": -110.0,
-    "rsrq": -15.0,
-    "rssi": -95.0,
-    "sinr": 0.0,
-}
-
-NR5G_THRESHOLDS = {
-    "ss_rsrp": -110.0,
-    "ss_rsrq": -15.0,
-    "ss_sinr": 0.0,
-}
 
 INVALID_SENTINEL = 500  # Values above this are considered invalid
 
@@ -78,7 +66,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     return avg
 
 
-def process_window(sessions: list[SamplingSession]) -> None:
+def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_THRESHOLDS: dict) -> list:
     """
     Process a 5-session KPI window and trigger alarms where necessary.
 
@@ -201,3 +189,5 @@ def process_window(sessions: list[SamplingSession]) -> None:
         
         # Append completed averaged object — prevents overwrite on next band iteration
         averaged_results.append(averaged)
+    # Return averaged results to the main script for file writing
+    return averaged_results

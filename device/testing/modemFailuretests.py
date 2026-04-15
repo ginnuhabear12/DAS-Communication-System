@@ -314,7 +314,7 @@ print("""
     This sets the COPS=0 polling ceiling for instKPIcollection.
 
   Test B -- B14 timing isolation:
-    B1 vs B2 vs B3 comparison determines whether B14 needs
+    B1 vs B2 vs B3 comparison dpinetermines whether B14 needs
     extended timing or is a FirstNet restriction regardless of wait.
     Result drives the post-COPS=2 sleep value in instKPIcollection.
 """)

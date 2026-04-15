@@ -37,8 +37,8 @@ from pysnmp.hlapi.asyncio import (
 )
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-NMS_IP    = "10.231.136.163"
-NMS_PORT  = 162               # Change to 162 in production
+NMS_IP    = "10.8.0.2"
+NMS_PORT  = 1162               # Change to 162 in production
 COMMUNITY = "public"
 
 # ── OID Definitions ───────────────────────────────────────────────────────────
@@ -142,3 +142,64 @@ def send_threshold_alarm(band: int, kpi: str, avg_value: float, threshold: float
         alarm_type = "THRESHOLD",
         detail     = detail,
     )
+
+    """
+snmpTest.py — Manual Test Script for snmpSend.py
+-------------------------------------------------
+Sends one of each trap type with realistic test values
+to verify the SNMP sender is working correctly.
+
+Run this on the Pi while snmpReceiver.py is running on
+the partner's laptop.
+
+Usage:
+    python3 snmpTest.py
+"""
+
+from snmpSend import send_invalid_kpi_alarm, send_threshold_alarm
+
+print("=" * 55)
+print("  SNMP TRAP TEST — DAS Communication System")
+print("=" * 55)
+
+# ── Test 1: Invalid KPI Alarm ─────────────────────────────
+print("\n[TEST 1] Sending INVALID KPI trap...")
+print("  Band: 12 | KPI: RSRP | Invalid count: 3")
+send_invalid_kpi_alarm(
+    band          = 12,
+    kpi           = "RSRP",
+    invalid_count = 3,
+)
+
+# ── Test 2: Threshold Alarm ───────────────────────────────
+print("\n[TEST 2] Sending THRESHOLD trap...")
+print("  Band: 12 | KPI: SINR | Avg: -8.5 | Threshold: -6.0")
+send_threshold_alarm(
+    band      = 12,
+    kpi       = "SINR",
+    avg_value = -8.5,
+    threshold = -6.0,
+)
+
+# ── Test 3: Invalid KPI on a different band ───────────────
+print("\n[TEST 3] Sending INVALID KPI trap on different band...")
+print("  Band: 66 | KPI: SS_RSRP | Invalid count: 3")
+send_invalid_kpi_alarm(
+    band          = 66,
+    kpi           = "SS_RSRP",
+    invalid_count = 3,
+)
+
+# ── Test 4: Threshold Alarm on NR5G KPI ──────────────────
+print("\n[TEST 4] Sending THRESHOLD trap for NR5G KPI...")
+print("  Band: 77 | KPI: SS_SINR | Avg: -4.2 | Threshold: 0.0")
+send_threshold_alarm(
+    band      = 77,
+    kpi       = "SS_SINR",
+    avg_value = -4.2,
+    threshold = 0.0,
+)
+
+print("\n" + "=" * 55)
+print("  All test traps sent. Check receiver for output.")
+print("=" * 55)

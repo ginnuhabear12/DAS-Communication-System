@@ -48,10 +48,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     # ── Step 1: Invalid check ─────────────────────────────────────────────────
     if all(v > INVALID_SENTINEL for v in last_3):
         print(f"[INVALID]   Band {band} | {kpi_name.upper()}: last 3 samples invalid")
-        send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=3)
-        return None
-
-    # ── Step 2: Average valid samples ─────────────────────────────────────────
+        #tep 2: Average valid samples ─────────────────────────────────────────
     valid_values = [v for v in values if v <= INVALID_SENTINEL]
     avg = sum(valid_values) / len(valid_values)
 
@@ -61,7 +58,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
             f"[THRESHOLD] Band {band} | {kpi_name.upper()}: "
             f"avg = {avg:.1f}, below threshold ({threshold:.1f})"
         )
-        send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
+        #send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
 
     return avg
 

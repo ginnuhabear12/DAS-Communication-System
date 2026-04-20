@@ -1,8 +1,8 @@
 {
-    "site_name": "abc",
+    "site_name": "number today at&t",
     "device_id": "44444",
     "poll_interval": 3,
-    "snmp_host": "8.1.0.0",
+    "snmp_host": "8.32.0.0",
     "snmp_community": "3",
     "rat": "5G",
     "earfcn": null,

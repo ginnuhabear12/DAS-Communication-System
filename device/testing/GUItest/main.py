@@ -7,18 +7,17 @@ from pathlib import Path
 import asyncio
 import json
 
+# Paths
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
 
-# Shared in-memory cache — update this dict from your poller
+# Shared data (updated by poller)
 latest_data = {
     "device_status": "UNKNOWN",
     "rsrp": "N/A",
-    # ... all your fields
 }
 
-import json
-
+# Background task to update data
 async def poll_device():
     while True:
         try:
@@ -32,8 +31,9 @@ async def poll_device():
         except Exception as e:
             latest_data["alert_message"] = f"Error: {e}"
 
-        await asyncio.sleep(5)  # re-reads the file every 5 seconds
+        await asyncio.sleep(5)
 
+# FastAPI lifespan (startup background task)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     task = asyncio.create_task(poll_device())
@@ -41,18 +41,28 @@ async def lifespan(app: FastAPI):
     task.cancel()
 
 app = FastAPI(lifespan=lifespan)
+
+# Static + Templates
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
+# API endpoint (data)
 @app.get("/api/status")
 def get_status():
     return JSONResponse(latest_data)
 
+# MAIN DASHBOARD ROUTE (THIS WAS YOUR BUG)
 @app.get("/", response_class=HTMLResponse)
 def dashboard(request: Request):
     return templates.TemplateResponse(
-        "dashboard.html", {"request": request, "data": latest_data}
+        request,                 # <-- REQUIRED (fixes your error)
+        "dashboard.html",        # <-- template file
+        {
+            "data": latest_data  # <-- your values
+        }
     )
+
+# Get config
 @app.get("/api/config")
 def get_config():
     try:
@@ -61,14 +71,17 @@ def get_config():
     except FileNotFoundError:
         return JSONResponse({"error": "config.json not found"}, status_code=404)
 
+# Save config
 @app.post("/api/config")
 async def save_config(request: Request):
     try:
         new_config = await request.json()
-        print("Received config:", new_config)  
+        print("Received config:", new_config)
+
         with open(CONFIG_PATH, "w") as f:
             json.dump(new_config, f, indent=4)
+
         return JSONResponse({"status": "saved"})
     except Exception as e:
-        print("Error saving config:", e) 
+        print("Error saving config:", e)
         return JSONResponse({"error": str(e)}, status_code=500)

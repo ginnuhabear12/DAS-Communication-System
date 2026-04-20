@@ -239,10 +239,14 @@ def instKPIcollection(nr5g_bands, lte_bands):
             # concatenated directly onto the end of the string.
             print(f"[NR5G] Configuring band {band}...")
             send_at_command_with_retry(AT_CMD_5G_BAND_CONFIG + band_num, 0.3)
+            print(at_command_comms("AT+CFUN=0", 15))
+            time.sleep(3)
+            print(at_command_comms("AT+CFUN=1", 15))
+            time.sleep(3)
 
             # Wait 2 seconds for the modem to complete its cell search
             # on the newly configured band before querying serving cell info.
-            time.sleep(2)
+            
 
             # ── Serving Cell Query with Retry ─────────────────────────────────
             # SEARCH is a transient state — the modem may still be scanning.
@@ -318,7 +322,10 @@ def instKPIcollection(nr5g_bands, lte_bands):
 
             # Wait 2 seconds for the modem to complete its cell search
             # on the newly configured band before querying serving cell info.
-            time.sleep(2)
+            print(at_command_comms("AT+CFUN=0", 15))
+            time.sleep(3)
+            print(at_command_comms("AT+CFUN=1", 15))
+            time.sleep(3)
 
             # ── Serving Cell Query with Retry ─────────────────────────────────
             # SEARCH is a transient state — the modem may still be scanning.

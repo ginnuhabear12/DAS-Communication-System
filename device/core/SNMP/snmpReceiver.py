@@ -17,8 +17,13 @@ Varbind OIDs expected (from snmpSend.py):
 import socket
 from datetime import datetime
 
+<<<<<<< HEAD
 # LISTEN_IP = "0.0.0.0"
 # LISTEN_PORT = 9162
+=======
+#LISTEN_IP = "0.0.0.0"
+#LISTEN_PORT = 1162
+>>>>>>> d5069a0fb745b8b8e3987977b5a167a9772dae5f
 
 from pyasn1.codec.ber import decoder as ber_decoder
 from pysnmp.proto.api import v2c
@@ -104,10 +109,10 @@ print(f"UDP listener active on {LISTEN_IP}:{LISTEN_PORT} ... waiting")
 try:
     while True:
         data, addr = sock.recvfrom(4096)
+        print(f"Got packet from {addr}, {len(data)} bytes")
         try:
             decode_trap(data, addr)
         except Exception as e:
-            # Fallback — if decode fails for any reason, show raw bytes
             print(f"\n[DECODE ERROR] {e}")
             print(f"  Raw bytes: {data.hex()}")
 except KeyboardInterrupt:

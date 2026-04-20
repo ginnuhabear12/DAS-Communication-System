@@ -12,10 +12,7 @@ BASE_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = BASE_DIR / "config.json"
 
 # Shared data (updated by poller)
-latest_data = {
-    "device_status": "UNKNOWN",
-    "rsrp": "N/A",
-}
+latest_data = {}
 
 # Background task to update data
 async def poll_device():
@@ -58,7 +55,9 @@ def dashboard(request: Request):
         request,                 # <-- REQUIRED (fixes your error)
         "dashboard.html",        # <-- template file
         {
-            "data": latest_data  # <-- your values
+            "data": latest_data,
+            "bands": latest_data.get("bands", []),
+            "logs": latest_data.get("logs", [])
         }
     )
 

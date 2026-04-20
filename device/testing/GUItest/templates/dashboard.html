@@ -305,45 +305,46 @@
         </div>
       </div>
 
-      <!-- KPI Cards -->
-      <div class="row">
-        <div class="col-md-3 col-sm-6">
-          <div class="card kpi-card" style="border-left-color:#007bff;">
-            <div class="card-body">
-              <div class="kpi-label">RSSI</div>
-              <div class="kpi-value text-primary" id="rssi">{{ data.rssi }}</div>
-              <small class="text-muted">Received Signal Strength</small>
-            </div>
+    <!-- Bands Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card card-primary card-outline">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-broadcast-tower mr-2"></i>Band KPIs</h3>
           </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="card kpi-card" style="border-left-color:#28a745;">
-            <div class="card-body">
-              <div class="kpi-label">RSRP</div>
-              <div class="kpi-value text-success" id="rsrp">{{ data.rsrp }}</div>
-              <small class="text-muted">Reference Signal Received Power</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="card kpi-card" style="border-left-color:#ffc107;">
-            <div class="card-body">
-              <div class="kpi-label">RSRQ</div>
-              <div class="kpi-value text-warning" id="rsrq">{{ data.rsrq }}</div>
-              <small class="text-muted">Reference Signal Received Quality</small>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="card kpi-card" style="border-left-color:#17a2b8;">
-            <div class="card-body">
-              <div class="kpi-label">SINR</div>
-              <div class="kpi-value text-info" id="sinr">{{ data.sinr }}</div>
-              <small class="text-muted">Signal to Interference + Noise Ratio</small>
-            </div>
+          <div class="card-body p-0">
+            <table class="table table-sm table-hover mb-0" id="bands-table">
+              <thead class="thead-light">
+                <tr>
+                  <th>RAT</th>
+                  <th>Band</th>
+                  <th>PCI</th>
+                  <th>EARFCN</th>
+                  <th>RSSI</th>
+                  <th>RSRP</th>
+                  <th>RSRQ</th>
+                  <th>SINR</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for b in bands %}
+                <tr>
+                  <td>{{ b.rat }}</td>
+                  <td>{{ b.band }}</td>
+                  <td>{{ b.pci }}</td>
+                  <td>{{ b.earfcn }}</td>
+                  <td>{{ b.avg_rssi }}</td>
+                  <td>{{ b.avg_rsrp }}</td>
+                  <td>{{ b.avg_rsrq }}</td>
+                  <td>{{ b.avg_sinr }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+    </div>
 
       <!-- Device Info + Log Table -->
       <div class="row">
@@ -366,6 +367,7 @@
             </div>
           </div>
         </div>
+
         <!-- Log Table -->
         <div class="col-md-8">
           <div class="card card-info card-outline">
@@ -459,9 +461,21 @@
     'snmp-status':   { RUNNING:   'success', _default: 'danger'  },
   };
 
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value ?? '—';
+  function updateBandsTable(bands) {
+      const tbody = document.querySelector('#bands-table tbody');
+      if (!tbody || !Array.isArray(bands)) return;
+      tbody.innerHTML = bands.map(b => `
+          <tr>
+              <td>${b.rat ?? '—'}</td>
+              <td>${b.band ?? '—'}</td>
+              <td>${b.pci ?? '—'}</td>
+              <td>${b.earfcn ?? '—'}</td>
+              <td>${b.avg_rssi ?? '—'}</td>
+              <td>${b.avg_rsrp ?? '—'}</td>
+              <td>${b.avg_rsrq ?? '—'}</td>
+              <td>${b.avg_sinr ?? '—'}</td>
+          </tr>`
+      ).join('');
   }
 
   function updateStatusBox(fieldId, value) {
@@ -524,23 +538,13 @@
     updateStatusBox('vpn-status',    data.vpn_status);
     updateStatusBox('snmp-status',   data.snmp_status);
 
-    // KPI cards
-    setText('rssi', data.rssi);
-    setText('rsrp', data.rsrp);
-    setText('rsrq', data.rsrq);
-    setText('sinr', data.sinr);
+    updateBandsTable(data.bands);
 
-    // Cell info table
-    setText('pci',     data.pci);
-    setText('band',    data.band);
-    setText('earfcn',  data.earfcn);
     setText('site',    data.site_name);
     
-
     // Log table rows
     updateLogTable(data.logs);
   }
-
   // Poll every 5 seconds
   setInterval(refreshStatus, 5000);
 

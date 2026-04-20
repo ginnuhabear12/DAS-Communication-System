@@ -22,7 +22,7 @@ import json
 async def poll_device():
     while True:
         try:
-            with open(BASE_DIR / "device_data.json", "r") as f:
+            with open("/home/das/DAS-Communication-System/device/core/device_data_test.json", "r") as f:
                 fresh = json.load(f)
             latest_data.update(fresh)
         except FileNotFoundError:

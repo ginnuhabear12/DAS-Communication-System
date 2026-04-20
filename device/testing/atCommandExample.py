@@ -53,8 +53,10 @@ def at_command_comms(command, timeout):
 
 def main():
     # 1. Power on full functionality
-    at_command_comms('AT+QESIM="lpa_enable",1', 2)
-    at_command_comms('AT+QESIM="eid"', 2)
+    at_command_comms("AT+COPS=0", 180)
+    time.sleep(3)
+    print(at_command_comms('AT+CEREG?', 2))
+    print(at_command_comms('AT+COPS?', 2))
 
     time.sleep(1)
     at_command_comms("AT+CFUN=1", 2)

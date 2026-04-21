@@ -1,0 +1,20 @@
+[Unit]
+Description=DAS KPI Monitoring Service
+Requires=das-init.service
+After=das-init.service
+
+[Service]
+Type=simple
+User=das
+Group=das
+WorkingDirectory=/home/das/DAS-Communication-System
+ExecStartPre=/usr/bin/test -f /run/das/init.ready
+ExecStart=/usr/bin/python3 /home/das/DAS-Communication-System/device/collector/main.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

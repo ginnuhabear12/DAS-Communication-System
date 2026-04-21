@@ -30,9 +30,42 @@ def check_storage():
 
     test_file = DATA_DIR / ".write_test"
     test_file.write_text("ok")
-    test_file.unlink()
     ok("storage writable")
 
+def check_config():
+    if not CONFIG_PATH.exists():
+        fail(f"missing config file: {CONFIG_PATH}")
+
+    with open(CONFIG_PATH, "r") as f:
+        config = json.load(f)
+
+    required = [
+        "site_name",
+        "device_id",
+        "poll_interval",
+        "snmp_host",
+        "snmp_community",
+        "rat",
+    ]
+
+    for key in required:
+        if key not in config:
+            fail(f"missing config key: {key}")
+
+    rat = str(config["rat"]).upper()
+
+    if rat == "LTE":
+        if "earfcn" not in config:
+            fail("missing config key: earfcn for LTE mode")
+    elif rat == "5G":
+        if "nr_band" not in config:
+            fail("missing config key: nr_band for 5G mode")
+        if "nr_arfcn" not in config:
+            fail("missing config key: nr_arfcn for 5G mode")
+    else:
+        fail(f"invalid rat value: {config['rat']}")
+
+    ok("config valid")
 
 def check_config():
     if not CONFIG_PATH.exists():

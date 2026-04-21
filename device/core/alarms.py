@@ -48,8 +48,34 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     # ── Step 1: Invalid check ─────────────────────────────────────────────────
     if all(v > INVALID_SENTINEL for v in last_3):
         print(f"[INVALID]   Band {band} | {kpi_name.upper()}: last 3 samples invalid")
-        #tep 2: Average valid samples ─────────────────────────────────────────
+        # FIX (Issue 3): The original code was missing 'return None' here.
+        # Without it, execution fell through to the averaging step below
+        # regardless of whether this invalid check fired. If all 5 values
+        # were invalid (9999), valid_values would be an empty list and
+        # dividing by len([]) = 0 would cause a ZeroDivisionError that
+        # crashed process_window entirely, losing all remaining band results.
+        # Returning None here is correct and intentional — the caller
+        # (process_window) stores None directly into the averaged KPI object,
+        # which file_manager.py serializes as JSON null. This is the expected
+        # behavior for invalid KPI data and requires no extra handling at the
+        # call site.
+        #send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper())
+        return None
+
+    # ── Step 2: Average valid samples ─────────────────────────────────────────
     valid_values = [v for v in values if v <= INVALID_SENTINEL]
+
+    # Secondary ZeroDivisionError guard — handles the edge case where
+    # valid_values is somehow empty even though the last-3 check above did
+    # not fire (e.g. only the first 2 samples are valid but not the last 3).
+    # Without this, len([]) = 0 would still cause a ZeroDivisionError.
+    # Returns None for the same reason as above — the averaged object stores
+    # None which becomes JSON null, the correct representation for no valid data.
+    if not valid_values:
+        print(f"[INVALID]   Band {band} | {kpi_name.upper()}: "
+              f"no valid samples to average — returning None.")
+        return None
+
     avg = sum(valid_values) / len(valid_values)
 
     # ── Step 3: Threshold check ───────────────────────────────────────────────
@@ -186,5 +212,6 @@ def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_T
         
         # Append completed averaged object — prevents overwrite on next band iteration
         averaged_results.append(averaged)
+
     # Return averaged results to the main script for file writing
     return averaged_results

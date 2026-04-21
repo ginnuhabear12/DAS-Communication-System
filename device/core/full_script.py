@@ -7,6 +7,9 @@ Dependencies: standin_kpi_collection.py, alarms.py, file_manager.py,
 Author:
 """
 
+
+import json
+from pathlib import Path
 from standin_kpi_collection import instKPIcollection, send_at_command_with_retry
 from alarms import process_window
 from file_manager import update_gui_json, append_to_daily_file
@@ -21,6 +24,82 @@ from constants import (
 from datetime import datetime, timedelta
 import time
 
+
+CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "device/testing/GUItest/config.json"
+
+REQUIRED_FIELDS = [
+    "site_name", "device_id", "poll_interval",
+    "snmp_host", "snmp_community", "rat",
+    "rssi_threshold_min", "rssi_threshold_max",
+    "rsrp_threshold_min", "rsrp_threshold_max",
+    "rsrq_threshold_min", "rsrq_threshold_max",
+    "sinr_threshold_min", "sinr_threshold_max",
+]
+
+def load_config():
+    """Load config.json and wait until all required fields are filled."""
+    while True:
+        try:
+            with open(CONFIG_PATH, "r") as f:
+                cfg = json.load(f)
+
+            # Find any missing or null fields
+            missing = [k for k in REQUIRED_FIELDS if cfg.get(k) is None or cfg.get(k) == ""]
+
+            # Also check RAT-specific fields
+            if cfg.get("rat") == "LTE" and not cfg.get("earfcn"):
+                missing.append("earfcn")
+            elif cfg.get("rat") == "5G" and not cfg.get("nr_band"):
+                missing.append("nr_band")
+
+            if missing:
+                print(f"[CONFIG] Waiting for missing fields: {missing}")
+                time.sleep(5)
+                continue
+
+            print(f"[CONFIG] Config loaded successfully.")
+            return cfg
+
+        except FileNotFoundError:
+            print("[CONFIG] config.json not found — retrying in 5s...")
+            time.sleep(5)
+        except json.JSONDecodeError:
+            print("[CONFIG] config.json is invalid JSON — retrying in 5s...")
+            time.sleep(5)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Load Config — wait until all fields are filled
+# ══════════════════════════════════════════════════════════════════════════════
+print("[STARTUP] Loading config...")
+cfg = load_config()
+
+# Apply config values
+site_name      = cfg["site_name"]
+device_id      = cfg["device_id"]
+snmp_host      = cfg["snmp_host"]
+snmp_community = cfg["snmp_community"]
+
+# Build band lists from config
+if cfg["rat"] == "LTE":
+    lte_bands  = [f"b{cfg['earfcn']}"]   # adjust format to match your modem commands
+    nr5g_bands = []
+elif cfg["rat"] == "5G":
+    nr5g_bands = [cfg["nr_band"]]
+    lte_bands  = []
+
+# Build thresholds from config
+lte_thresholds = {
+    "rssi": cfg["rssi_threshold_min"],   # or use min/max as needed
+    "rsrp": cfg["rsrp_threshold_min"],
+    "rsrq": cfg["rsrq_threshold_min"],
+    "sinr": cfg["sinr_threshold_min"],
+}
+
+nr5g_thresholds = {
+    "ss_rsrp": cfg["rsrp_threshold_min"],
+    "ss_rsrq": cfg["rsrq_threshold_min"],
+    "ss_sinr": cfg["sinr_threshold_min"],
+}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Startup — Modem Initialization
@@ -46,25 +125,7 @@ time.sleep(10)
 
 print("[STARTUP] Modem initialized — beginning collection loop.")
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Band Configuration — hardcoded for testing
-# ══════════════════════════════════════════════════════════════════════════════
-nr5g_bands = []   # e.g. ['n2', 'n66'] — fill in before testing
-lte_bands  = ['b2', 'b5', 'b66', 'b13', 'b12', 'b17']   # e.g. ['b2', 'b5', 'b12'] — fill in before testing
 
-# ── Thresholds — set before testing ──────────────────────────────────────────
-lte_thresholds = {
-    "rsrp": -110.0,
-    "rsrq": -15.0,
-    "rssi": -95.0,
-    "sinr": 0.0,
-}
-
-nr5g_thresholds = {
-    "ss_rsrp": -110.0,
-    "ss_rsrq": -15.0,
-    "ss_sinr": 0.0,
-}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Main Collection Loop

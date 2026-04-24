@@ -12,8 +12,11 @@ Group=das
 WorkingDirectory=/home/das/DAS-Communication-System
 ExecStart=/usr/bin/python3 /home/das/DAS-Communication-System/device/core/init_system.py
 RemainAfterExit=yes
+RuntimeDirectory=das
+RuntimeDirectoryMode=0755
 StandardOutput=journal
 StandardError=journal
+
 
 [Install]
 WantedBy=multi-user.target

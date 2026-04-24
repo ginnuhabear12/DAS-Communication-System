@@ -51,4 +51,8 @@ def at_command_comms(command, timeout):
     elif "ERROR" in full_response:
         return "ERROR"
     else:
-        return full_response.strip()
+        # Modem did not respond with OK or ERROR within the timeout window.
+        # Returning "TIMEOUT" rather than an empty string so callers can
+        # distinguish between genuine modem silence and a successful command
+        # that returned only OK with no payload — both previously produced "".
+        return "TIMEOUT"

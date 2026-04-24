@@ -9,7 +9,7 @@ Author:
 from datetime import datetime
 from models import LTEKPI, NR5GKPI, SamplingSession
 from constants import AT_CMD_5G_BAND_CONFIG, AT_CMD_LTE_BAND_CONFIG, AT_CMD_SERVING_CELL
-from modem import at_command_comms
+from modem import at_command_comms, PORT
 from snmpSend import send_runtime_alarm
 import time
 import serial
@@ -176,10 +176,11 @@ def send_at_command_with_retry(command, timeout, max_retries=3):
             # calling retry loop (COPS or CFUN) handles it as a normal failure.
             raise
 
-        if response != "ERROR":
+        if response not in ("ERROR", "TIMEOUT"):
             return response
 
-        print(f"[RETRY] Attempt {attempt + 1}/{max_retries} failed for: {command}")
+        reason = "returned ERROR" if response == "ERROR" else "timed out — no modem response"
+        print(f"[RETRY] Attempt {attempt + 1}/{max_retries} — {command} {reason}.")
         time.sleep(0.3)
 
     raise Exception(f"[MODEM ALERT] Command failed after {max_retries} attempts: {command}")
@@ -261,7 +262,7 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
         try:
             response = at_command_comms(command, timeout)
 
-            if response != "ERROR":
+            if response not in ("ERROR", "TIMEOUT"):
                 # Success — log how many attempts it took if more than one
                 if attempt > 1:
                     elapsed = time.time() - start_time
@@ -269,8 +270,9 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
                           f"({elapsed:.0f}s elapsed).")
                 return response
 
-            # Modem returned ERROR — fall through to retry logic below
-            print(f"[COPS] Attempt {attempt} — {command} returned ERROR.")
+            # Modem returned ERROR or timed out — fall through to retry logic below
+            reason = "returned ERROR" if response == "ERROR" else "timed out — no modem response"
+            print(f"[COPS] Attempt {attempt} — {command} {reason}.")
 
         except Exception as e:
             # at_command_comms itself raised (e.g. serial port dropped) —
@@ -352,7 +354,7 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
         try:
             response = at_command_comms(command, timeout)
 
-            if response != "ERROR":
+            if response not in ("ERROR", "TIMEOUT"):
                 # Success — log how many attempts it took if more than one
                 if attempt > 1:
                     elapsed = time.time() - start_time
@@ -360,8 +362,9 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
                           f"({elapsed:.0f}s elapsed).")
                 return response
 
-            # Modem returned ERROR — fall through to retry logic below
-            print(f"[CFUN] Attempt {attempt} — {command} returned ERROR.")
+            # Modem returned ERROR or timed out — fall through to retry logic below
+            reason = "returned ERROR" if response == "ERROR" else "timed out — no modem response"
+            print(f"[CFUN] Attempt {attempt} — {command} {reason}.")
 
         except Exception as e:
             # at_command_comms itself raised (e.g. serial port dropped) —

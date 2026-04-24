@@ -15,8 +15,6 @@ from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI,
 from snmpSend import send_invalid_kpi_alarm, send_threshold_alarm
 
 
-from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
-
 # ── Thresholds ────────────────────────────────────────────────────────────────
 # KPI values below these limits trigger a threshold alarm.
 # Adjust per deployment requirements.

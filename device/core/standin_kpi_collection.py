@@ -7,6 +7,7 @@ Author:
 """
 
 from datetime import datetime
+from device.core.snmpSend import send_runtime_alarm
 from models import LTEKPI, NR5GKPI, SamplingSession
 from constants import AT_CMD_5G_BAND_CONFIG, AT_CMD_LTE_BAND_CONFIG, AT_CMD_SERVING_CELL
 from modem import at_command_comms
@@ -287,6 +288,7 @@ def instKPIcollection(nr5g_bands, lte_bands):
             # concatenated directly onto the end of the string.
             print(f"[NR5G] Configuring band {band}...")
             send_at_command_with_retry(AT_CMD_5G_BAND_CONFIG + band_num, 0.3)
+            time.sleep(2)
             print(at_command_comms("AT+CFUN=0", 15))
             time.sleep(4)
             print(at_command_comms("AT+CFUN=1", 15))
@@ -332,9 +334,13 @@ def instKPIcollection(nr5g_bands, lte_bands):
             # Band configuration failed after all retries.
             # Log the failure, append the dummy KPI to preserve index
             # alignment across all 5 sessions, and move to the next band.
-            print(f"[NR5G] Band {band}: configuration failed — {e}")
-            readings.append(dummy_kpi)
-            continue
+             print(f"[NR5G] Band {band}: failed — {e} — storing dummy KPI, continuing.")
+             send_runtime_alarm(
+                    f"NR5G band {band}",
+                    f"Band configuration failed after retries: {e}. Dummy KPI stored."
+                )
+             readings.append(dummy_kpi)
+             continue
 
     # ── LTE Band Loop ─────────────────────────────────────────────────────────────
     # Detach from network before LTE loop so the modem can be directed
@@ -410,7 +416,11 @@ def instKPIcollection(nr5g_bands, lte_bands):
             # Band configuration failed after all retries.
             # Log the failure, append the dummy KPI to preserve index
             # alignment across all 5 sessions, and move to the next band.
-            print(f"[LTE] Band {band}: configuration failed — {e}")
+            print(f"[LTE] Band {band}: failed — {e} — storing dummy KPI, continuing.")
+            send_runtime_alarm(
+                f"LTE band {band}",
+                f"Band configuration failed after retries: {e}. Dummy KPI stored."
+            )
             readings.append(dummy_kpi)
             continue
 

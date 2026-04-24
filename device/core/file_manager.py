@@ -189,6 +189,20 @@ def update_gui_json(averaged_results: list) -> None:
         )
         data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
 
+    except Exception as e:
+        # Catches anything not covered above — most likely UnicodeDecodeError
+        # from a partially written file with garbage bytes, but also guards
+        # against any other unexpected read failure. Retrying would read the
+        # same corrupt content, so fall back to cache or defaults directly.
+        print(f"[FILE] GUI JSON read unexpected error ({type(e).__name__}): {e} "
+              f"— using cache or defaults.")
+        _send_trap(
+            component = "GUI JSON read",
+            detail    = f"{type(e).__name__}: unexpected read failure on GUI JSON — "
+                        f"file may be partially written or corrupt. Using cache or defaults."
+        )
+        data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
     # ── Step 2: Update in-memory data ─────────────────────────────────────────
     # bands and last_update are always replaced from averaged_results.
     # All other fields (device_status, alert_message, etc.) are preserved
@@ -220,7 +234,8 @@ def update_gui_json(averaged_results: list) -> None:
                 print(f"[FILE] GUI JSON write failed after retry: {write_e}")
                 _send_trap(
                     component = "GUI JSON write",
-                    detail    = "OSError: GUI JSON write failed after retry. Operator action required if issue persists."
+                    detail    = f"{type(write_e).__name__}: GUI JSON write failed after retry: {write_e}. "
+                                f"Operator action required if issue persists."
                 )
 
 
@@ -329,6 +344,22 @@ def append_to_daily_file(averaged_results: list) -> None:
                     "date": today, "entries": []
                 }
 
+            except Exception as e:
+                # Catches anything not covered above — most likely UnicodeDecodeError
+                # from a partially written file with garbage bytes, but also guards
+                # against any other unexpected read failure. Retrying would read the
+                # same corrupt content, so fall back to cache or empty structure directly.
+                print(f"[FILE] Daily file read unexpected error ({type(e).__name__}): {e} "
+                      f"— using cache or empty structure.")
+                _send_trap(
+                    component = "daily file read",
+                    detail    = f"{type(e).__name__}: unexpected read failure on daily KPI file — "
+                                f"file may be partially written or corrupt. Using cache or empty structure."
+                )
+                daily_data = _daily_cache if _daily_cache is not None else {
+                    "date": today, "entries": []
+                }
+
         else:
             # File doesn't exist yet — first entry of the day or first boot.
             daily_data = {"date": today, "entries": []}
@@ -377,7 +408,8 @@ def append_to_daily_file(averaged_results: list) -> None:
                 print(f"[FILE] Daily file write failed after retry: {write_e}")
                 _send_trap(
                     component = "daily file write",
-                    detail    = "OSError: daily KPI file write failed after retry. Operator action required if issue persists."
+                    detail    = f"{type(write_e).__name__}: daily KPI file write failed after retry: {write_e}. "
+                                f"Operator action required if issue persists."
                 )
 
     if not write_succeeded:

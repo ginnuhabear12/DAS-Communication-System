@@ -18,7 +18,7 @@ from fastapi.templating import Jinja2Templates
 BASE_DIR = Path(__file__).resolve().parent
 DEVICE_DATA_PATH = Path("/home/das/DAS-Communication-System/data/device_data.json")
 
-CONFIG_DIR = Path("/home/das/DAS-Communication-System/GUI")
+CONFIG_DIR = Path("/home/das/DAS-Communication-System/device/GUI")
 CONFIG_PATH = CONFIG_DIR / "config.json"
 
 OVPN_DIR = CONFIG_DIR / "vpn"

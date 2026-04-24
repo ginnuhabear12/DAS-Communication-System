@@ -43,7 +43,7 @@ from pysnmp.hlapi.asyncio import (
 )
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-NMS_IP    = "10.8.0.2"
+NMS_IP    = "10.8.0.1"
 NMS_PORT  = 1162               # Change to 162 in production
 COMMUNITY = "public"
 
@@ -228,3 +228,41 @@ def send_runtime_alarm(component: str, detail: str) -> None:
         detail:    Human-readable description of what went wrong.
     """
     _send_runtime_trap(component=component, detail=detail)
+
+
+ 
+"""
+snmpTest.py — Quick SNMP Trap Connectivity Test
+------------------------------------------------
+Fires one of each trap type to verify traps are reaching pfSense.
+Run snmpReceiver.py on pfSense first, then run this script.
+
+Usage:
+    python snmpTest.py
+"""
+
+from snmpSend import send_invalid_kpi_alarm, send_threshold_alarm, send_runtime_alarm
+import time
+
+print("=" * 55)
+print("  SNMP TRAP CONNECTIVITY TEST")
+print("=" * 55)
+
+# ── Test 1: Invalid KPI Trap ──────────────────────────────
+print("\n[1/3] Sending INVALID KPI trap...")
+send_invalid_kpi_alarm(band=1, kpi="RSRP", invalid_count=3)
+time.sleep(1)
+
+# ── Test 2: Threshold Breach Trap ────────────────────────
+print("\n[2/3] Sending THRESHOLD trap...")
+send_threshold_alarm(band=1, kpi="SINR", avg_value=-5.2, threshold=0.0)
+time.sleep(1)
+
+# ── Test 3: Runtime Alarm Trap ───────────────────────────
+print("\n[3/3] Sending RUNTIME trap...")
+send_runtime_alarm(component="snmpTest.py", detail="VPN connectivity test - if you see this, traps are working")
+
+print("\n" + "=" * 55)
+print("  All 3 traps sent.")
+print("  Check snmpReceiver.py output on pfSense to confirm.")
+print("=" * 55)

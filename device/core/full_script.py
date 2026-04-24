@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 import time
 
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "device/testing/GUItest/config.json"
+CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "device/GUI/config.json"
 
 REQUIRED_FIELDS = [
     "site_name", "device_id", "poll_interval",

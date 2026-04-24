@@ -29,7 +29,7 @@ from constants import (
 )
 from datetime import datetime, timedelta
 import time
-
+import subprocess
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "device/GUI/config.json"
 
@@ -76,6 +76,26 @@ def load_config():
 # ══════════════════════════════════════════════════════════════════════════════
 # Load Config — wait until all fields are filled
 # ══════════════════════════════════════════════════════════════════════════════
+
+def start_vpn(ovpn_path):
+    print("[VPN] Starting OpenVPN...")
+    process = subprocess.Popen(
+        ["sudo", "openvpn", "--config", ovpn_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    
+    # Give it time to connect
+    time.sleep(10)
+    print("[VPN] OpenVPN should be connected.")
+    return process
+
+# Start VPN BEFORE everything else
+vpn_process = start_vpn("home/DAS-Communication-System/device/GUI/vpn")
+
+
+
+
 print("[STARTUP] Loading config...")
 cfg = load_config()
 

@@ -437,6 +437,10 @@ def instKPIcollection(nr5g_bands, lte_bands):
 
     session_start = datetime.now()
     readings      = []
+    command_failure_count = 0  # Tracks bands that failed via AT command exception
+                               # (not bands that found no cell — those are normal).
+                               # Returned to the main loop to detect modem-level
+                               # failure patterns across consecutive sessions.
 
     # ── Mode Detection ────────────────────────────────────────────────────────
     # Determined once here so every subsequent branch is a simple bool check.
@@ -572,6 +576,7 @@ def instKPIcollection(nr5g_bands, lte_bands):
                     f"NR5G band {band}",
                     f"Band configuration failed after retries: {e}. Dummy KPI stored."
                 )
+                command_failure_count += 1
                 readings.append(dummy_kpi)
                 continue
 
@@ -698,6 +703,7 @@ def instKPIcollection(nr5g_bands, lte_bands):
                 f"LTE band {band}",
                 f"Band configuration failed after retries: {e}. Dummy KPI stored."
             )
+            command_failure_count += 1
             readings.append(dummy_kpi)
             continue
 
@@ -718,4 +724,4 @@ def instKPIcollection(nr5g_bands, lte_bands):
     return SamplingSession(
         session_start = session_start,
         readings      = readings,
-    )
+    ), command_failure_count

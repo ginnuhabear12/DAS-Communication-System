@@ -10,11 +10,12 @@ Author:
 
 import json
 from pathlib import Path
-from kpi_collection import (
+from standin_kpi_collection import (
     instKPIcollection,
     send_at_command_with_retry,
     send_cops_command_until_success,
     send_cfun_until_success,
+    _trigger_modem_restart
 )
 from alarms import process_window
 from file_manager import update_gui_json, append_to_daily_file
@@ -157,6 +158,16 @@ print("[STARTUP] Modem initialized — beginning collection loop.")
 sessions      = []   # Holds up to 5 SamplingSession objects before averaging
 session_count = 0    # Tracks which session we are on (1–5)
 
+# ── Option B: Consecutive command failure session tracking ────────────────────
+# Counts consecutive sessions where every band failed via AT command exception
+# rather than simply not finding a cell. If all bands fail via command error
+# across this many consecutive sessions, the modem is not processing commands
+# at all and a Pi restart is the only recovery.
+# Resets to 0 any time a session has at least one band that responded normally
+# (either a valid reading or a SEARCH-state dummy — both mean AT comms work).
+_CONSECUTIVE_FAILURE_RESTART_THRESHOLD = 2
+_consecutive_command_failure_sessions  = 0
+
 while True:
 
     session_count += 1
@@ -190,10 +201,36 @@ while True:
     # to match readings across all 5 sessions, so a mismatch here would silently
     # pair the wrong bands together during averaging.
     try:
-        session = instKPIcollection(nr5g_bands, lte_bands)
+        session, cmd_failures = instKPIcollection(nr5g_bands, lte_bands)
         sessions.append(session)
         print(f"[MAIN] Session {session_count} collected — "
-              f"{len(session.readings)} bands read.")
+              f"{len(session.readings)} bands read, "
+              f"{cmd_failures} band(s) failed via AT command error.")
+
+        total_bands = len(nr5g_bands) + len(lte_bands)
+
+        if total_bands > 0 and cmd_failures == total_bands:
+            # Every single band failed via AT command exception — not a coverage
+            # issue, this means the modem rejected or didn't respond to every
+            # configuration command this session.
+            _consecutive_command_failure_sessions += 1
+            print(f"[MAIN] All bands failed via command error — "
+                  f"consecutive failure sessions: "
+                  f"{_consecutive_command_failure_sessions}/"
+                  f"{_CONSECUTIVE_FAILURE_RESTART_THRESHOLD}")
+
+            if _consecutive_command_failure_sessions >= _CONSECUTIVE_FAILURE_RESTART_THRESHOLD:
+                _trigger_modem_restart(
+                    f"All bands failed via AT command error for "
+                    f"{_consecutive_command_failure_sessions} consecutive sessions — "
+                    f"modem is not processing commands. Restarting Pi to recover."
+                )
+        else:
+            # At least one band had a normal AT response this session —
+            # reset the consecutive failure counter.
+            if _consecutive_command_failure_sessions > 0:
+                print(f"[MAIN] AT comms recovered — resetting consecutive failure counter.")
+            _consecutive_command_failure_sessions = 0
 
     except Exception as e:
         print(f"[MAIN] Session {session_count} collection failed unexpectedly: {e} "

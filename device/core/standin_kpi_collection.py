@@ -12,6 +12,9 @@ from constants import AT_CMD_5G_BAND_CONFIG, AT_CMD_LTE_BAND_CONFIG, AT_CMD_SERV
 from modem import at_command_comms
 from snmpSend import send_runtime_alarm
 import time
+import serial
+import os
+import subprocess
 
 
 # ── LTE SINR Conversion ───────────────────────────────────────────────────────
@@ -156,7 +159,22 @@ def send_at_command_with_retry(command, timeout, max_retries=3):
         Exception: If all retry attempts return ERROR.
     """
     for attempt in range(max_retries):
-        response = at_command_comms(command, timeout)
+        try:
+            response = at_command_comms(command, timeout)
+        except serial.SerialException as e:
+            # SerialException means the serial layer itself failed — not just a
+            # bad modem response. Check whether the USB device is still present.
+            # If the port has disappeared, the modem has physically disconnected
+            # or the USB driver has dropped it — a Pi restart re-enumerates the
+            # USB bus and reloads the driver, which is the only viable recovery.
+            if not os.path.exists(PORT):
+                _trigger_modem_restart(
+                    f"Modem not detected on USB port {PORT} — device disconnected "
+                    f"or USB driver failure. Restarting Pi to recover."
+                )
+            # Port exists but SerialException still raised — re-raise so the
+            # calling retry loop (COPS or CFUN) handles it as a normal failure.
+            raise
 
         if response != "ERROR":
             return response
@@ -175,7 +193,33 @@ def send_at_command_with_retry(command, timeout, max_retries=3):
 _CRITICAL_RETRY_INITIAL_SLEEP   = 10   # seconds between retries before alert fires
 _CRITICAL_RETRY_ESCALATED_SLEEP = 30   # seconds between retries after alert fires
 _CRITICAL_ALERT_TIMEOUT         = 120  # seconds elapsed before sending runtime alarm
+_CRITICAL_RESTART_TIMEOUT       = 300  # seconds elapsed before triggering Pi restart (5 minutes)
 
+def _trigger_modem_restart(reason: str) -> None:
+    """
+    Sends an SNMP runtime trap describing the restart reason, waits briefly
+    to allow the trap to transmit, then issues a system reboot.
+
+    Called when the modem has been unresponsive long enough that a Pi restart
+    is the only viable recovery path. Never returns — the reboot terminates
+    the process.
+
+    Args:
+        reason: Human-readable description of why the restart was triggered.
+                Included verbatim in the SNMP trap detail field.
+    """
+    print(f"[RESTART] {reason}")
+    print(f"[RESTART] Sending trap and rebooting Pi...")
+    try:
+        send_runtime_alarm(
+            component = "Pi restart",
+            detail    = reason
+        )
+    except Exception as e:
+        # Trap failure must never block the restart — log and proceed.
+        print(f"[RESTART] Trap send failed: {e} — proceeding with reboot anyway.")
+    time.sleep(2)  # Allow trap UDP packet time to transmit before process dies
+    subprocess.run(['sudo', 'reboot'])
 
 def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
     """
@@ -233,7 +277,11 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
             # treat identically to an ERROR response and keep retrying.
             print(f"[COPS] Attempt {attempt} — {command} raised exception: {e}.")
 
-        # ── Alert check (time-based, fires once at 120s elapsed) ─────────────
+        # ── Alert and restart checks (time-based) ────────────────────────────
+        # Alert fires once at 120s — notifies operator the command is failing.
+        # Restart fires at 240s (4 minutes) — if the modem hasn't responded in
+        # 4 minutes it is not recoverable without a power cycle. The Pi restart
+        # resets the USB bus and modem power, which is the only viable recovery.
         elapsed = time.time() - start_time
 
         if not alert_sent and elapsed >= _CRITICAL_ALERT_TIMEOUT:
@@ -246,9 +294,14 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
             try:
                 send_runtime_alarm(component=command, detail=alert_detail)
             except Exception as snmp_e:
-                # SNMP send failed — log it but never let it interrupt the retry loop
                 print(f"[COPS] Runtime alarm send failed: {snmp_e} — continuing retries.")
             alert_sent = True
+
+        if elapsed >= _CRITICAL_RESTART_TIMEOUT:
+            _trigger_modem_restart(
+                f"{command} has not responded after {elapsed:.0f}s — "
+                f"modem is unresponsive. Restarting Pi to recover."
+            )
 
         # ── Sleep before next attempt ─────────────────────────────────────────
         # Use escalated interval once the alert has fired, initial interval before
@@ -315,7 +368,9 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
             # treat identically to an ERROR response and keep retrying.
             print(f"[CFUN] Attempt {attempt} — {command} raised exception: {e}.")
 
-        # ── Alert check (time-based, fires once at 120s elapsed) ─────────────
+        # ── Alert and restart checks (time-based) ────────────────────────────
+        # Alert fires once at 120s — notifies operator the command is failing.
+        # Restart fires at 240s (4 minutes) — same reasoning as COPS restart.
         elapsed = time.time() - start_time
 
         if not alert_sent and elapsed >= _CRITICAL_ALERT_TIMEOUT:
@@ -328,9 +383,14 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
             try:
                 send_runtime_alarm(component=command, detail=alert_detail)
             except Exception as snmp_e:
-                # SNMP send failed — log it but never let it interrupt the retry loop
                 print(f"[CFUN] Runtime alarm send failed: {snmp_e} — continuing retries.")
             alert_sent = True
+
+        if elapsed >= _CRITICAL_RESTART_TIMEOUT:
+            _trigger_modem_restart(
+                f"{command} has not responded after {elapsed:.0f}s — "
+                f"modem is unresponsive. Restarting Pi to recover."
+            )
 
         # ── Sleep before next attempt ─────────────────────────────────────────
         sleep_time = _CRITICAL_RETRY_ESCALATED_SLEEP if alert_sent else _CRITICAL_RETRY_INITIAL_SLEEP

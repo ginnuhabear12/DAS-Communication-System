@@ -10,7 +10,12 @@ Author:
 
 import json
 from pathlib import Path
-from standin_kpi_collection import instKPIcollection, send_at_command_with_retry
+from kpi_collection import (
+    instKPIcollection,
+    send_at_command_with_retry,
+    send_cops_command_until_success,
+    send_cfun_until_success,
+)
 from alarms import process_window
 from file_manager import update_gui_json, append_to_daily_file
 from models import LTEKPI, NR5GKPI, SamplingSession, AveragedLTEKPI, AveragedNR5GKPI
@@ -105,22 +110,41 @@ nr5g_thresholds = {
 # Startup — Modem Initialization
 # ══════════════════════════════════════════════════════════════════════════════
 
+# ── AT+CFUN=1 — Full modem reset ─────────────────────────────────────────────
+# Critical — the script cannot safely proceed until the modem confirms full
+# functionality. Uses indefinite retry with SNMP alert at 120s so the operator
+# is notified if the modem is unresponsive at startup.
 print("[STARTUP] Sending AT+CFUN=1 — full modem reset...")
-send_at_command_with_retry(AT_CMD_FULL_FUNCTIONALITY, 15)
-
-print("[STARTUP] Waiting 15 seconds for modem to fully boot...")
+send_cfun_until_success("AT+CFUN=1", timeout=15)
+print("[STARTUP] AT+CFUN=1 accepted — waiting 15 seconds for modem to fully boot...")
 time.sleep(15)
 
+# ── AT+QNWPREFCFG — Mode preference ──────────────────────────────────────────
+# Less critical than CFUN — if this fails the modem may already be in AUTO
+# mode from a previous run. Retried with send_at_command_with_retry (3 attempts),
+# then a trap is sent and startup continues rather than halting indefinitely.
 print("[STARTUP] Setting mode preference to AUTO (LTE + NR5G)...")
-send_at_command_with_retry('AT+QNWPREFCFG="mode_pref",AUTO', 3)
+try:
+    send_at_command_with_retry('AT+QNWPREFCFG="mode_pref",AUTO', 3)
+    print("[STARTUP] Mode preference set to AUTO.")
+except Exception as e:
+    print(f"[STARTUP] AT+QNWPREFCFG failed after retries: {e} — "
+          f"modem may already be in correct mode, continuing.")
+    send_runtime_alarm(
+        "AT+QNWPREFCFG",
+        f"Mode preference command failed at startup: {e}. "
+        f"Modem may already be in AUTO mode — continuing."
+    )
 
 print("[STARTUP] Waiting 10 seconds for mode switch to settle...")
 time.sleep(10)
 
+# ── AT+COPS=0 — Auto-registration ────────────────────────────────────────────
+# Critical — uses indefinite retry matching the pattern used inside
+# instKPIcollection so startup behavior is consistent with runtime behavior.
 print("[STARTUP] Sending AT+COPS=0 — enabling auto-registration...")
-send_at_command_with_retry(AT_CMD_COPS_AUTO, 180)
-
-print("[STARTUP] Waiting 10 seconds for registration to settle...")
+send_cops_command_until_success(AT_CMD_COPS_AUTO, timeout=180)
+print("[STARTUP] AT+COPS=0 accepted — waiting 10 seconds for registration to settle...")
 time.sleep(10)
 
 print("[STARTUP] Modem initialized — beginning collection loop.")

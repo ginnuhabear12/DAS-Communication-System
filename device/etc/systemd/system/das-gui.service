@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=das
-WorkingDirectory=/home/das/DAS-Communication-System/device/web_ui
+WorkingDirectory=/home/das/DAS-Communication-System/device/GUI
 
 ExecStart=/usr/bin/python3 -m uvicorn app:app --host 0.0.0.0 --port 8000
 

@@ -8,7 +8,7 @@ import time
 
 READY_DIR = Path("/run/das") 
 READY_FILE = READY_DIR / "init.ready" #temp file to show that the system is ready to run. This is used by the systemd service to determine when to start the main script. It is created at the end of the initialization process and deleted if any checks fail
-CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/testing/GUItest/config.json")
+CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/GUI/config.json")
 DATA_DIR = Path("/home/das/DAS-Communication-System/data")
 LOG_DIR = Path("/home/das/DAS-Communication-System/logs")
 

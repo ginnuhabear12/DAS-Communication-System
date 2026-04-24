@@ -2,10 +2,6 @@ import serial
 import time
 
 
-
-
-
-
 #AT COMMAND METHOD
 
 PORT = '/dev/ttyUSB2'

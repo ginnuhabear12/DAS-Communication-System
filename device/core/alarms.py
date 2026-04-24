@@ -47,7 +47,9 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
 
     # ── Step 1: Invalid check ─────────────────────────────────────────────────
     if all(v > INVALID_SENTINEL for v in last_3):
-        print(f"[INVALID]   Band {band} | {kpi_name.upper()}: last 3 samples invalid")
+        invalid_count = sum(1 for v in values if v > INVALID_SENTINEL)
+        print(f"[INVALID]   Band {band} | {kpi_name.upper()}: "
+            f"{invalid_count} of {len(values)} samples invalid (last 3 consecutive)")
         # FIX (Issue 3): The original code was missing 'return None' here.
         # Without it, execution fell through to the averaging step below
         # regardless of whether this invalid check fired. If all 5 values
@@ -59,7 +61,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
         # which file_manager.py serializes as JSON null. This is the expected
         # behavior for invalid KPI data and requires no extra handling at the
         # call site.
-        #send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper())
+        #send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=invalid_count)
         return None
 
     # ── Step 2: Average valid samples ─────────────────────────────────────────

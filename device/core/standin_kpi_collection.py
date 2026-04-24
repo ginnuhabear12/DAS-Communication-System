@@ -233,6 +233,54 @@ def instKPIcollection(nr5g_bands, lte_bands):
             ss_sinr   = 9999,
         )
 
+        # ── Pre-flight CFUN state check ───────────────────────────────────────────
+        # Queries the modem's current functionality mode before each band attempt.
+        # AT+CFUN=1 and its 3s sleep only run if the modem is NOT already in full
+        # functionality — typically caused by a previous band's CFUN cycle failing
+        # mid-sequence and leaving the modem stuck in CFUN=0.
+        # On the normal path (modem already in CFUN=1) this costs one AT query with
+        # no sleep, rather than an unconditional AT+CFUN=1 + 3s per band.
+        # If the query itself fails, state is unknown — attempt CFUN=1 as a precaution.
+        try:
+            cfun_response = send_at_command_with_retry("AT+CFUN?", 5)
+            cfun_value    = None
+
+            for line in cfun_response.strip().split('\n'):
+                line = line.strip()
+                if line.startswith('+CFUN:'):
+                    try:
+                        cfun_value = int(line.replace('+CFUN:', '').strip())
+                    except ValueError:
+                        pass
+                    break
+
+            if cfun_value != 1:
+                # Modem is not in full functionality — restore it before proceeding.
+                # This handles both CFUN=0 (minimum) and the case where cfun_value
+                # is None (response parsed but value unreadable).
+                print(f"[NR5G] Band {band}: modem in CFUN={cfun_value} — "
+                    f"restoring full functionality...")
+                send_at_command_with_retry("AT+CFUN=1", 15)
+                time.sleep(3)
+            else:
+                print(f"[NR5G] Band {band}: modem already in full functionality — "
+                    f"pre-flight skipped.")
+
+        except Exception as preflight_e:
+            # Query or restore failed — state is unknown.
+            # Attempt CFUN=1 as a precaution before the band try block.
+            print(f"[NR5G] Band {band}: pre-flight CFUN check failed: {preflight_e} "
+                f"— attempting AT+CFUN=1 as precaution.")
+            try:
+                send_at_command_with_retry("AT+CFUN=1", 15)
+                time.sleep(3)
+            except Exception as restore_e:
+                # Both the check and the restore failed — log and proceed.
+                # The main try block below will fail naturally if the modem is
+                # unresponsive and store the dummy as normal.
+                print(f"[NR5G] Band {band}: pre-flight CFUN=1 also failed: {restore_e} "
+                    f"— proceeding to band attempt.")
+
         try:
             # Configure the modem to search on this specific NR5G band.
             # AT_CMD_5G_BAND_CONFIG ends with a comma so band_num is
@@ -240,9 +288,9 @@ def instKPIcollection(nr5g_bands, lte_bands):
             print(f"[NR5G] Configuring band {band}...")
             send_at_command_with_retry(AT_CMD_5G_BAND_CONFIG + band_num, 0.3)
             print(at_command_comms("AT+CFUN=0", 15))
-            time.sleep(3)
+            time.sleep(4)
             print(at_command_comms("AT+CFUN=1", 15))
-            time.sleep(3)
+            time.sleep(4)
 
             # Wait 2 seconds for the modem to complete its cell search
             # on the newly configured band before querying serving cell info.
@@ -323,9 +371,9 @@ def instKPIcollection(nr5g_bands, lte_bands):
             # Wait 2 seconds for the modem to complete its cell search
             # on the newly configured band before querying serving cell info.
             print(at_command_comms("AT+CFUN=0", 15))
-            time.sleep(3)
+            time.sleep(4)
             print(at_command_comms("AT+CFUN=1", 15))
-            time.sleep(3)
+            time.sleep(4)
 
             # ── Serving Cell Query with Retry ─────────────────────────────────
             # SEARCH is a transient state — the modem may still be scanning.

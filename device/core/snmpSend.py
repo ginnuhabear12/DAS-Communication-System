@@ -178,7 +178,7 @@ def send_invalid_kpi_alarm(band: int, kpi: str, invalid_count: int) -> None:
         kpi:           KPI name (e.g. "RSRP", "SS_RSRP").
         invalid_count: Number of consecutive invalid samples detected (typically 3).
     """
-    detail = f"last {invalid_count} samples invalid"
+    detail = f"{invalid_count} of 5 samples invalid (last 3 consecutive)"
     _send_kpi_trap(
         trap_oid   = OID_TRAP_INVALID,
         band       = band,

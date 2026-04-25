@@ -31,15 +31,15 @@ from datetime import datetime, timedelta
 import time
 import subprocess
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent.parent / "device/GUI/config.json"
+CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/GUI/config.json")
 
 REQUIRED_FIELDS = [
     "site_name", "device_id", "poll_interval",
-    "snmp_host", "snmp_community", "rat",
-    "rssi_threshold_min", "rssi_threshold_max",
-    "rsrp_threshold_min", "rsrp_threshold_max",
-    "rsrq_threshold_min", "rsrq_threshold_max",
-    "sinr_threshold_min", "sinr_threshold_max",
+    "snmp_host",  
+    "rssi_threshold_min", 
+    "rsrp_threshold_min", 
+    "rsrq_threshold_min", 
+    "sinr_threshold_min", 
 ]
 
 def load_config():
@@ -91,7 +91,7 @@ def start_vpn(ovpn_path):
     return process
 
 # Start VPN BEFORE everything else
-vpn_process = start_vpn("home/DAS-Communication-System/device/GUI/vpn")
+vpn_process = start_vpn("/home/das/DAS-Communication-System/device/GUI/vpn/client.ovpn")
 
 
 

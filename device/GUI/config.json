@@ -1,12 +1,13 @@
 {
-    "site_name": "",
-    "device_id": "",
-    "poll_interval": 30,
-    "snmp_host": "0.0.0.0",
+    "site_name": "das",
+    "device_id": "676767",
+    "poll_interval": 29,
+    "snmp_host": "1.1.1.1",
     "monitored_bands": [
         "b2",
         "b4",
-        "b5"
+        "b5",
+        "b12"
     ],
     "rssi_threshold_min": null,
     "rsrp_threshold_min": null,

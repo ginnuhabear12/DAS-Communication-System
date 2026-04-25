@@ -103,7 +103,7 @@ cfg = load_config()
 site_name      = cfg["site_name"]
 device_id      = cfg["device_id"]
 snmp_host      = cfg["snmp_host"]
-snmp_community = cfg["snmp_community"]
+#snmp_community = cfg["snmp_community"]
 
 # Build band lists from config
 if cfg["rat"] == "LTE":

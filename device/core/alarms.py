@@ -59,7 +59,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
         # which file_manager.py serializes as JSON null. This is the expected
         # behavior for invalid KPI data and requires no extra handling at the
         # call site.
-        #send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=invalid_count)
+        send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=invalid_count)
         return None
 
     # ── Step 2: Average valid samples ─────────────────────────────────────────
@@ -84,7 +84,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
             f"[THRESHOLD] Band {band} | {kpi_name.upper()}: "
             f"avg = {avg:.1f}, below threshold ({threshold:.1f})"
         )
-        #send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
+        send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
 
     return avg
 

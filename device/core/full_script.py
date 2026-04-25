@@ -94,8 +94,6 @@ def start_vpn(ovpn_path):
 vpn_process = start_vpn("/home/das/DAS-Communication-System/device/GUI/vpn/client.ovpn")
 
 
-
-
 print("[STARTUP] Loading config...")
 cfg = load_config()
 

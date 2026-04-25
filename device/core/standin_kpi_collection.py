@@ -92,15 +92,32 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
 
         # ── LTE ──────────────────────────────────────────────────────────────
         if rat == "LTE":
-            # Raw SINR from modem is NOT in dB — must convert.
+            #  Raw SINR from modem is NOT in dB — must convert.
             # Formula: Y = (1/5) × X × 10 − 20  (confirmed by Quectel support)
-            raw_sinr       = parts[16]
-            converted_sinr = (0.2 * raw_sinr * 10) - 20 if isinstance(raw_sinr, (int, float)) else 0.0
+            raw_sinr = parts[16]
+
+            # Check raw_sinr before applying the formula. The sentinel value 9999
+            # is substituted earlier in this function when the modem returns '-'
+            # for a field. Feeding 9999 into the formula produces ~19978, which is
+            # internally inconsistent with all other sentinel fields (which stay 9999).
+            # Bypassing the formula for the known sentinel keeps all sentinel values
+            # uniform at 9999 so alarms.py's INVALID_SENTINEL check works correctly
+            # across every KPI field without special-casing SINR.
+            if isinstance(raw_sinr, (int, float)) and raw_sinr != 9999:
+                converted_sinr = (0.2 * raw_sinr * 10) - 20
+            else:
+                converted_sinr = 9999.0
+
+            # band uses parts[9] (the modem-reported freq_band field), not the
+            # input band parameter. rat uses parts[2] (the modem-reported RAT
+            # string). Both must come from the modem response so the verification
+            # checks in instKPIcollection compare configured values against what
+            # the modem actually reported, rather than against themselves.
 
             return LTEKPI(
                 timestamp = datetime.now(),
-                rat       = "LTE",
-                band      = int(band[1:]),   # strip 'b' → integer e.g. 'b2' → 2
+                rat       = parts[2],
+                band      = parts[9],   
                 pci       = parts[7],
                 earfcn    = parts[8],
                 rsrp      = parts[13],
@@ -114,8 +131,8 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
             # NR5G SINR is already in dB — no conversion needed
             return NR5GKPI(
                 timestamp = datetime.now(),
-                rat       = "NR5G",
-                band      = int(band[1:]),   # strip 'n' → integer e.g. 'n2' → 2
+                rat       = parts[2],
+                band      = parts[10],   
                 pci       = parts[7],
                 arfcn     = parts[9],
                 ss_rsrp   = parts[12],
@@ -162,18 +179,10 @@ def send_at_command_with_retry(command, timeout, max_retries=3):
         try:
             response = at_command_comms(command, timeout)
         except serial.SerialException as e:
-            # SerialException means the serial layer itself failed — not just a
-            # bad modem response. Check whether the USB device is still present.
-            # If the port has disappeared, the modem has physically disconnected
-            # or the USB driver has dropped it — a Pi restart re-enumerates the
-            # USB bus and reloads the driver, which is the only viable recovery.
-            if not os.path.exists(PORT):
-                _trigger_modem_restart(
-                    f"Modem not detected on USB port {PORT} — device disconnected "
-                    f"or USB driver failure. Restarting Pi to recover."
-                )
-            # Port exists but SerialException still raised — re-raise so the
-            # calling retry loop (COPS or CFUN) handles it as a normal failure.
+            # Re-raise unconditionally. USB absence is tracked by a session-level
+            # serial_failure_count returned from instKPIcollection and evaluated
+            # in full_script.py after each session completes. Triggering an
+            # immediate restart here was too aggressive for transient disconnects.
             raise
 
         if response not in ("ERROR", "TIMEOUT"):
@@ -444,6 +453,11 @@ def instKPIcollection(nr5g_bands, lte_bands):
                                # (not bands that found no cell — those are normal).
                                # Returned to the main loop to detect modem-level
                                # failure patterns across consecutive sessions.
+    # serial_failure_count — bands that failed because SerialException was raised,
+    # meaning the serial port itself was unreachable at the hardware level.
+    # Tracked separately from command failures so full_script.py can distinguish
+    # a USB disconnect from a modem logic failure and send the appropriate alarm.
+    serial_failure_count = 0
 
     # ── Mode Detection ────────────────────────────────────────────────────────
     # Determined once here so every subsequent branch is a simple bool check.
@@ -571,10 +585,21 @@ def instKPIcollection(nr5g_bands, lte_bands):
                           f"SS-RSRP={kpi.ss_rsrp}, SS-RSRQ={kpi.ss_rsrq}, SS-SINR={kpi.ss_sinr}")
                     readings.append(kpi)
 
+            except serial.SerialException as e:
+                # Serial port unreachable — counted separately from AT command
+                # failures so full_script.py can route to the USB diagnostic path.
+                # No per-band runtime alarm here: the USB counter in full_script.py
+                # sends a single alarm when the threshold is reached, avoiding
+                # a flood of individual band traps for what is one hardware event.
+                print(f"[NR5G] Band {band}: serial port failure — {e} — storing dummy KPI, continuing.")
+                serial_failure_count += 1
+                readings.append(dummy_kpi)
+                continue
+
             except Exception as e:
-                # Band configuration failed after all retries — log, trap, store
-                # dummy to preserve index alignment, and continue to next band.
-                print(f"[NR5G] Band {band}: failed — {e} — storing dummy KPI, continuing.")
+                # AT command failure (ERROR, TIMEOUT, or unexpected exception) —
+                # modem is reachable on serial but rejected or ignored the command.
+                print(f"[NR5G] Band {band}: AT command failure — {e} — storing dummy KPI, continuing.")
                 send_runtime_alarm(
                     f"NR5G band {band}",
                     f"Band configuration failed after retries: {e}. Dummy KPI stored."
@@ -698,10 +723,14 @@ def instKPIcollection(nr5g_bands, lte_bands):
                       f"RSRP={kpi.rsrp}, RSRQ={kpi.rsrq}, SINR={kpi.sinr}")
                 readings.append(kpi)
 
+        except serial.SerialException as e:
+            print(f"[LTE] Band {band}: serial port failure — {e} — storing dummy KPI, continuing.")
+            serial_failure_count += 1
+            readings.append(dummy_kpi)
+            continue
+
         except Exception as e:
-            # Band configuration failed after all retries — log, trap, store
-            # dummy to preserve index alignment, and continue to next band.
-            print(f"[LTE] Band {band}: failed — {e} — storing dummy KPI, continuing.")
+            print(f"[LTE] Band {band}: AT command failure — {e} — storing dummy KPI, continuing.")
             send_runtime_alarm(
                 f"LTE band {band}",
                 f"Band configuration failed after retries: {e}. Dummy KPI stored."
@@ -727,4 +756,4 @@ def instKPIcollection(nr5g_bands, lte_bands):
     return SamplingSession(
         session_start = session_start,
         readings      = readings,
-    ), command_failure_count
+    ), command_failure_count, serial_failure_count

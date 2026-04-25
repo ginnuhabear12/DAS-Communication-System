@@ -16,7 +16,7 @@ except serial.SerialException as e:
     # Port not available at startup — ser is set to None so the rest of
     # the module loads. at_command_comms will raise SerialException on
     # first use, which send_at_command_with_retry catches and routes to
-    # the USB detection and restart logic in kpi_collection.py.
+    # the USB detection and restart logic in kpi_collection.py.  ← stale
     print(f"[MODEM] WARNING: Could not open {PORT} at startup: {e} — "
           f"modem may not be connected.")
     ser = None

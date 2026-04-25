@@ -29,6 +29,8 @@ from constants import (
 )
 from datetime import datetime, timedelta
 import time
+import os
+from modem import PORT
 import subprocess
 
 CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/GUI/config.json")
@@ -186,6 +188,9 @@ session_count = 0    # Tracks which session we are on (1–5)
 _CONSECUTIVE_FAILURE_RESTART_THRESHOLD = 2
 _consecutive_command_failure_sessions  = 0
 
+_USB_SERIAL_FAILURE_THRESHOLD        = 2
+_consecutive_serial_failure_sessions = 0
+
 while True:
 
     session_count += 1
@@ -218,39 +223,26 @@ while True:
     # NR5G bands first, LTE bands second. process_window uses positional index
     # to match readings across all 5 sessions, so a mismatch here would silently
     # pair the wrong bands together during averaging.
+    total_bands             = len(nr5g_bands) + len(lte_bands)
+    session_cmd_failures    = 0
+    session_serial_failures = 0
+
     try:
-        session, cmd_failures = instKPIcollection(nr5g_bands, lte_bands)
+        session, session_cmd_failures, session_serial_failures = instKPIcollection(nr5g_bands, lte_bands)
         sessions.append(session)
         print(f"[MAIN] Session {session_count} collected — "
               f"{len(session.readings)} bands read, "
-              f"{cmd_failures} band(s) failed via AT command error.")
-
-        total_bands = len(nr5g_bands) + len(lte_bands)
-
-        if total_bands > 0 and cmd_failures == total_bands:
-            # Every single band failed via AT command exception — not a coverage
-            # issue, this means the modem rejected or didn't respond to every
-            # configuration command this session.
-            _consecutive_command_failure_sessions += 1
-            print(f"[MAIN] All bands failed via command error — "
-                  f"consecutive failure sessions: "
-                  f"{_consecutive_command_failure_sessions}/"
-                  f"{_CONSECUTIVE_FAILURE_RESTART_THRESHOLD}")
-
-            if _consecutive_command_failure_sessions >= _CONSECUTIVE_FAILURE_RESTART_THRESHOLD:
-                _trigger_modem_restart(
-                    f"All bands failed via AT command error for "
-                    f"{_consecutive_command_failure_sessions} consecutive sessions — "
-                    f"modem is not processing commands. Restarting Pi to recover."
-                )
-        else:
-            # At least one band had a normal AT response this session —
-            # reset the consecutive failure counter.
-            if _consecutive_command_failure_sessions > 0:
-                print(f"[MAIN] AT comms recovered — resetting consecutive failure counter.")
-            _consecutive_command_failure_sessions = 0
+              f"{session_cmd_failures} AT command failure(s), "
+              f"{session_serial_failures} serial failure(s).")
 
     except Exception as e:
+        # instKPIcollection raised before returning counts. Attributed entirely
+        # to command failures — a complete crash before the band loops return
+        # is a software or modem-state issue, not a hardware disconnect.
+        # serial_failure_count stays 0 so the USB counter is not affected.
+        session_cmd_failures    = total_bands
+        session_serial_failures = 0
+
         print(f"[MAIN] Session {session_count} collection failed unexpectedly: {e} "
               f"— building dummy session to maintain window integrity.")
         send_runtime_alarm(
@@ -291,13 +283,66 @@ while True:
                 sinr      = 9999,
             ))
 
-        session = SamplingSession(
+        sessions.append(SamplingSession(
             session_start = session_start,
             readings      = dummy_readings,
-        )
-        sessions.append(session)
+        ))
         print(f"[MAIN] Dummy session inserted for session {session_count} — "
               f"{len(dummy_readings)} bands set to sentinel 9999.")
+
+    # ── Serial Failure Counter ────────────────────────────────────────────────
+    # Increments when every band in the session raised SerialException —
+    # the serial port was unreachable at the hardware level for the entire
+    # session. Resets the moment any band completes without a serial error,
+    # including bands that returned SEARCH (modem replied, just found no cell).
+    # Alarm directs the operator to physical connection and USB enumeration.
+    if total_bands > 0 and session_serial_failures == total_bands:
+        _consecutive_serial_failure_sessions += 1
+        print(f"[MAIN] All bands failed via serial port error — "
+              f"consecutive serial failure sessions: "
+              f"{_consecutive_serial_failure_sessions}/{_USB_SERIAL_FAILURE_THRESHOLD}")
+
+        if _consecutive_serial_failure_sessions >= _USB_SERIAL_FAILURE_THRESHOLD:
+            send_runtime_alarm(
+                "serial port",
+                f"All bands failed via SerialException for "
+                f"{_consecutive_serial_failure_sessions} consecutive sessions — "
+                f"USB serial port disconnected or driver failure. "
+                f"Check physical modem connection and USB enumeration on the Pi."
+            )
+            _trigger_modem_restart(
+                f"Serial port unreachable for {_consecutive_serial_failure_sessions} "
+                f"consecutive sessions — USB hardware disconnected or driver failure."
+            )
+    else:
+        if _consecutive_serial_failure_sessions > 0:
+            print(f"[MAIN] Serial port recovered — resetting serial failure counter.")
+        _consecutive_serial_failure_sessions = 0
+
+    # ── AT Command Failure Counter ────────────────────────────────────────────
+    # Increments when every band failed via AT command error (ERROR, TIMEOUT,
+    # or unexpected exception) while the serial port was communicating.
+    # Kept separate from the serial counter: command failures point to modem
+    # firmware or state, not physical hardware — the restart message reflects
+    # this so the operator knows where to look when investigating manually.
+    if total_bands > 0 and session_cmd_failures == total_bands:
+        _consecutive_command_failure_sessions += 1
+        print(f"[MAIN] All bands failed via AT command error — "
+              f"consecutive failure sessions: "
+              f"{_consecutive_command_failure_sessions}/"
+              f"{_CONSECUTIVE_FAILURE_RESTART_THRESHOLD}")
+
+        if _consecutive_command_failure_sessions >= _CONSECUTIVE_FAILURE_RESTART_THRESHOLD:
+            _trigger_modem_restart(
+                f"All bands failed via AT command error for "
+                f"{_consecutive_command_failure_sessions} consecutive sessions — "
+                f"modem present on serial port but not processing commands. "
+                f"Check modem firmware state and AT interface."
+            )
+    else:
+        if _consecutive_command_failure_sessions > 0:
+            print(f"[MAIN] AT comms recovered — resetting consecutive failure counter.")
+        _consecutive_command_failure_sessions = 0
 
     # ── Window Processing ─────────────────────────────────────────────────────
     # Separated from the collection try/except above so a processing failure

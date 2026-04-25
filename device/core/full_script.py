@@ -37,11 +37,11 @@ CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/GUI/config.json")
 
 REQUIRED_FIELDS = [
     "site_name", "device_id", "poll_interval",
-    "snmp_host",  
-    "rssi_threshold_min", 
-    "rsrp_threshold_min", 
-    "rsrq_threshold_min", 
-    "sinr_threshold_min", 
+    "snmp_host", "monitored_bands",
+    "rssi_threshold_min",
+    "rsrp_threshold_min",
+    "rsrq_threshold_min",
+    "sinr_threshold_min",
 ]
 
 def load_config():
@@ -54,11 +54,9 @@ def load_config():
             # Find any missing or null fields
             missing = [k for k in REQUIRED_FIELDS if cfg.get(k) is None or cfg.get(k) == ""]
 
-            # Also check RAT-specific fields
-            if cfg.get("rat") == "LTE" and not cfg.get("earfcn"):
-                missing.append("earfcn")
-            elif cfg.get("rat") == "5G" and not cfg.get("nr_band"):
-                missing.append("nr_band")
+            # Also check that monitored_bands is not an empty list
+            if not cfg.get("monitored_bands"):
+                missing.append("monitored_bands (no bands selected)")
 
             if missing:
                 print(f"[CONFIG] Waiting for missing fields: {missing}")
@@ -105,13 +103,10 @@ device_id      = cfg["device_id"]
 snmp_host      = cfg["snmp_host"]
 #snmp_community = cfg["snmp_community"]
 
-# Build band lists from config
-if cfg["rat"] == "LTE":
-    lte_bands  = [f"b{cfg['earfcn']}"]   # adjust format to match your modem commands
-    nr5g_bands = []
-elif cfg["rat"] == "5G":
-    nr5g_bands = [cfg["nr_band"]]
-    lte_bands  = []
+# Build band lists from monitored_bands — 'b' prefix = LTE, 'n' prefix = NR5G
+monitored_bands = cfg["monitored_bands"]
+lte_bands  = [b for b in monitored_bands if b.startswith("b")]
+nr5g_bands = [b for b in monitored_bands if b.startswith("n")]
 
 # Build thresholds from config
 lte_thresholds = {

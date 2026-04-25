@@ -7,7 +7,7 @@ Purpose: Define system limits, thresholds, identities, or protocol behavior - mu
 
 #Sampling Behavior Constants
 SAMPLES_PER_SESSION = 5 #change
-SAMPLE_INTERVAL_SECONDS = 60
+SAMPLE_INTERVAL_SECONDS = 90
 AVERAGING_WINDOW_SECONDS = 300  # 5 minutes
 BANDS = []
 

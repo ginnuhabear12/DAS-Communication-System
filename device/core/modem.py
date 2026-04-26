@@ -1,6 +1,7 @@
 import serial
 import time
 from datetime import datetime
+import re
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Timestamp Helper
@@ -65,7 +66,7 @@ def at_command_comms(command, timeout):
     # send back clean, easier to handle data
     #remove OK after a successful response and use strip() to remove spaces or indents before or after the response
     if "OK" in full_response:
-        return full_response.replace("OK", "").strip()
+        return re.sub(r'\r?\nOK\r?\n?$', '', full_response).strip()
     
     #return ERROR anyways to notify an unsuccessful AT command
     elif "ERROR" in full_response:

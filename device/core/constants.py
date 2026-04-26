@@ -4,6 +4,9 @@ Purpose: Define system limits, thresholds, identities, or protocol behavior - mu
 
 """
 
+from pathlib import Path
+
+CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/GUI/config.json")
 
 #Sampling Behavior Constants
 SAMPLES_PER_SESSION = 5 #change

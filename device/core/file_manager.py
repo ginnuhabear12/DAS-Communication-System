@@ -537,21 +537,3 @@ def update_vpn_status(vpn_status: str) -> None:
                     detail    = f"{type(write_e).__name__}: VPN status write failed after retry: {write_e}."
                 )
 
-
-if __name__ == "__main__":
-    print("script started")
-    class Dummy:
-        rat = "LTE"
-        band = 12
-        pci = 100
-        earfcn = 5035
-        avg_rssi = -70
-        avg_rsrp = -95
-        avg_rsrq = -10
-        avg_sinr = 5
-        avg_ss_rsrp = 7
-        start_time = end_time = __import__("datetime").datetime.now()
-
-    avg = Dummy()
-    update_gui_json([avg])
-    append_to_daily_file([avg])

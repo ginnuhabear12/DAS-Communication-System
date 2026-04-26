@@ -9,7 +9,6 @@ Author:
 
 
 import json
-from pathlib import Path
 from standin_kpi_collection import (
     instKPIcollection,
     send_at_command_with_retry,
@@ -27,6 +26,7 @@ from constants import (
     AT_CMD_COPS_AUTO,
     SAMPLES_PER_SESSION,
     SAMPLE_INTERVAL_SECONDS,
+    CONFIG_PATH
 )
 from datetime import datetime, timedelta
 import time
@@ -41,7 +41,6 @@ def _ts():
     """Return current timestamp in HH:MM:SS.mmm format."""
     return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
-CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/GUI/config.json")
 
 REQUIRED_FIELDS = [
     "site_name", "device_id", "poll_interval",

@@ -37,36 +37,91 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
     Returns an LTEKPI or NR5GKPI object, or None if the modem
     is in SEARCH state (no cell found) or the response is unreadable.
 
+    The RM520N-GL returns two distinct response formats per the Quectel
+    RG520N&RM5x0N AT Commands Manual depending on active network mode:
+
+    Single-line (LTE-only or NR5G-SA mode):
+        +QENG: "servingcell",<state>,"LTE",<is_tdd>,<MCC>,<MNC>,<cellID>,
+               <PCID>,<earfcn>,<freq_band_ind>,<UL_bw>,<DL_bw>,<TAC>,
+               <RSRP>,<RSRQ>,<RSSI>,<SINR>,<CQI>,<tx_power>,<srxlev>
+
+        Field indices (0-based, after stripping +QENG: and quotes):
+        [0]=servingcell [1]=state [2]=RAT [3]=is_tdd [4]=MCC [5]=MNC
+        [6]=cellID [7]=PCID [8]=earfcn [9]=freq_band_ind [10]=UL_bw
+        [11]=DL_bw [12]=TAC [13]=RSRP [14]=RSRQ [15]=RSSI [16]=SINR
+
+    Multi-line (EN-DC / LTE + NR5G-NSA mode):
+        +QENG: "servingcell",<state>
+        +QENG: "LTE",<is_tdd>,<MCC>,<MNC>,<cellID>,<PCID>,<earfcn>,
+               <freq_band_ind>,<UL_bw>,<DL_bw>,<TAC>,<RSRP>,<RSRQ>,
+               <RSSI>,<SINR>,<CQI>,<tx_power>,<srxlev>
+        +QENG: "NR5G-NSA",...  (not used — NR5G NSA collected separately)
+
+        Field indices for LTE data line (0-based, after stripping +QENG: and quotes):
+        [0]=RAT [1]=is_tdd [2]=MCC [3]=MNC [4]=cellID [5]=PCID
+        [6]=earfcn [7]=freq_band_ind [8]=UL_bw [9]=DL_bw [10]=TAC
+        [11]=RSRP [12]=RSRQ [13]=RSSI [14]=SINR
+
     Args:
         raw_response: Cleaned string from at_command_comms().
-        band:         Band string from BANDS list e.g. 'b2', 'n2'.
+        band:         Band string from configured bands e.g. 'b2', 'n2'.
     """
 
-    # SEARCH means the modem found no cell on this band — caller will store sentinel values
+    # SEARCH means the modem found no cell on this band — caller stores sentinel
     if "SEARCH" in raw_response:
         print(f"{_ts()} [PARSER] Band {band}: modem in SEARCH state — no cell found.")
         return None
 
     try:
-        # Step 1: Find the line that actually contains the QENG data.
-        # raw_response may have the echo of the command on the first line,
-        # so we look for the line starting with +QENG.
-        qeng_line = ""
-        for line in raw_response.strip().split('\n'):
-            if line.strip().startswith('+QENG'):
-                qeng_line = line.strip()
-                break
+        # ── Step 1: Collect all +QENG lines from the response ─────────────────
+        qeng_lines = [
+            line.strip()
+            for line in raw_response.strip().split('\n')
+            if line.strip().startswith('+QENG')
+        ]
 
-        if not qeng_line:
+        if not qeng_lines:
             print(f"{_ts()} [PARSER] Band {band}: no +QENG line found in response.")
             return None
 
-        # Step 2: Strip the "+QENG: " prefix and all quotes, then split on commas.
-        clean    = qeng_line.replace('+QENG:', '').replace('"', '').strip()
+        # ── Step 2: Detect format from the first line ─────────────────────────
+        # Single-line: first line contains RAT at field index 2
+        #   e.g. "servingcell","NOCONN","LTE","FDD",...
+        # Multi-line (EN-DC): first line is state header only, LTE data follows
+        #   e.g. "servingcell","NOCONN"  then  "LTE","FDD",...
+        first_clean  = qeng_lines[0].replace('+QENG:', '').replace('"', '').strip()
+        first_fields = [f.strip() for f in first_clean.split(',')]
+
+        KNOWN_RATS = ('LTE', 'NR5G-SA', 'NR5G-NSA', 'WCDMA', 'GSM')
+
+        if len(first_fields) >= 3 and first_fields[2] in KNOWN_RATS:
+            # ── Single-line format ────────────────────────────────────────────
+            # LTE-only or NR5G-SA mode — all fields on one line including the
+            # "servingcell" and state prefix. Use first line as the data line.
+            data_line   = qeng_lines[0]
+            single_line = True
+
+        elif len(qeng_lines) >= 2:
+            # ── Multi-line format (EN-DC) ─────────────────────────────────────
+            # Modem is in LTE + NR5G-NSA mode. First line is the state header
+            # only. LTE KPI data is on the second +QENG line, which has no
+            # "servingcell" or state prefix — indices shift by -2 relative to
+            # single-line format. NR5G-NSA third line is ignored here since
+            # NR5G bands are collected separately via their own band loop.
+            data_line   = qeng_lines[1]
+            single_line = False
+
+        else:
+            print(f"{_ts()} [PARSER] Band {band}: state header found but no data line follows.")
+            return None
+
+        # ── Step 3: Clean and split the selected data line ────────────────────
+        clean    = data_line.replace('+QENG:', '').replace('"', '').strip()
         raw_list = clean.split(',')
 
-        # Step 3: Convert each field to int if possible, keep as string otherwise.
-        # "-" values (invalid/unavailable fields) will stay as strings.
+        # ── Step 4: Convert each field to int/float where possible ───────────
+        # '-' fields (unavailable values from modem) → sentinel 9999 so that
+        # alarms.py INVALID_SENTINEL check fires naturally for those fields.
         parts = []
         for item in raw_list:
             item = item.strip()
@@ -82,78 +137,81 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
                 except ValueError:
                     parts.append(item)  # keep as string e.g. "LTE", "FDD"
 
-        # After stripping +QENG: and quotes, the fields line up as:
-        # [0]=servingcell, [1]=state, [2]=RAT, [3]=duplex,
-        # [4]=MCC, [5]=MNC, [6]=cellID, [7]=PCI, [8]=EARFCN or ARFCN,
-        # [9]=freq_band(LTE) or TAC(NR5G), ...
-        #
-        # LTE full map:
-        # [7]=PCI, [8]=EARFCN, [9]=freq_band, [10]=UL_bw, [11]=DL_bw,
-        # [12]=TAC, [13]=RSRP, [14]=RSRQ, [15]=RSSI, [16]=SINR_raw
-        #
-        # NR5G-SA full map:
-        # [7]=PCI, [8]=TAC, [9]=ARFCN, [10]=band, [11]=DL_bw,
-        # [12]=RSRP, [13]=RSRQ, [14]=SINR
+        # ── Step 5: Extract KPI fields using format-specific indices ──────────
 
-        rat = parts[2]  # "LTE" or "NR5G-SA"
+        if single_line:
+            # Indices include "servingcell" and state at [0] and [1]
+            # RAT is at [2], all KPI fields offset by +2 vs multi-line
+            rat = parts[2]
 
-        # ── LTE ──────────────────────────────────────────────────────────────
-        if rat == "LTE":
-            #  Raw SINR from modem is NOT in dB — must convert.
-            # Formula: Y = (1/5) × X × 10 − 20  (confirmed by Quectel support)
-            raw_sinr = parts[16]
+            if rat == "LTE":
+                raw_sinr = parts[16] if len(parts) > 16 else 9999
+                if isinstance(raw_sinr, (int, float)) and raw_sinr != 9999:
+                    converted_sinr = (0.2 * raw_sinr * 10) - 20
+                else:
+                    converted_sinr = 9999.0
 
-            # Check raw_sinr before applying the formula. The sentinel value 9999
-            # is substituted earlier in this function when the modem returns '-'
-            # for a field. Feeding 9999 into the formula produces ~19978, which is
-            # internally inconsistent with all other sentinel fields (which stay 9999).
-            # Bypassing the formula for the known sentinel keeps all sentinel values
-            # uniform at 9999 so alarms.py's INVALID_SENTINEL check works correctly
-            # across every KPI field without special-casing SINR.
-            if isinstance(raw_sinr, (int, float)) and raw_sinr != 9999:
-                converted_sinr = (0.2 * raw_sinr * 10) - 20
+                return LTEKPI(
+                    timestamp = datetime.now(),
+                    rat       = parts[2],
+                    band      = parts[9],   # freq_band_ind
+                    pci       = parts[7],   # PCID
+                    earfcn    = parts[8],   # earfcn
+                    rsrp      = parts[13],
+                    rsrq      = parts[14],
+                    rssi      = parts[15],
+                    sinr      = converted_sinr,
+                )
+
+            elif rat == "NR5G-SA":
+                # NR5G-SA is always single-line per Quectel manual
+                # SINR is already in dB for NR5G — no conversion needed
+                return NR5GKPI(
+                    timestamp = datetime.now(),
+                    rat       = parts[2],
+                    band      = parts[10],  # band
+                    pci       = parts[7],   # PCID
+                    arfcn     = parts[9],   # ARFCN
+                    ss_rsrp   = parts[12],
+                    ss_rsrq   = parts[13],
+                    ss_sinr   = parts[14],
+                )
+
             else:
-                converted_sinr = 9999.0
-
-            # band uses parts[9] (the modem-reported freq_band field), not the
-            # input band parameter. rat uses parts[2] (the modem-reported RAT
-            # string). Both must come from the modem response so the verification
-            # checks in instKPIcollection compare configured values against what
-            # the modem actually reported, rather than against themselves.
-
-            return LTEKPI(
-                timestamp = datetime.now(),
-                rat       = parts[2],
-                band      = parts[9],   
-                pci       = parts[7],
-                earfcn    = parts[8],
-                rsrp      = parts[13],
-                rsrq      = parts[14],
-                rssi      = parts[15],
-                sinr      = converted_sinr,
-            )
-
-        # ── NR5G-SA ──────────────────────────────────────────────────────────
-        elif rat == "NR5G-SA":
-            # NR5G SINR is already in dB — no conversion needed
-            return NR5GKPI(
-                timestamp = datetime.now(),
-                rat       = parts[2],
-                band      = parts[10],   
-                pci       = parts[7],
-                arfcn     = parts[9],
-                ss_rsrp   = parts[12],
-                ss_rsrq   = parts[13],
-                ss_sinr   = parts[14],
-            )
+                print(f"{_ts()} [PARSER] Band {band}: unrecognized RAT '{rat}' in single-line response.")
+                return None
 
         else:
-            print(f"{_ts()} [PARSER] Band {band}: unrecognized RAT '{rat}' in response.")
-            return None
+            # Multi-line EN-DC — second line has no "servingcell" or state prefix
+            # RAT is at [0], all KPI fields shifted -2 relative to single-line
+            rat = parts[0]
+
+            if rat == "LTE":
+                raw_sinr = parts[14] if len(parts) > 14 else 9999
+                if isinstance(raw_sinr, (int, float)) and raw_sinr != 9999:
+                    converted_sinr = (0.2 * raw_sinr * 10) - 20
+                else:
+                    converted_sinr = 9999.0
+
+                return LTEKPI(
+                    timestamp = datetime.now(),
+                    rat       = parts[0],
+                    band      = parts[7],   # freq_band_ind
+                    pci       = parts[5],   # PCID
+                    earfcn    = parts[6],   # earfcn
+                    rsrp      = parts[11],
+                    rsrq      = parts[12],
+                    rssi      = parts[13],
+                    sinr      = converted_sinr,
+                )
+
+            else:
+                print(f"{_ts()} [PARSER] Band {band}: unrecognized RAT '{rat}' in multi-line response.")
+                return None
 
     except (IndexError, ValueError, TypeError) as e:
         print(f"{_ts()} [PARSER] Band {band}: failed to parse. Error: {e}")
-        print(f"         Raw was: {raw_response[:120]}")
+        print(f"         Raw was: {raw_response[:200]}")
         return None
 
 

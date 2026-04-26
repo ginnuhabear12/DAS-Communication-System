@@ -173,13 +173,6 @@
                 <span id="ovpn-upload-status" class="ml-2 text-muted" style="font-size:0.85rem;"></span>
               </div>
 
-              <!-- SNMP Trap Endpoint -->
-              <div class="form-group">
-                <label>SNMP Trap Endpoint <span class="text-muted" style="font-size:0.8rem;">(host:port)</span></label>
-                <input type="text" class="form-control" id="cfg-snmp-trap-endpoint" placeholder="e.g. 192.168.1.10:162" oninput="validateSnmpEndpoint()">
-                <small id="snmp-endpoint-feedback" class="form-text" style="display:none;"></small>
-              </div>
-
               <div class="form-group">
                 <label>Bands to Monitor</label>
                 <div id="cfg-monitor-bands">
@@ -527,17 +520,18 @@
     updateStatusBox('vpn-status',    data.vpn_status);
     updateStatusBox('snmp-status',   data.snmp_status);
 
-    // SNMP trap endpoint sub-label
-    const epEl = document.getElementById('snmp-trap-endpoint');
-    if (epEl) {
-      if (data.snmp_trap_endpoint) {
-        epEl.textContent = data.snmp_trap_endpoint;
-        epEl.style.color = '';
-      } else {
-        epEl.textContent = '⚠ No trap endpoint';
-        epEl.style.color = '#dc3545';
-      }
-    }
+    // // SNMP trap endpoint sub-label
+    // const epEl = document.getElementById('snmp-trap-endpoint');
+    // if (epEl) {
+    //   if (data.snmp_trap_endpoint) {
+    //     epEl.textContent = data.snmp_trap_endpoint;
+    //     epEl.style.color = '';
+    //   } else {
+    //     epEl.textContent = '⚠ No trap endpoint';
+    //     epEl.style.color = '#dc3545';
+    //   }
+    // }
+
 
     updateBandsTable(data.bands ?? []);
     setText('site', data.site_name);
@@ -586,39 +580,39 @@
     return true;
   }
 
-  function validateSnmpEndpoint() {
-    const val = (document.getElementById('cfg-snmp-trap-endpoint').value ?? '').trim();
-    const fb  = document.getElementById('snmp-endpoint-feedback');
+  // function validateSnmpEndpoint() {
+  //   const val = (document.getElementById('cfg-snmp-trap-endpoint').value ?? '').trim();
+  //   const fb  = document.getElementById('snmp-endpoint-feedback');
 
-    if (!val) {
-      fb.textContent = '⚠ No SNMP trap endpoint — traps will not be delivered';
-      fb.className = 'form-text text-warning';
-      fb.style.display = 'block';
-      return false;
-    }
+  //   if (!val) {
+  //     fb.textContent = '⚠ No SNMP trap endpoint — traps will not be delivered';
+  //     fb.className = 'form-text text-warning';
+  //     fb.style.display = 'block';
+  //     return false;
+  //   }
 
-    // Expect host:port
-    const parts = val.split(':');
-    if (parts.length !== 2 || !parts[0] || isNaN(parseInt(parts[1]))) {
-      fb.textContent = '✗ Format must be host:port (e.g. 192.168.1.10:162)';
-      fb.className = 'form-text text-danger';
-      fb.style.display = 'block';
-      return false;
-    }
+  //   // Expect host:port
+  //   const parts = val.split(':');
+  //   if (parts.length !== 2 || !parts[0] || isNaN(parseInt(parts[1]))) {
+  //     fb.textContent = '✗ Format must be host:port (e.g. 192.168.1.10:162)';
+  //     fb.className = 'form-text text-danger';
+  //     fb.style.display = 'block';
+  //     return false;
+  //   }
 
-    const port = parseInt(parts[1]);
-    if (port < 1 || port > 65535) {
-      fb.textContent = '✗ Port must be 1–65535 (SNMP default is 162)';
-      fb.className = 'form-text text-danger';
-      fb.style.display = 'block';
-      return false;
-    }
+  //   const port = parseInt(parts[1]);
+  //   if (port < 1 || port > 65535) {
+  //     fb.textContent = '✗ Port must be 1–65535 (SNMP default is 162)';
+  //     fb.className = 'form-text text-danger';
+  //     fb.style.display = 'block';
+  //     return false;
+  //   }
 
-    fb.textContent = '✓ Valid endpoint';
-    fb.className = 'form-text text-success';
-    fb.style.display = 'block';
-    return true;
-  }
+  //   fb.textContent = '✓ Valid endpoint';
+  //   fb.className = 'form-text text-success';
+  //   fb.style.display = 'block';
+  //   return true;
+  // }
 
   /* ─────────────────────────────────────────────
      DIAGNOSTICS PANEL
@@ -714,19 +708,19 @@
       hint:   ovpnPresent === false ? 'Upload a valid .ovpn file via Device Configuration' : null,
     });
 
-    /* 5. SNMP trap endpoint */
-    const endpoint = cfg.snmp_trap_endpoint ?? '';
-    const epParts  = endpoint.split(':');
-    const epOk     = epParts.length === 2 && epParts[0] && !isNaN(parseInt(epParts[1]));
-    checks.push({
-      id:     'snmp_endpoint',
-      label:  'SNMP Trap Endpoint',
-      detail: epOk
-        ? `Endpoint: ${endpoint}`
-        : (endpoint ? `"${endpoint}" is not a valid host:port` : 'No SNMP trap endpoint configured — traps will not be delivered'),
-      status: epOk ? 'ok' : 'error',
-      hint:   epOk ? null : 'Set the trap destination in Device Configuration → SNMP Trap Endpoint (e.g. 192.168.1.10:162)',
-    });
+    // /* 5. SNMP trap endpoint */
+    // const endpoint = cfg.snmp_trap_endpoint ?? '';
+    // const epParts  = endpoint.split(':');
+    // const epOk     = epParts.length === 2 && epParts[0] && !isNaN(parseInt(epParts[1]));
+    // checks.push({
+    //   id:     'snmp_endpoint',
+    //   label:  'SNMP Trap Endpoint',
+    //   detail: epOk
+    //     ? `Endpoint: ${endpoint}`
+    //     : (endpoint ? `"${endpoint}" is not a valid host:port` : 'No SNMP trap endpoint configured — traps will not be delivered'),
+    //   status: epOk ? 'ok' : 'error',
+    //   hint:   epOk ? null : 'Set the trap destination in Device Configuration → SNMP Trap Endpoint (e.g. 192.168.1.10:162)',
+    // });
 
     /* 6. SNMP service running */
     const snmpStatus = st.snmp_status ?? 'UNKNOWN';
@@ -804,9 +798,9 @@
       });
       validateVpnIp();
 
-      // SNMP trap endpoint
-      const epEl = document.getElementById('cfg-snmp-trap-endpoint');
-      if (epEl) { epEl.value = cfg.snmp_trap_endpoint ?? ''; validateSnmpEndpoint(); }
+      // // SNMP trap endpoint
+      // const epEl = document.getElementById('cfg-snmp-trap-endpoint');
+      // if (epEl) { epEl.value = cfg.snmp_trap_endpoint ?? ''; validateSnmpEndpoint(); }
 
       const monitoredBands = cfg.monitored_bands ?? [];
       document.querySelectorAll('#cfg-monitor-bands input[type="checkbox"]').forEach(cb => {

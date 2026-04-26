@@ -785,7 +785,7 @@
 
       document.getElementById('cfg-site-name').value    = cfg.site_name    ?? '';
       document.getElementById('cfg-device-id').value    = cfg.device_id    ?? '';
-      document.getElementById('cfg-poll-interval').value = cfg.poll_interval ?? 30;
+      //document.getElementById('cfg-poll-interval').value = cfg.poll_interval ?? 30;
 
       const octets = (cfg.snmp_host ?? '0.0.0.0').split('.');
       [1,2,3,4].forEach((n,i) => {
@@ -860,11 +860,11 @@
   }
 
   async function saveConfig() {
-    // Run inline validations before saving
-    const ipOk   = validateVpnIp();
+    // Run inline validations before saving 
+    const ipOk = validateVpnIp();
     const statusEl = document.getElementById('cfg-status');
 
-    if (!ipOk || !epOk) {
+    if (!ipOk) {
       statusEl.textContent = '⚠ Fix validation errors before saving';
       statusEl.style.color = 'orange';
       return;
@@ -889,7 +889,7 @@
         statusEl.style.color = 'green';
         runDiagnostics();
       } else {
-        statusEl.textContent = '✗ Save failed: ' + (result.reason ?? 'unknown error');
+        statusEl.textContent = '✗ Save failed: ' + (result.reloason ?? 'unknown error');
         statusEl.style.color = 'red';
       }
     } catch (e) {

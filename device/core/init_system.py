@@ -45,7 +45,7 @@ def check_config():
     required = [
         "site_name",
         "device_id",
-        "poll_interval",
+        # "poll_interval",
         "snmp_host",
     ]
 

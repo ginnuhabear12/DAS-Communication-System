@@ -120,7 +120,7 @@ def login_page(request: Request):
 @app.post("/login")
 async def login(
     request: Request,
-    username: str = Form(...),sfd
+    username: str = Form(...),
     password: str = Form(...),
 ):
     # Load credentials from config

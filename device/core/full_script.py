@@ -43,7 +43,7 @@ def _ts():
 
 
 REQUIRED_FIELDS = [
-    "site_name", "device_id", "poll_interval",
+    "site_name", "device_id",
     "snmp_host", "monitored_bands",
     "rssi_threshold_min",
     "rsrp_threshold_min",

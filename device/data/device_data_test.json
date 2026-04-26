@@ -9,12 +9,22 @@
         {
             "rat": "LTE",
             "band": 2,
-            "pci": 260,
-            "earfcn": 1000,
-            "avg_rssi": -73.5,
-            "avg_rsrp": -105.25,
-            "avg_rsrq": -14.5,
-            "avg_sinr": 8.881784197001252e-16
+            "pci": 9999,
+            "earfcn": 9999,
+            "avg_rssi": null,
+            "avg_rsrp": null,
+            "avg_rsrq": null,
+            "avg_sinr": null
+        },
+        {
+            "rat": "LTE",
+            "band": 4,
+            "pci": 9999,
+            "earfcn": 9999,
+            "avg_rssi": null,
+            "avg_rsrp": null,
+            "avg_rsrq": null,
+            "avg_sinr": null
         },
         {
             "rat": "LTE",
@@ -25,18 +35,8 @@
             "avg_rsrp": null,
             "avg_rsrq": null,
             "avg_sinr": null
-        },
-        {
-            "rat": "LTE",
-            "band": 66,
-            "pci": 415,
-            "earfcn": 67061,
-            "avg_rssi": -75.25,
-            "avg_rsrp": -109.0,
-            "avg_rsrq": -14.75,
-            "avg_sinr": -0.4999999999999991
         }
     ],
     "logs": [],
-    "last_update": "2026-04-25 22:29:59"
+    "last_update": "2026-04-26 09:15:10"
 }

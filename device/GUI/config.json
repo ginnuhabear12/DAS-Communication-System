@@ -11,6 +11,5 @@
     "rsrp_threshold_min": -110,
     "rsrq_threshold_min": -14,
     "sinr_threshold_min": 0,
-    "gui_username": "admin",
-    "gui_password_hash": "0a7cb27e52927eacabbb7ecc738b0fea50b3967945257c43a67eb753cb465bd0"
+    "gui_username": "admin"
 }

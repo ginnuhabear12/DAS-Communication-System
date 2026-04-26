@@ -1,4 +1,4 @@
-;"""
+"""
 file_manager.py — KPI File Management for DAS Communication System
 ------------------------------------------------------------------
 Handles two writes per 5-minute window:

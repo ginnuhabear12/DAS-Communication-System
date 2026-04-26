@@ -16,6 +16,24 @@ import zipfile
 import io
 from fastapi.responses import StreamingResponse
 
+from fastapi import Cookie, Depends, Form, HTTPException
+from fastapi.responses import RedirectResponse
+import hashlib
+import secrets
+
+
+
+# Session store (in-memory — clears on restart, which forces re-login)
+_sessions: dict = {}
+
+def _hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def _is_authenticated(session_token: str | None) -> bool:
+    if not session_token:
+        return False
+    return session_token in _sessions
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Timestamp Helper
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -93,10 +111,52 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
 
 # ----------------------------
-# Dashboard route
+# Login routes
+# ----------------------------
+@app.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse(request, "login.html", {})
+
+@app.post("/login")
+async def login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+):
+    # Load credentials from config
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            cfg = json.load(f)
+    except Exception:
+        cfg = {}
+
+    stored_user = cfg.get("gui_username", "admin")
+    stored_hash = cfg.get("gui_password_hash", _hash_password("admin"))
+
+    if username == stored_user and _hash_password(password) == stored_hash:
+        token = secrets.token_hex(32)
+        _sessions[token] = username
+        response = RedirectResponse(url="/", status_code=302)
+        response.set_cookie("session_token", token, httponly=True, samesite="strict")
+        return response
+    else:
+        return templates.TemplateResponse(request, "login.html", {"error": "Invalid username or password"})
+
+@app.get("/logout")
+def logout(session_token: str | None = Cookie(default=None)):
+    if session_token and session_token in _sessions:
+        del _sessions[session_token]
+    response = RedirectResponse(url="/login", status_code=302)
+    response.delete_cookie("session_token")
+    return response
+
+# ----------------------------
+# Dashboard route (protected)
 # ----------------------------
 @app.get("/", response_class=HTMLResponse)
-def dashboard(request: Request):
+def dashboard(request: Request, session_token: str | None = Cookie(default=None)):
+    if not _is_authenticated(session_token):
+        return RedirectResponse(url="/login", status_code=302)
     return templates.TemplateResponse(
         request,
         "dashboard.html",
@@ -107,10 +167,15 @@ def dashboard(request: Request):
         },
     )
 
+# Protect all API routes too
+def require_auth(session_token: str | None = Cookie(default=None)):
+    if not _is_authenticated(session_token):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
 # ----------------------------
 # Download zip of Logs API
 # ----------------------------
-@app.get("/api/download-logs")
+@app.get("/api/download-logs", dependencies=[Depends(require_auth)])
 def download_logs():
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
@@ -127,7 +192,7 @@ def download_logs():
 # ----------------------------
 # Status API
 # ----------------------------
-@app.get("/api/status")
+@app.get("/api/status", dependencies=[Depends(require_auth)])
 def get_status():
     return JSONResponse(latest_data)
 
@@ -135,7 +200,7 @@ def get_status():
 # ----------------------------
 # Config API
 # ----------------------------
-@app.get("/api/config")
+@app.get("/api/config", dependencies=[Depends(require_auth)])
 def get_config():
     try:
         with open(CONFIG_PATH, "r") as f:
@@ -157,18 +222,21 @@ def get_config():
         )
 
 
-@app.post("/api/config")
+# @app.post("/api/config")
+@app.post("/api/config", dependencies=[Depends(require_auth)])
 async def save_config(request: Request):
     try:
         new_config = await request.json()
 
-        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        if new_config.get("gui_new_password"):
+            new_config["gui_password_hash"] = _hash_password(new_config["gui_new_password"])
+        new_config.pop("gui_new_password", None)
 
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
         with open(CONFIG_PATH, "w") as f:
             json.dump(new_config, f, indent=4)
 
         print(f"{_ts()} Config saved to: {CONFIG_PATH}")
-
         return JSONResponse({"status": "saved", "saved_to": str(CONFIG_PATH)})
 
     except Exception as e:
@@ -179,7 +247,7 @@ async def save_config(request: Request):
 # ----------------------------
 # OVPN Upload API
 # ----------------------------
-@app.post("/api/upload-ovpn")
+@app.post("/api/upload-ovpn", dependencies=[Depends(require_auth)])
 async def upload_ovpn(ovpn_file: UploadFile = File(...)):
     try:
         if not ovpn_file.filename.lower().endswith(".ovpn"):

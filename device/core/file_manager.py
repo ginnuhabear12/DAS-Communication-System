@@ -37,10 +37,11 @@ def _ts():
 # FIX: Protected snmpSend import — if pysnmp or snmpSend is unavailable,
 # fall back to a no-op stub so file_manager continues operating.
 try:
-    from snmpSend import send_runtime_alarm
+    from snmpSend import send_runtime_alarm, SNMP_READY  # ADDED SNMP_READY
 except Exception as _snmp_err:
     print(f"{_ts()} [FILE] WARNING: snmpSend failed to import — {_snmp_err}. "
           f"SNMP alerts will be disabled for file_manager this session.")
+    SNMP_READY = False  # ADDED — snmpSend itself unavailable
     def send_runtime_alarm(component: str, detail: str) -> None:
         print(f"{_ts()} [FILE] SNMP unavailable — would have sent RUNTIME alarm: "
               f"{component} | {detail}")
@@ -211,11 +212,9 @@ def update_gui_json(averaged_results: list) -> None:
         data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
 
     # ── Step 2: Update in-memory data ─────────────────────────────────────────
-    # bands and last_update are always replaced from averaged_results.
-    # All other fields (device_status, alert_message, etc.) are preserved
-    # from the read, from cache, or from defaults — whichever succeeded above.
     data["last_update"] = averaged_results[0].end_time.strftime("%Y-%m-%d %H:%M:%S")
     data["bands"]       = [_averaged_to_dict(avg) for avg in averaged_results]
+    data["snmp_status"] = "RUNNING" if SNMP_READY else "DOWN"  # ADDED
 
     # ── Step 3: Update cache — always, every cycle, before write ──────────────
     # Cache is updated unconditionally from the in-memory data object.

@@ -371,8 +371,8 @@
 <footer class="main-footer d-flex justify-content-between align-items-center">
   <div><strong>DAS Monitoring System © 2026</strong></div>
   <div>
-    <b>Device:</b> {{ data.device_id }} &nbsp;|&nbsp;
-    <b>Site:</b> {{ data.site_name }}
+    <b>Device:</b> <span id="footer-device-id">{{ data.device_id }}</span> &nbsp;|&nbsp;
+    <b>Site:</b> <span id="footer-site-name">{{ data.site_name }}</span>
   </div>
 </footer>
 
@@ -529,6 +529,8 @@
     updateBandsTable(data.bands ?? []);
     setText('site', data.site_name);
     updateLogTable(data.logs ?? []);
+    setText('footer-device-id', data.device_id);
+    setText('footer-site-name', data.site_name);
   }
   setInterval(refreshStatus, 5000);
 
@@ -898,7 +900,6 @@
       statusEl.style.color = 'red';
     }
   }
-
   // Boot
   loadConfig();
   refreshStatus();

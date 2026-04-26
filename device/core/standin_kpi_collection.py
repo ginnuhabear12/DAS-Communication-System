@@ -355,7 +355,7 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
 
         # ── Alert and restart checks (time-based) ────────────────────────────
         # Alert fires once at 120s — notifies operator the command is failing.
-        # Restart fires at 240s (4 minutes) — if the modem hasn't responded in
+        # Restart fires at 300s (5 minutes) — if the modem hasn't responded in
         # 4 minutes it is not recoverable without a power cycle. The Pi restart
         # resets the USB bus and modem power, which is the only viable recovery.
         elapsed = time.time() - start_time
@@ -447,7 +447,7 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
 
         # ── Alert and restart checks (time-based) ────────────────────────────
         # Alert fires once at 120s — notifies operator the command is failing.
-        # Restart fires at 240s (4 minutes) — same reasoning as COPS restart.
+        # Restart fires at 300s (5 minutes) — same reasoning as COPS restart.
         elapsed = time.time() - start_time
 
         if not alert_sent and elapsed >= _CRITICAL_ALERT_TIMEOUT:

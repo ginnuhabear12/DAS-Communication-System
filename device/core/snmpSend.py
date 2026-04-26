@@ -43,7 +43,7 @@ from pysnmp.hlapi.asyncio import (
 )
 import json
 import os
-from full_script import CONFIG_PATH
+from constants import CONFIG_PATH
 import time
 
 
@@ -99,6 +99,22 @@ except Exception as e:
 
 NMS_PORT  = 1162               # Change to 162 in production
 COMMUNITY = "public"
+
+# ── OID Definitions ───────────────────────────────────────────────────────────
+# Enterprise root: 1.3.6.1.4.1.12345
+# Replace 12345 with your assigned PEN for production.
+
+# Trap type OIDs — identify which kind of alarm this trap represents
+OID_TRAP_INVALID   = "1.3.6.1.4.1.12345.1.1"   # trapInvalidKPI
+OID_TRAP_THRESHOLD = "1.3.6.1.4.1.12345.1.2"   # trapThresholdKPI
+OID_TRAP_RUNTIME   = "1.3.6.1.4.1.12345.1.3"   # trapRuntime
+
+# Varbind OIDs — the data fields carried inside each trap
+OID_VAR_BAND      = "1.3.6.1.4.1.12345.2.1.0"  # band number (Integer32)
+OID_VAR_KPI       = "1.3.6.1.4.1.12345.2.2.0"  # KPI name (OctetString)
+OID_VAR_ALARM     = "1.3.6.1.4.1.12345.2.3.0"  # alarm category (OctetString)
+OID_VAR_DETAIL    = "1.3.6.1.4.1.12345.2.4.0"  # human-readable detail (OctetString)
+OID_VAR_COMPONENT = "1.3.6.1.4.1.12345.2.5.0"  # failed component (OctetString)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

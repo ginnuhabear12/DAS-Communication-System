@@ -12,6 +12,10 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+import zipfile
+import io
+from fastapi.responses import StreamingResponse
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Timestamp Helper
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -31,6 +35,8 @@ CONFIG_PATH = CONFIG_DIR / "config.json"
 
 OVPN_DIR = CONFIG_DIR / "vpn"
 OVPN_PATH = OVPN_DIR / "client.ovpn"
+
+KPI_DATA_DIR = Path("/home/das/DAS-Communication-System/data/kpi_data")
 
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 OVPN_DIR.mkdir(parents=True, exist_ok=True)
@@ -101,6 +107,22 @@ def dashboard(request: Request):
         },
     )
 
+# ----------------------------
+# Download zip of Logs API
+# ----------------------------
+@app.get("/api/download-logs")
+def download_logs():
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        if KPI_DATA_DIR.exists():
+            for file in KPI_DATA_DIR.glob("*.json"):
+                zf.write(file, arcname=file.name)
+    zip_buffer.seek(0)
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=das_logs.zip"}
+    )
 
 # ----------------------------
 # Status API
@@ -124,7 +146,7 @@ def get_config():
             {
                 "site_name": "",
                 "device_id": "",
-                "poll_interval": 30,
+                # "poll_interval": 30,
                 "snmp_host": "0.0.0.0",
                 "rat": "",
                 "earfcn": "",

@@ -33,6 +33,13 @@ import os
 from modem import PORT
 import subprocess
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Timestamp Helper
+# ═══════════════════════════════════════════════════════════════════════════════
+def _ts():
+    """Return current timestamp in HH:MM:SS.mmm format."""
+    return datetime.now().strftime("%H:%M:%S.%f")[:-3]
+
 CONFIG_PATH = Path("/home/das/DAS-Communication-System/device/GUI/config.json")
 
 REQUIRED_FIELDS = [
@@ -59,18 +66,18 @@ def load_config():
                 missing.append("monitored_bands (no bands selected)")
 
             if missing:
-                print(f"[CONFIG] Waiting for missing fields: {missing}")
+                print(f"{_ts()} [CONFIG] Waiting for missing fields: {missing}")
                 time.sleep(5)
                 continue
 
-            print(f"[CONFIG] Config loaded successfully.")
+            print(f"{_ts()} [CONFIG] Config loaded successfully.")
             return cfg
 
         except FileNotFoundError:
-            print("[CONFIG] config.json not found — retrying in 5s...")
+            print(f"{_ts()} [CONFIG] config.json not found — retrying in 5s...")
             time.sleep(5)
         except json.JSONDecodeError:
-            print("[CONFIG] config.json is invalid JSON — retrying in 5s...")
+            print(f"{_ts()} [CONFIG] config.json is invalid JSON — retrying in 5s...")
             time.sleep(5)
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -78,7 +85,7 @@ def load_config():
 # ══════════════════════════════════════════════════════════════════════════════
 
 def start_vpn(ovpn_path):
-    print("[VPN] Starting OpenVPN...")
+    print(f"{_ts()} [VPN] Starting OpenVPN...")
     process = subprocess.Popen(
         ["sudo", "openvpn", "--config", ovpn_path],
         stdout=subprocess.PIPE,
@@ -87,14 +94,14 @@ def start_vpn(ovpn_path):
     
     # Give it time to connect
     time.sleep(10)
-    print("[VPN] OpenVPN should be connected.")
+    print(f"{_ts()} [VPN] OpenVPN should be connected.")
     return process
 
 # Start VPN BEFORE everything else
 vpn_process = start_vpn("/home/das/DAS-Communication-System/device/GUI/vpn/client.ovpn")
 
 
-print("[STARTUP] Loading config...")
+print(f"{_ts()} [STARTUP] Loading config...")
 cfg = load_config()
 
 # Apply config values
@@ -130,21 +137,21 @@ nr5g_thresholds = {
 # Critical — the script cannot safely proceed until the modem confirms full
 # functionality. Uses indefinite retry with SNMP alert at 120s so the operator
 # is notified if the modem is unresponsive at startup.
-print("[STARTUP] Sending AT+CFUN=1 — full modem reset...")
+print(f"{_ts()} [STARTUP] Sending AT+CFUN=1 — full modem reset...")
 send_cfun_until_success("AT+CFUN=1", timeout=15)
-print("[STARTUP] AT+CFUN=1 accepted — waiting 15 seconds for modem to fully boot...")
+print(f"{_ts()} [STARTUP] AT+CFUN=1 accepted — waiting 15 seconds for modem to fully boot...")
 time.sleep(15)
 
 # ── AT+QNWPREFCFG — Mode preference ──────────────────────────────────────────
 # Less critical than CFUN — if this fails the modem may already be in AUTO
 # mode from a previous run. Retried with send_at_command_with_retry (3 attempts),
 # then a trap is sent and startup continues rather than halting indefinitely.
-print("[STARTUP] Setting mode preference to AUTO (LTE + NR5G)...")
+print(f"{_ts()} [STARTUP] Setting mode preference to AUTO (LTE + NR5G)...")
 try:
     send_at_command_with_retry('AT+QNWPREFCFG="mode_pref",AUTO', 3)
-    print("[STARTUP] Mode preference set to AUTO.")
+    print(f"{_ts()} [STARTUP] Mode preference set to AUTO.")
 except Exception as e:
-    print(f"[STARTUP] AT+QNWPREFCFG failed after retries: {e} — "
+    print(f"{_ts()} [STARTUP] AT+QNWPREFCFG failed after retries: {e} — "
           f"modem may already be in correct mode, continuing.")
     send_runtime_alarm(
         "AT+QNWPREFCFG",
@@ -152,18 +159,18 @@ except Exception as e:
         f"Modem may already be in AUTO mode — continuing."
     )
 
-print("[STARTUP] Waiting 10 seconds for mode switch to settle...")
+print(f"{_ts()} [STARTUP] Waiting 10 seconds for mode switch to settle...")
 time.sleep(10)
 
 # ── AT+COPS=0 — Auto-registration ────────────────────────────────────────────
 # Critical — uses indefinite retry matching the pattern used inside
 # instKPIcollection so startup behavior is consistent with runtime behavior.
-print("[STARTUP] Sending AT+COPS=0 — enabling auto-registration...")
+print(f"{_ts()} [STARTUP] Sending AT+COPS=0 — enabling auto-registration...")
 send_cops_command_until_success(AT_CMD_COPS_AUTO, timeout=180)
-print("[STARTUP] AT+COPS=0 accepted — waiting 10 seconds for registration to settle...")
+print(f"{_ts()} [STARTUP] AT+COPS=0 accepted — waiting 10 seconds for registration to settle...")
 time.sleep(10)
 
-print("[STARTUP] Modem initialized — beginning collection loop.")
+print(f"{_ts()} [STARTUP] Modem initialized — beginning collection loop.")
 
 
 
@@ -189,7 +196,7 @@ _consecutive_serial_failure_sessions = 0
 while True:
 
     session_count += 1
-    print(f"\n[MAIN] Starting session {session_count} of {SAMPLES_PER_SESSION}")
+    print(f"\n{_ts()} [MAIN] Starting session {session_count} of {SAMPLES_PER_SESSION}")
     session_start = datetime.now()
 
     # ── Collection ────────────────────────────────────────────────────────────
@@ -225,7 +232,7 @@ while True:
     try:
         session, session_cmd_failures, session_serial_failures = instKPIcollection(nr5g_bands, lte_bands)
         sessions.append(session)
-        print(f"[MAIN] Session {session_count} collected — "
+        print(f"{_ts()} [MAIN] Session {session_count} collected — "
               f"{len(session.readings)} bands read, "
               f"{session_cmd_failures} AT command failure(s), "
               f"{session_serial_failures} serial failure(s).")
@@ -238,7 +245,7 @@ while True:
         session_cmd_failures    = total_bands
         session_serial_failures = 0
 
-        print(f"[MAIN] Session {session_count} collection failed unexpectedly: {e} "
+        print(f"{_ts()} [MAIN] Session {session_count} collection failed unexpectedly: {e} "
               f"— building dummy session to maintain window integrity.")
         send_runtime_alarm(
             "instKPIcollection",
@@ -282,7 +289,7 @@ while True:
             session_start = session_start,
             readings      = dummy_readings,
         ))
-        print(f"[MAIN] Dummy session inserted for session {session_count} — "
+        print(f"{_ts()} [MAIN] Dummy session inserted for session {session_count} — "
               f"{len(dummy_readings)} bands set to sentinel 9999.")
 
     # ── Serial Failure Counter ────────────────────────────────────────────────
@@ -293,7 +300,7 @@ while True:
     # Alarm directs the operator to physical connection and USB enumeration.
     if total_bands > 0 and session_serial_failures == total_bands:
         _consecutive_serial_failure_sessions += 1
-        print(f"[MAIN] All bands failed via serial port error — "
+        print(f"{_ts()} [MAIN] All bands failed via serial port error — "
               f"consecutive serial failure sessions: "
               f"{_consecutive_serial_failure_sessions}/{_USB_SERIAL_FAILURE_THRESHOLD}")
 
@@ -311,7 +318,7 @@ while True:
             )
     else:
         if _consecutive_serial_failure_sessions > 0:
-            print(f"[MAIN] Serial port recovered — resetting serial failure counter.")
+            print(f"{_ts()} [MAIN] Serial port recovered — resetting serial failure counter.")
         _consecutive_serial_failure_sessions = 0
 
     # ── AT Command Failure Counter ────────────────────────────────────────────
@@ -322,7 +329,7 @@ while True:
     # this so the operator knows where to look when investigating manually.
     if total_bands > 0 and session_cmd_failures == total_bands:
         _consecutive_command_failure_sessions += 1
-        print(f"[MAIN] All bands failed via AT command error — "
+        print(f"{_ts()} [MAIN] All bands failed via AT command error — "
               f"consecutive failure sessions: "
               f"{_consecutive_command_failure_sessions}/"
               f"{_CONSECUTIVE_FAILURE_RESTART_THRESHOLD}")
@@ -336,7 +343,7 @@ while True:
             )
     else:
         if _consecutive_command_failure_sessions > 0:
-            print(f"[MAIN] AT comms recovered — resetting consecutive failure counter.")
+            print(f"{_ts()} [MAIN] AT comms recovered — resetting consecutive failure counter.")
         _consecutive_command_failure_sessions = 0
 
     # ── Window Processing ─────────────────────────────────────────────────────
@@ -347,14 +354,14 @@ while True:
     # would corrupt the averaging and alarm results for a fresh 5-session window.
     if session_count == SAMPLES_PER_SESSION:
         try:
-            print(f"\n[MAIN] 5 sessions collected — running time averaging and alarms...")
+            print(f"\n{_ts()} [MAIN] 5 sessions collected — running time averaging and alarms...")
             averaged_results = process_window(sessions, lte_thresholds, nr5g_thresholds)
             update_gui_json(averaged_results)
             append_to_daily_file(averaged_results)
-            print(f"[MAIN] Window processed — resetting for next collection window.")
+            print(f"{_ts()} [MAIN] Window processed — resetting for next collection window.")
 
         except Exception as e:
-            print(f"[MAIN] Window processing failed: {e} — resetting window.")
+            print(f"{_ts()} [MAIN] Window processing failed: {e} — resetting window.")
             send_runtime_alarm("process_window", f"Window processing failed: {e}")
 
         finally:
@@ -372,11 +379,11 @@ while True:
     sleep_duration = (next_session - datetime.now()).total_seconds()
 
     if sleep_duration > 0:
-        print(f"[MAIN] Sleeping {sleep_duration:.1f}s until next session...")
+        print(f"{_ts()} [MAIN] Sleeping {sleep_duration:.1f}s until next session...")
         time.sleep(sleep_duration)
     else:
         # Collection or processing overran the window — continue immediately
         # without sleeping. The overrun is logged so the operator can identify
         # if collection is consistently taking longer than SAMPLE_INTERVAL_SECONDS.
-        print(f"[MAIN] Warning: overran window by {abs(sleep_duration):.1f}s — "
+        print(f"{_ts()} [MAIN] Warning: overran window by {abs(sleep_duration):.1f}s — "
               f"starting next session immediately.")

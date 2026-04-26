@@ -1,0 +1,42 @@
+{
+    "device_status": "ONLINE",
+    "modem_status": "CONNECTED",
+    "vpn_status": "ACTIVE",
+    "snmp_status": "RUNNING",
+    "site_name": "DAS",
+    "alert_message": "No active alarms",
+    "bands": [
+        {
+            "rat": "LTE",
+            "band": 2,
+            "pci": 402,
+            "earfcn": 1000,
+            "avg_rssi": -76.8,
+            "avg_rsrp": -107.8,
+            "avg_rsrq": -15.0,
+            "avg_sinr": -0.3999999999999993
+        },
+        {
+            "rat": "LTE",
+            "band": 5,
+            "pci": 9999,
+            "earfcn": 9999,
+            "avg_rssi": null,
+            "avg_rsrp": null,
+            "avg_rsrq": null,
+            "avg_sinr": null
+        },
+        {
+            "rat": "LTE",
+            "band": 66,
+            "pci": 366,
+            "earfcn": 67061,
+            "avg_rssi": -75.2,
+            "avg_rsrp": -107.0,
+            "avg_rsrq": -12.2,
+            "avg_sinr": 0.8
+        }
+    ],
+    "logs": [],
+    "last_update": "2026-04-25 20:43:58"
+}

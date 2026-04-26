@@ -1,5 +1,13 @@
 import serial
 import time
+from datetime import datetime
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Timestamp Helper
+# ═══════════════════════════════════════════════════════════════════════════════
+def _ts():
+    """Return current timestamp in HH:MM:SS.mmm format."""
+    return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
 
 #AT COMMAND METHOD
@@ -17,7 +25,7 @@ except serial.SerialException as e:
     # the module loads. at_command_comms will raise SerialException on
     # first use, which send_at_command_with_retry catches and routes to
     # the USB detection and restart logic in kpi_collection.py.  ← stale
-    print(f"[MODEM] WARNING: Could not open {PORT} at startup: {e} — "
+    print(f"{_ts()} [MODEM] WARNING: Could not open {PORT} at startup: {e} — "
           f"modem may not be connected.")
     ser = None
 
@@ -35,7 +43,7 @@ def at_command_comms(command, timeout):
     start_time = time.time()
     full_response = ""
     
-    print(f"--- Sending: {command} (Waiting up to {timeout}s) ---")
+    print(f"{_ts()} --- Sending: {command} (Waiting up to {timeout}s) ---")
     
     while (time.time() - start_time) < timeout:
         #if there are more than 0 bytes in the serial RAM (return data from AT commands), then proceed with the following code

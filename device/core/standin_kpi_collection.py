@@ -16,6 +16,13 @@ import serial
 import os
 import subprocess
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Timestamp Helper
+# ═══════════════════════════════════════════════════════════════════════════════
+def _ts():
+    """Return current timestamp in HH:MM:SS.mmm format."""
+    return datetime.now().strftime("%H:%M:%S.%f")[:-3]
+
 
 # ── LTE SINR Conversion ───────────────────────────────────────────────────────
 # The raw SINR integer from AT+QENG for LTE is NOT in dB.
@@ -37,7 +44,7 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
 
     # SEARCH means the modem found no cell on this band — caller will store sentinel values
     if "SEARCH" in raw_response:
-        print(f"[PARSER] Band {band}: modem in SEARCH state — no cell found.")
+        print(f"{_ts()} [PARSER] Band {band}: modem in SEARCH state — no cell found.")
         return None
 
     try:
@@ -51,7 +58,7 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
                 break
 
         if not qeng_line:
-            print(f"[PARSER] Band {band}: no +QENG line found in response.")
+            print(f"{_ts()} [PARSER] Band {band}: no +QENG line found in response.")
             return None
 
         # Step 2: Strip the "+QENG: " prefix and all quotes, then split on commas.
@@ -64,7 +71,7 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
         for item in raw_list:
             item = item.strip()
             if item == '-':
-                print(f"[PARSER] Band {band}: '-' value encountered — substituting sentinel 9999.")
+                print(f"{_ts()} [PARSER] Band {band}: '-' value encountered — substituting sentinel 9999.")
                 parts.append(9999)
                 continue
             try:
@@ -141,11 +148,11 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
             )
 
         else:
-            print(f"[PARSER] Band {band}: unrecognized RAT '{rat}' in response.")
+            print(f"{_ts()} [PARSER] Band {band}: unrecognized RAT '{rat}' in response.")
             return None
 
     except (IndexError, ValueError, TypeError) as e:
-        print(f"[PARSER] Band {band}: failed to parse. Error: {e}")
+        print(f"{_ts()} [PARSER] Band {band}: failed to parse. Error: {e}")
         print(f"         Raw was: {raw_response[:120]}")
         return None
 
@@ -189,7 +196,7 @@ def send_at_command_with_retry(command, timeout, max_retries=3):
             return response
 
         reason = "returned ERROR" if response == "ERROR" else "timed out — no modem response"
-        print(f"[RETRY] Attempt {attempt + 1}/{max_retries} — {command} {reason}.")
+        print(f"{_ts()} [RETRY] Attempt {attempt + 1}/{max_retries} — {command} {reason}.")
         time.sleep(0.3)
 
     raise Exception(f"[MODEM ALERT] Command failed after {max_retries} attempts: {command}")
@@ -218,8 +225,8 @@ def _trigger_modem_restart(reason: str) -> None:
         reason: Human-readable description of why the restart was triggered.
                 Included verbatim in the SNMP trap detail field.
     """
-    print(f"[RESTART] {reason}")
-    print(f"[RESTART] Sending trap and rebooting Pi...")
+    print(f"{_ts()} [RESTART] {reason}")
+    print(f"{_ts()} [RESTART] Sending trap and rebooting Pi...")
     try:
         send_runtime_alarm(
             component = "Pi restart",
@@ -227,7 +234,7 @@ def _trigger_modem_restart(reason: str) -> None:
         )
     except Exception as e:
         # Trap failure must never block the restart — log and proceed.
-        print(f"[RESTART] Trap send failed: {e} — proceeding with reboot anyway.")
+        print(f"{_ts()} [RESTART] Trap send failed: {e} — proceeding with reboot anyway.")
     time.sleep(2)  # Allow trap UDP packet time to transmit before process dies
     subprocess.run(['sudo', 'reboot'])
 
@@ -275,18 +282,18 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
                 # Success — log how many attempts it took if more than one
                 if attempt > 1:
                     elapsed = time.time() - start_time
-                    print(f"[COPS] {command} succeeded on attempt {attempt} "
+                    print(f"{_ts()} [COPS] {command} succeeded on attempt {attempt} "
                           f"({elapsed:.0f}s elapsed).")
                 return response
 
             # Modem returned ERROR or timed out — fall through to retry logic below
             reason = "returned ERROR" if response == "ERROR" else "timed out — no modem response"
-            print(f"[COPS] Attempt {attempt} — {command} {reason}.")
+            print(f"{_ts()} [COPS] Attempt {attempt} — {command} {reason}.")
 
         except Exception as e:
             # at_command_comms itself raised (e.g. serial port dropped) —
             # treat identically to an ERROR response and keep retrying.
-            print(f"[COPS] Attempt {attempt} — {command} raised exception: {e}.")
+            print(f"{_ts()} [COPS] Attempt {attempt} — {command} raised exception: {e}.")
 
         # ── Alert and restart checks (time-based) ────────────────────────────
         # Alert fires once at 120s — notifies operator the command is failing.
@@ -300,12 +307,12 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
                 f"no modem response after {elapsed:.0f}s — "
                 f"script is retrying every {_CRITICAL_RETRY_ESCALATED_SLEEP}s"
             )
-            print(f"[COPS] ALERT — {command} has been failing for {elapsed:.0f}s. "
+            print(f"{_ts()} [COPS] ALERT — {command} has been failing for {elapsed:.0f}s. "
                   f"Sending runtime alarm to Infolink...")
             try:
                 send_runtime_alarm(component=command, detail=alert_detail)
             except Exception as snmp_e:
-                print(f"[COPS] Runtime alarm send failed: {snmp_e} — continuing retries.")
+                print(f"{_ts()} [COPS] Runtime alarm send failed: {snmp_e} — continuing retries.")
             alert_sent = True
 
         if elapsed >= _CRITICAL_RESTART_TIMEOUT:
@@ -317,7 +324,7 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
         # ── Sleep before next attempt ─────────────────────────────────────────
         # Use escalated interval once the alert has fired, initial interval before
         sleep_time = _CRITICAL_RETRY_ESCALATED_SLEEP if alert_sent else _CRITICAL_RETRY_INITIAL_SLEEP
-        print(f"[COPS] Retrying {command} in {sleep_time}s...")
+        print(f"{_ts()} [COPS] Retrying {command} in {sleep_time}s...")
         time.sleep(sleep_time)
 
 
@@ -367,18 +374,18 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
                 # Success — log how many attempts it took if more than one
                 if attempt > 1:
                     elapsed = time.time() - start_time
-                    print(f"[CFUN] {command} succeeded on attempt {attempt} "
+                    print(f"{_ts()} [CFUN] {command} succeeded on attempt {attempt} "
                           f"({elapsed:.0f}s elapsed).")
                 return response
 
             # Modem returned ERROR or timed out — fall through to retry logic below
             reason = "returned ERROR" if response == "ERROR" else "timed out — no modem response"
-            print(f"[CFUN] Attempt {attempt} — {command} {reason}.")
+            print(f"{_ts()} [CFUN] Attempt {attempt} — {command} {reason}.")
 
         except Exception as e:
             # at_command_comms itself raised (e.g. serial port dropped) —
             # treat identically to an ERROR response and keep retrying.
-            print(f"[CFUN] Attempt {attempt} — {command} raised exception: {e}.")
+            print(f"{_ts()} [CFUN] Attempt {attempt} — {command} raised exception: {e}.")
 
         # ── Alert and restart checks (time-based) ────────────────────────────
         # Alert fires once at 120s — notifies operator the command is failing.
@@ -390,12 +397,12 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
                 f"no modem response after {elapsed:.0f}s — "
                 f"script is retrying every {_CRITICAL_RETRY_ESCALATED_SLEEP}s"
             )
-            print(f"[CFUN] ALERT — {command} has been failing for {elapsed:.0f}s. "
+            print(f"{_ts()} [CFUN] ALERT — {command} has been failing for {elapsed:.0f}s. "
                   f"Sending runtime alarm to Infolink...")
             try:
                 send_runtime_alarm(component=command, detail=alert_detail)
             except Exception as snmp_e:
-                print(f"[CFUN] Runtime alarm send failed: {snmp_e} — continuing retries.")
+                print(f"{_ts()} [CFUN] Runtime alarm send failed: {snmp_e} — continuing retries.")
             alert_sent = True
 
         if elapsed >= _CRITICAL_RESTART_TIMEOUT:
@@ -406,7 +413,7 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
 
         # ── Sleep before next attempt ─────────────────────────────────────────
         sleep_time = _CRITICAL_RETRY_ESCALATED_SLEEP if alert_sent else _CRITICAL_RETRY_INITIAL_SLEEP
-        print(f"[CFUN] Retrying {command} in {sleep_time}s...")
+        print(f"{_ts()} [CFUN] Retrying {command} in {sleep_time}s...")
         time.sleep(sleep_time)
 
 
@@ -466,9 +473,9 @@ def instKPIcollection(nr5g_bands, lte_bands):
     mode_a = bool(nr5g_bands)
 
     if mode_a:
-        print(f"\n[SESSION] Mode A (NR5G + LTE) — starting collection at {session_start}")
+        print(f"\n{_ts()} [SESSION] Mode A (NR5G + LTE) — starting collection at {session_start}")
     else:
-        print(f"\n[SESSION] Mode B (LTE Only)   — starting collection at {session_start}")
+        print(f"\n{_ts()} [SESSION] Mode B (LTE Only)   — starting collection at {session_start}")
 
     # ══════════════════════════════════════════════════════════════════════════
     # Mode A — NR5G + LTE
@@ -479,9 +486,9 @@ def instKPIcollection(nr5g_bands, lte_bands):
         # AT+COPS=0 tells the modem to register on any available network
         # including NR5G cells. Retried indefinitely — script cannot proceed
         # with NR5G collection until the modem accepts this.
-        print("[SESSION][A] Sending AT+COPS=0 — enabling auto-registration for NR5G...")
+        print(f"{_ts()} [SESSION][A] Sending AT+COPS=0 — enabling auto-registration for NR5G...")
         send_cops_command_until_success('AT+COPS=0', timeout=180)
-        print("[SESSION][A] AT+COPS=0 accepted — proceeding with NR5G band loop.")
+        print(f"{_ts()} [SESSION][A] AT+COPS=0 accepted — proceeding with NR5G band loop.")
 
         # ── Step 2: NR5G Band Loop ────────────────────────────────────────────
         for band in nr5g_bands:
@@ -525,18 +532,18 @@ def instKPIcollection(nr5g_bands, lte_bands):
                 if cfun_value != 1:
                     # Modem is not in full functionality — restore before proceeding.
                     # Covers both CFUN=0 (minimum) and None (value unreadable).
-                    print(f"[NR5G] Band {band}: modem in CFUN={cfun_value} — "
+                    print(f"{_ts()} [NR5G] Band {band}: modem in CFUN={cfun_value} — "
                           f"restoring full functionality...")
                     send_at_command_with_retry("AT+CFUN=1", 15)
                     time.sleep(3)
                 else:
-                    print(f"[NR5G] Band {band}: modem already in full functionality — "
+                    print(f"{_ts()} [NR5G] Band {band}: modem already in full functionality — "
                           f"pre-flight skipped.")
 
             except Exception as preflight_e:
                 # Query or restore failed — state is unknown.
                 # Attempt CFUN=1 as a precaution before the band try block.
-                print(f"[NR5G] Band {band}: pre-flight CFUN check failed: {preflight_e} "
+                print(f"{_ts()} [NR5G] Band {band}: pre-flight CFUN check failed: {preflight_e} "
                       f"— attempting AT+CFUN=1 as precaution.")
                 try:
                     send_at_command_with_retry("AT+CFUN=1", 15)
@@ -545,11 +552,11 @@ def instKPIcollection(nr5g_bands, lte_bands):
                     # Both the check and the restore failed — log and proceed.
                     # The main try block below will fail naturally if the modem
                     # is unresponsive and the dummy will be stored as normal.
-                    print(f"[NR5G] Band {band}: pre-flight CFUN=1 also failed: {restore_e} "
+                    print(f"{_ts()} [NR5G] Band {band}: pre-flight CFUN=1 also failed: {restore_e} "
                           f"— proceeding to band attempt.")
 
             try:
-                print(f"[NR5G] Configuring band {band}...")
+                print(f"{_ts()} [NR5G] Configuring band {band}...")
                 send_at_command_with_retry(AT_CMD_5G_BAND_CONFIG + band_num, 0.3)
                 time.sleep(2)
                 print(send_at_command_with_retry("AT+CFUN=0", 15))
@@ -566,22 +573,22 @@ def instKPIcollection(nr5g_bands, lte_bands):
                     kpi          = parse_serving_cell(raw_response, band)
                     if kpi is not None:
                         break
-                    print(f"[NR5G] Band {band}: SEARCH on attempt {attempt + 1}/3 — waiting 1s...")
+                    print(f"{_ts()} [NR5G] Band {band}: SEARCH on attempt {attempt + 1}/3 — waiting 1s...")
                     time.sleep(1)
 
                 # RAT and band verification — confirms the returned KPI actually
                 # belongs to the band we configured. If the modem fell back to a
                 # different RAT or band, we treat it as no valid reading.
                 if kpi is not None and (not isinstance(kpi, NR5GKPI) or kpi.band != int(band_num)):
-                    print(f"[NR5G] Band {band}: returned wrong RAT or band "
+                    print(f"{_ts()} [NR5G] Band {band}: returned wrong RAT or band "
                           f"(got RAT={kpi.rat}, band={kpi.band}) — storing dummy.")
                     kpi = None
 
                 if kpi is None:
-                    print(f"[NR5G] Band {band}: no cell found after 3 attempts — storing dummy KPI.")
+                    print(f"{_ts()} [NR5G] Band {band}: no cell found after 3 attempts — storing dummy KPI.")
                     readings.append(dummy_kpi)
                 else:
-                    print(f"[NR5G] Band {band}: collected — "
+                    print(f"{_ts()} [NR5G] Band {band}: collected — "
                           f"SS-RSRP={kpi.ss_rsrp}, SS-RSRQ={kpi.ss_rsrq}, SS-SINR={kpi.ss_sinr}")
                     readings.append(kpi)
 
@@ -591,14 +598,14 @@ def instKPIcollection(nr5g_bands, lte_bands):
                 # No per-band runtime alarm here: the USB counter in full_script.py
                 # sends a single alarm when the threshold is reached, avoiding
                 # a flood of individual band traps for what is one hardware event.
-                print(f"[NR5G] Band {band}: serial port failure — {e} — storing dummy KPI, continuing.")
+                print(f"{_ts()} [NR5G] Band {band}: serial port failure — {e} — storing dummy KPI, continuing.")
                 serial_failure_count += 1
                 readings.append(dummy_kpi)
                 continue
 
             except Exception as e:
                 # AT command failure (ERROR, TIMEOUT, or unexpected exception) —
-                # modem is reachable on serial but rejected or ignored the command.
+                print(f"{_ts()} [NR5G] Band {band}: AT command failure — {e} — storing dummy KPI, continuing.")
                 print(f"[NR5G] Band {band}: AT command failure — {e} — storing dummy KPI, continuing.")
                 send_runtime_alarm(
                     f"NR5G band {band}",
@@ -668,26 +675,26 @@ def instKPIcollection(nr5g_bands, lte_bands):
                     break
 
             if cfun_value != 1:
-                print(f"[LTE] Band {band}: modem in CFUN={cfun_value} — "
+                print(f"{_ts()} [LTE] Band {band}: modem in CFUN={cfun_value} — "
                       f"restoring full functionality...")
                 send_at_command_with_retry("AT+CFUN=1", 15)
                 time.sleep(3)
             else:
-                print(f"[LTE] Band {band}: modem already in full functionality — "
+                print(f"{_ts()} [LTE] Band {band}: modem already in full functionality — "
                       f"pre-flight skipped.")
 
         except Exception as preflight_e:
-            print(f"[LTE] Band {band}: pre-flight CFUN check failed: {preflight_e} "
+            print(f"{_ts()} [LTE] Band {band}: pre-flight CFUN check failed: {preflight_e} "
                   f"— attempting AT+CFUN=1 as precaution.")
             try:
                 send_at_command_with_retry("AT+CFUN=1", 15)
                 time.sleep(3)
             except Exception as restore_e:
-                print(f"[LTE] Band {band}: pre-flight CFUN=1 also failed: {restore_e} "
+                print(f"{_ts()} [LTE] Band {band}: pre-flight CFUN=1 also failed: {restore_e} "
                       f"— proceeding to band attempt.")
 
         try:
-            print(f"[LTE] Configuring band {band}...")
+            print(f"{_ts()} [LTE] Configuring band {band}...")
             send_at_command_with_retry(AT_CMD_LTE_BAND_CONFIG + band_num, 0.3)
             time.sleep(2)
             print(send_at_command_with_retry("AT+CFUN=0", 15))
@@ -704,33 +711,33 @@ def instKPIcollection(nr5g_bands, lte_bands):
                 kpi          = parse_serving_cell(raw_response, band)
                 if kpi is not None:
                     break
-                print(f"[LTE] Band {band}: SEARCH on attempt {attempt + 1}/3 — waiting 1s...")
+                print(f"{_ts()} [LTE] Band {band}: SEARCH on attempt {attempt + 1}/3 — waiting 1s...")
                 time.sleep(1)
 
             # Band verification — confirms the returned KPI actually belongs
             # to the band we configured. If the modem returned a different band,
             # we treat it as no valid reading.
             if kpi is not None and kpi.band != int(band_num):
-                print(f"[LTE] Band {band}: returned wrong band "
+                print(f"{_ts()} [LTE] Band {band}: returned wrong band "
                       f"(got band={kpi.band}) — storing dummy.")
                 kpi = None
 
             if kpi is None:
-                print(f"[LTE] Band {band}: no cell found after 3 attempts — storing dummy KPI.")
+                print(f"{_ts()} [LTE] Band {band}: no cell found after 3 attempts — storing dummy KPI.")
                 readings.append(dummy_kpi)
             else:
-                print(f"[LTE] Band {band}: collected — "
+                print(f"{_ts()} [LTE] Band {band}: collected — "
                       f"RSRP={kpi.rsrp}, RSRQ={kpi.rsrq}, SINR={kpi.sinr}")
                 readings.append(kpi)
 
         except serial.SerialException as e:
-            print(f"[LTE] Band {band}: serial port failure — {e} — storing dummy KPI, continuing.")
+            print(f"{_ts()} [LTE] Band {band}: serial port failure — {e} — storing dummy KPI, continuing.")
             serial_failure_count += 1
             readings.append(dummy_kpi)
             continue
 
         except Exception as e:
-            print(f"[LTE] Band {band}: AT command failure — {e} — storing dummy KPI, continuing.")
+            print(f"{_ts()} [LTE] Band {band}: AT command failure — {e} — storing dummy KPI, continuing.")
             send_runtime_alarm(
                 f"LTE band {band}",
                 f"Band configuration failed after retries: {e}. Dummy KPI stored."

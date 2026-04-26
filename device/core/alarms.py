@@ -10,9 +10,16 @@ Steps:
     4. Populate AveragedKPI objects with results
 """
 
-
+from datetime import datetime
 from models import KPIReading, LTEKPI, NR5GKPI, AveragedLTEKPI, AveragedNR5GKPI, SamplingSession
 from snmpSend import send_invalid_kpi_alarm, send_threshold_alarm
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Timestamp Helper
+# ═══════════════════════════════════════════════════════════════════════════════
+def _ts():
+    """Return current timestamp in HH:MM:SS.mmm format."""
+    return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
@@ -46,7 +53,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     # ── Step 1: Invalid check ─────────────────────────────────────────────────
     if all(v > INVALID_SENTINEL for v in last_3):
         invalid_count = sum(1 for v in values if v > INVALID_SENTINEL)
-        print(f"[INVALID]   Band {band} | {kpi_name.upper()}: "
+        print(f"{_ts()} [INVALID]   Band {band} | {kpi_name.upper()}: "
             f"{invalid_count} of {len(values)} samples invalid (last 3 consecutive)")
         # FIX (Issue 3): The original code was missing 'return None' here.
         # Without it, execution fell through to the averaging step below
@@ -72,7 +79,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     # Returns None for the same reason as above — the averaged object stores
     # None which becomes JSON null, the correct representation for no valid data.
     if not valid_values:
-        print(f"[INVALID]   Band {band} | {kpi_name.upper()}: "
+        print(f"{_ts()} [INVALID]   Band {band} | {kpi_name.upper()}: "
               f"no valid samples to average — returning None.")
         return None
 
@@ -81,7 +88,7 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     # ── Step 3: Threshold check ───────────────────────────────────────────────
     if avg < threshold:
         print(
-            f"[THRESHOLD] Band {band} | {kpi_name.upper()}: "
+            f"{_ts()} [THRESHOLD] Band {band} | {kpi_name.upper()}: "
             f"avg = {avg:.1f}, below threshold ({threshold:.1f})"
         )
         send_threshold_alarm(band=band, kpi=kpi_name.upper(), avg_value=avg, threshold=threshold)
@@ -99,25 +106,25 @@ def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_T
     """
 
     # ── Print all input values ────────────────────────────────────────────────
-    print("── Input Sessions ──────────────────────────────────────")
+    print(f"{_ts()} ── Input Sessions ───────────────────────────────────────")
     for i, session in enumerate(sessions):
-        print(f"  Session {i + 1} | Start: {session.session_start}")
+        print(f"{_ts()}   Session {i + 1} | Start: {session.session_start}")
         for reading in session.readings:
             if isinstance(reading, LTEKPI):
                 print(
-                    f"    Band: {reading.band} | RAT: {reading.rat} | "
+                    f"{_ts()}     Band: {reading.band} | RAT: {reading.rat} | "
                     f"Timestamp: {reading.timestamp} | "
                     f"RSRP: {reading.rsrp} | RSRQ: {reading.rsrq} | "
                     f"RSSI: {reading.rssi} | SINR: {reading.sinr}"
                 )
             elif isinstance(reading, NR5GKPI):
                 print(
-                    f"    Band: {reading.band} | RAT: {reading.rat} | "
+                    f"{_ts()}     Band: {reading.band} | RAT: {reading.rat} | "
                     f"Timestamp: {reading.timestamp} | "
                     f"SS-RSRP: {reading.ss_rsrp} | SS-RSRQ: {reading.ss_rsrq} | "
                     f"SS-SINR: {reading.ss_sinr}"
                 )
-    print("────────────────────────────────────────────────────────")
+    print(f"{_ts()} ────────────────────────────────────────────────────")
     print()
 
     # Number of bands is derived from the first session —

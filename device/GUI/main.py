@@ -3,6 +3,7 @@ import json
 import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
+from datetime import datetime
 from fastapi import File, UploadFile
 import shutil
 
@@ -10,6 +11,13 @@ from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Timestamp Helper
+# ═══════════════════════════════════════════════════════════════════════════════
+def _ts():
+    """Return current timestamp in HH:MM:SS.mmm format."""
+    return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
 
 # ----------------------------
@@ -137,12 +145,12 @@ async def save_config(request: Request):
         with open(CONFIG_PATH, "w") as f:
             json.dump(new_config, f, indent=4)
 
-        print("Config saved to:", CONFIG_PATH)
+        print(f"{_ts()} Config saved to: {CONFIG_PATH}")
 
         return JSONResponse({"status": "saved", "saved_to": str(CONFIG_PATH)})
 
     except Exception as e:
-        print("Error saving config:", e)
+        print(f"{_ts()} Error saving config: {e}")
         return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
 
 
@@ -160,7 +168,7 @@ async def upload_ovpn(ovpn_file: UploadFile = File(...)):
         with OVPN_PATH.open("wb") as buffer:
             shutil.copyfileobj(ovpn_file.file, buffer)
 
-        print("OVPN saved to:", OVPN_PATH)
+        print(f"{_ts()} OVPN saved to: {OVPN_PATH}")
 
         return JSONResponse({
             "status": "uploaded",
@@ -168,7 +176,7 @@ async def upload_ovpn(ovpn_file: UploadFile = File(...)):
         })
 
     except Exception as e:
-        print("OVPN upload error:", e)
+        print(f"{_ts()} OVPN upload error: {e}")
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
 
 

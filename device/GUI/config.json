@@ -2,7 +2,7 @@
     "site_name": "das",
     "device_id": "676767",
     "poll_interval": 29,
-    "snmp_host": "10.8.0.0",
+    "snmp_host": "10.8.0.1",
     "monitored_bands": [
         "b2",
         "b5",

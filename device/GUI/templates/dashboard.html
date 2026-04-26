@@ -147,10 +147,6 @@
                 <input type="text" class="form-control" id="cfg-device-id">
               </div>
               <div class="form-group">
-                <label>Poll Interval (seconds)</label>
-                <input type="number" class="form-control" id="cfg-poll-interval">
-              </div>
-              <div class="form-group">
                 <label>SNMP Endpoint (OpenVPN Tunnel Address)</label>
                 <div class="d-flex align-items-center" style="gap:4px;">
                   <input type="number" class="form-control text-center" id="cfg-snmp-host-1" min="0" max="255" placeholder="0" style="width:70px;" oninput="validateVpnIp()">
@@ -163,7 +159,6 @@
                 </div>
                 <small id="vpn-ip-feedback" class="form-text" style="display:none;"></small>
               </div>
-
               <div class="form-group">
                 <label>OpenVPN Config File (.ovpn)</label>
                 <input type="file" id="cfg-ovpn-file" accept=".ovpn" style="display:none;" onchange="uploadOvpnFile()">

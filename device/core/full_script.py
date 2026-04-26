@@ -15,7 +15,8 @@ from standin_kpi_collection import (
     send_at_command_with_retry,
     send_cops_command_until_success,
     send_cfun_until_success,
-    _trigger_modem_restart
+    _trigger_modem_restart,
+    detect_sim
 )
 from alarms import process_window
 from file_manager import update_gui_json, append_to_daily_file, update_vpn_status
@@ -238,41 +239,63 @@ nr5g_thresholds = {
 # ══════════════════════════════════════════════════════════════════════════════
 
 # ── AT+CFUN=1 — Full modem reset ─────────────────────────────────────────────
-# Critical — the script cannot safely proceed until the modem confirms full
-# functionality. Uses indefinite retry with SNMP alert at 120s so the operator
-# is notified if the modem is unresponsive at startup.
+# Works regardless of SIM state — hardware-level command.
 print(f"{_ts()} [STARTUP] Sending AT+CFUN=1 — full modem reset...")
 send_cfun_until_success("AT+CFUN=1", timeout=15)
 print(f"{_ts()} [STARTUP] AT+CFUN=1 accepted — waiting 15 seconds for modem to fully boot...")
 time.sleep(15)
 
-# ── AT+QNWPREFCFG — Mode preference ──────────────────────────────────────────
-# Less critical than CFUN — if this fails the modem may already be in AUTO
-# mode from a previous run. Retried with send_at_command_with_retry (3 attempts),
-# then a trap is sent and startup continues rather than halting indefinitely.
-print(f"{_ts()} [STARTUP] Setting mode preference to AUTO (LTE + NR5G)...")
-try:
-    send_at_command_with_retry('AT+QNWPREFCFG="mode_pref",AUTO', 3)
-    print(f"{_ts()} [STARTUP] Mode preference set to AUTO.")
-except Exception as e:
-    print(f"{_ts()} [STARTUP] AT+QNWPREFCFG failed after retries: {e} — "
-          f"modem may already be in correct mode, continuing.")
+# ── SIM Card Detection ────────────────────────────────────────────────────────
+# Checked immediately after CFUN=1 confirms the modem is functional.
+# AT+COPS=0 and AT+COPS=2 both return ERROR without a SIM, which would cause
+# send_cops_command_until_success to retry indefinitely and hang the script.
+# We detect SIM state here once and route all subsequent logic accordingly.
+# The sim_present flag is re-evaluated at the top of each collection session
+# so the device recovers automatically when a SIM is inserted.
+print(f"{_ts()} [STARTUP] Checking for SIM card...")
+sim_present = detect_sim()
+
+if sim_present:
+    print(f"{_ts()} [STARTUP] SIM detected — running full modem initialization.")
+
+    # ── AT+QNWPREFCFG — Mode preference ──────────────────────────────────────
+    print(f"{_ts()} [STARTUP] Setting mode preference to AUTO (LTE + NR5G)...")
+    try:
+        send_at_command_with_retry('AT+QNWPREFCFG="mode_pref",AUTO', 3)
+        print(f"{_ts()} [STARTUP] Mode preference set to AUTO.")
+    except Exception as e:
+        print(f"{_ts()} [STARTUP] AT+QNWPREFCFG failed after retries: {e} — "
+              f"modem may already be in correct mode, continuing.")
+        send_runtime_alarm(
+            "AT+QNWPREFCFG",
+            f"Mode preference command failed at startup: {e}. "
+            f"Modem may already be in AUTO mode — continuing."
+        )
+
+    print(f"{_ts()} [STARTUP] Waiting 10 seconds for mode switch to settle...")
+    time.sleep(10)
+
+    # ── AT+COPS=0 — Auto-registration ────────────────────────────────────────
+    print(f"{_ts()} [STARTUP] Sending AT+COPS=0 — enabling auto-registration...")
+    send_cops_command_until_success(AT_CMD_COPS_AUTO, timeout=180)
+    print(f"{_ts()} [STARTUP] AT+COPS=0 accepted — waiting 10 seconds for registration to settle...")
+    time.sleep(10)
+
+else:
+    # No SIM at startup — skip all COPS and QNWPREFCFG commands.
+    # QNWPREFCFG might succeed without a SIM, but COPS will not, and running
+    # COPS here would hang. We skip everything and let the collection loop
+    # handle recovery via periodic SIM re-detection.
+    print(f"{_ts()} [STARTUP] No SIM detected — skipping network initialization commands.")
+    print(f"{_ts()} [STARTUP] Running in no-SIM mode. All KPI readings will be "
+          f"invalid until a SIM is inserted. The device polls for SIM insertion "
+          f"at the start of each collection session.")
     send_runtime_alarm(
-        "AT+QNWPREFCFG",
-        f"Mode preference command failed at startup: {e}. "
-        f"Modem may already be in AUTO mode — continuing."
+        "SIM card",
+        "No SIM card detected at startup. Network registration skipped. "
+        "KPI readings will be invalid. Device will recover automatically "
+        "when a SIM is inserted."
     )
-
-print(f"{_ts()} [STARTUP] Waiting 10 seconds for mode switch to settle...")
-time.sleep(10)
-
-# ── AT+COPS=0 — Auto-registration ────────────────────────────────────────────
-# Critical — uses indefinite retry matching the pattern used inside
-# instKPIcollection so startup behavior is consistent with runtime behavior.
-print(f"{_ts()} [STARTUP] Sending AT+COPS=0 — enabling auto-registration...")
-send_cops_command_until_success(AT_CMD_COPS_AUTO, timeout=180)
-print(f"{_ts()} [STARTUP] AT+COPS=0 accepted — waiting 10 seconds for registration to settle...")
-time.sleep(10)
 
 print(f"{_ts()} [STARTUP] Modem initialized — beginning collection loop.")
 
@@ -302,6 +325,34 @@ while True:
     session_count += 1
     print(f"\n{_ts()} [MAIN] Starting session {session_count} of {SAMPLES_PER_SESSION}")
     session_start = datetime.now()
+
+    # ── SIM Re-check ─────────────────────────────────────────────────────────
+    # In Mode C (no SIM): checks for SIM insertion before every session so
+    # the device recovers automatically the moment a SIM is installed without
+    # requiring a restart. When a SIM is detected, re-runs the modem init
+    # sequence (QNWPREFCFG + COPS=0) identically to the startup path so the
+    # modem is in the correct registered state before the next collection.
+    # In Modes A and B (SIM present): this block is skipped entirely each
+    # session — sim_present is True and the condition never fires.
+    if not sim_present:
+        print(f"{_ts()} [MAIN] Mode C — checking for SIM insertion before session {session_count}...")
+        sim_present = detect_sim()
+
+        if sim_present:
+            print(f"{_ts()} [MAIN] SIM now detected — re-initializing modem...")
+            send_runtime_alarm(
+                "SIM card",
+                "SIM card inserted. Re-initializing modem and switching "
+                "to full KPI collection mode."
+            )
+            try:
+                send_at_command_with_retry('AT+QNWPREFCFG="mode_pref",AUTO', 3)
+            except Exception as e:
+                print(f"{_ts()} [MAIN] QNWPREFCFG failed after SIM insertion: {e} — continuing.")
+            send_cops_command_until_success(AT_CMD_COPS_AUTO, timeout=180)
+            time.sleep(10)
+            print(f"{_ts()} [MAIN] Modem re-initialized — session {session_count} will "
+                  f"use {'Mode A' if nr5g_bands else 'Mode B'}.")
 
     # ── Collection ────────────────────────────────────────────────────────────
     # instKPIcollection is wrapped in its own try/except separate from the
@@ -334,7 +385,7 @@ while True:
     session_serial_failures = 0
 
     try:
-        session, session_cmd_failures, session_serial_failures = instKPIcollection(nr5g_bands, lte_bands)
+        session, session_cmd_failures, session_serial_failures = instKPIcollection(nr5g_bands, lte_bands, sim_present=sim_present)
         sessions.append(session)
         print(f"{_ts()} [MAIN] Session {session_count} collected — "
               f"{len(session.readings)} bands read, "

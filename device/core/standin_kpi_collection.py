@@ -476,10 +476,84 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# Segment 3D — SIM Card Detection
+# ══════════════════════════════════════════════════════════════════════════════
+
+def detect_sim() -> bool:
+    """
+    Determines whether a SIM card is currently inserted in the modem.
+
+    Uses AT+QSIMSTAT? as the primary check. This command returns
+    +QSIMSTAT: <enable>,<sim_inserted> where sim_inserted = 1 means
+    a card is present, 0 means no card. The command returns OK even
+    without a SIM, making it reliable for state polling.
+
+    Falls back to AT+CPIN? if QSIMSTAT fails or cannot be parsed:
+        +CPIN: READY / SIM PIN / SIM PUK  → SIM present
+        ERROR                              → SIM not inserted (CME ERROR: 10)
+
+    In case of ambiguous failure (both commands fail) returns False.
+    This is intentional — it is safer to skip COPS than to hang.
+
+    Returns:
+        True  if a SIM card is detected.
+        False if no SIM is detected, or if detection is indeterminate.
+    """
+    try:
+        response = send_at_command_with_retry("AT+QSIMSTAT?", timeout=5)
+
+        if response not in ("ERROR", "TIMEOUT"):
+            for line in response.strip().split('\n'):
+                line = line.strip()
+                if '+QSIMSTAT:' in line:
+                    parts = line.replace('+QSIMSTAT:', '').strip().split(',')
+                    if len(parts) >= 2:
+                        try:
+                            sim_inserted = int(parts[1].strip())
+                            detected = (sim_inserted == 1)
+                            print(
+                                f"{_ts()} [SIM] AT+QSIMSTAT? → inserted={sim_inserted} "
+                                f"({'SIM detected' if detected else 'no SIM'})"
+                            )
+                            return detected
+                        except ValueError:
+                            pass
+
+        # AT+QSIMSTAT? failed or unparseable — fall back to AT+CPIN?
+        print(f"{_ts()} [SIM] AT+QSIMSTAT? inconclusive — falling back to AT+CPIN?...")
+        cpin_response = send_at_command_with_retry("AT+CPIN?", timeout=5)
+
+        if cpin_response in ("ERROR", "TIMEOUT"):
+            # CME ERROR: 10 (SIM not inserted) arrives here as "ERROR" because
+            # at_command_comms() matches "ERROR" in the raw response string.
+            print(f"{_ts()} [SIM] AT+CPIN? returned {cpin_response} — treating as no SIM.")
+            return False
+
+        if any(tok in cpin_response for tok in ("READY", "SIM PIN", "SIM PUK")):
+            print(f"{_ts()} [SIM] AT+CPIN? → SIM detected ({cpin_response.strip()[:30]}).")
+            return True
+
+        print(
+            f"{_ts()} [SIM] AT+CPIN? response unrecognized "
+            f"('{cpin_response[:40]}') — assuming no SIM."
+        )
+        return False
+
+    except serial.SerialException as e:
+        # Serial port unreachable — cannot determine SIM state.
+        # Return False; the serial failure counters in full_script.py handle this.
+        print(f"{_ts()} [SIM] detect_sim() serial error: {e} — assuming no SIM.")
+        return False
+
+    except Exception as e:
+        print(f"{_ts()} [SIM] detect_sim() failed: {e} — assuming no SIM to prevent COPS hang.")
+        return False
+
+# ══════════════════════════════════════════════════════════════════════════════
 # Segment 3C — Instantaneous KPI Collection
 # ══════════════════════════════════════════════════════════════════════════════
 
-def instKPIcollection(nr5g_bands, lte_bands):
+def instKPIcollection(nr5g_bands, lte_bands, sim_present: bool = True):
     """
     Performs one full KPI collection pass across all configured bands
     and returns the results packaged as a SamplingSession.
@@ -487,29 +561,45 @@ def instKPIcollection(nr5g_bands, lte_bands):
     This function is called 5 times by the outer loop to build the
     list of 5 SamplingSession objects the averaging script expects.
 
-    Collection mode is determined automatically by whether nr5g_bands
-    is populated:
+    Collection mode is determined automatically by SIM state and whether
+    nr5g_bands is populated:
 
-        Mode A — NR5G + LTE (nr5g_bands is not empty):
+        Mode A — NR5G + LTE (sim_present=True, nr5g_bands is not empty):
             AT+COPS=0  →  NR5G band loop  →  AT+COPS=2  →  LTE band loop
             →  AT+COPS=0 reset for next session
 
-        Mode B — LTE Only (nr5g_bands is empty):
+        Mode B — LTE Only, SIM present (sim_present=True, nr5g_bands is empty):
             AT+COPS=2  →  LTE band loop  →  done (no reset needed)
 
+        Mode C — LTE Only, No SIM (sim_present=False):
+            LTE band loop only — no COPS commands of any kind.
+            Without a SIM the modem camps on LTE cells in LIMSRV state
+            (registered for emergency calls only) and returns real RF
+            measurements (RSRP, RSRQ, RSSI, SINR) without network
+            registration. AT+COPS=2 and AT+COPS=0 both return ERROR
+            without a SIM and must never be called. NR5G bands are
+            skipped entirely regardless of configuration — NR5G NSA
+            requires an LTE anchor registration, and NR5G SA requires
+            full 5G registration; neither is possible without a SIM.
+
     AT+COPS commands always use send_cops_command_until_success so they
-    retry indefinitely and never crash the script.
-    AT+COPS=2 is sent exactly once per session in both modes — never
+    retry indefinitely and never crash the script. They are never called
+    in Mode C.
+    AT+COPS=2 is sent exactly once per session in Modes A and B — never
     inside any band loop.
 
     Args:
-        nr5g_bands: List of NR5G band strings e.g. ['n2', 'n66'].
-                    Pass an empty list [] to run in LTE-only mode.
-        lte_bands:  List of LTE band strings  e.g. ['b2', 'b5', 'b12'].
+        nr5g_bands:  List of NR5G band strings e.g. ['n2', 'n66'].
+                     Pass an empty list [] for LTE-only modes.
+                     Ignored entirely in Mode C (no SIM).
+        lte_bands:   List of LTE band strings  e.g. ['b2', 'b5', 'b12'].
+        sim_present: True if a SIM card is detected (default).
+                     False forces Mode C regardless of nr5g_bands — COPS
+                     commands are skipped and only LTE is collected.
 
     Returns:
         A SamplingSession containing one reading per band,
-        NR5G readings first (if any), LTE readings second.
+        NR5G readings first (if any, Mode A only), LTE readings second.
     """
 
     session_start = datetime.now()
@@ -525,15 +615,22 @@ def instKPIcollection(nr5g_bands, lte_bands):
     serial_failure_count = 0
 
     # ── Mode Detection ────────────────────────────────────────────────────────
-    # Determined once here so every subsequent branch is a simple bool check.
-    # mode_a = True  → NR5G + LTE collection
-    # mode_a = False → LTE only collection
-    mode_a = bool(nr5g_bands)
+    # Mode A requires both NR5G bands configured AND a SIM present.
+    # Without a SIM, NR5G cannot be collected regardless of configuration,
+    # so mode_a is False even when nr5g_bands is populated. Mode C handles
+    # the no-SIM case as an entirely separate branch below.
+    # mode_a = True  → NR5G + LTE collection (SIM present, NR5G configured)
+    # mode_a = False → LTE only or no-SIM collection
+    # mode_c = True  → LTE only, no SIM (COPS skipped, LIMSRV state)
+    mode_a = bool(nr5g_bands) and sim_present
+    mode_c = not sim_present
 
     if mode_a:
-        print(f"\n{_ts()} [SESSION] Mode A (NR5G + LTE) — starting collection at {session_start}")
+        print(f"\n{_ts()} [SESSION] Mode A (NR5G + LTE)  — starting collection at {session_start}")
+    elif mode_c:
+        print(f"\n{_ts()} [SESSION] Mode C (LTE Only, No SIM) — starting collection at {session_start}")
     else:
-        print(f"\n{_ts()} [SESSION] Mode B (LTE Only)   — starting collection at {session_start}")
+        print(f"\n{_ts()} [SESSION] Mode B (LTE Only)    — starting collection at {session_start}")
 
     # ══════════════════════════════════════════════════════════════════════════
     # Mode A — NR5G + LTE
@@ -683,6 +780,22 @@ def instKPIcollection(nr5g_bands, lte_bands):
         time.sleep(10)
 
     # ══════════════════════════════════════════════════════════════════════════
+    # Mode C — LTE Only, No SIM
+    # ══════════════════════════════════════════════════════════════════════════
+    # Without a SIM the modem is in LIMSRV state — camped on LTE cells but
+    # not registered. AT+COPS=2 and AT+COPS=0 both return ERROR without a
+    # SIM and would cause send_cops_command_until_success to hang indefinitely.
+    # Neither is sent here. The LTE band loop below runs identically to
+    # Modes A and B — CFUN cycling, QENG queries, and band verification all
+    # function normally in LIMSRV state. The 10-second inter-loop sleep used
+    # in Modes A and B after AT+COPS=2 is also skipped — that sleep exists
+    # to allow the network detach to settle, which does not apply here since
+    # no detach command is issued and the modem is already in limited service.
+    elif mode_c:
+        print(f"[SESSION][C] No SIM detected — skipping AT+COPS=2. "
+              f"LTE bands will scan in LIMSRV state and return real RF measurements.")
+
+    # ══════════════════════════════════════════════════════════════════════════
     # Mode B — LTE Only
     # ══════════════════════════════════════════════════════════════════════════
     else:
@@ -695,9 +808,11 @@ def instKPIcollection(nr5g_bands, lte_bands):
         print("[SESSION][B] AT+COPS=2 accepted — waiting 10 seconds before LTE loop...")
         time.sleep(10)
 
-    # ══════════════════════════════════════════════════════════════════════════
-    # LTE Band Loop — shared by both Mode A and Mode B
-    # AT+COPS=2 has already been sent exactly once above before reaching here.
+     # ══════════════════════════════════════════════════════════════════════════
+    # LTE Band Loop — shared by Mode A, Mode B, and Mode C
+    # In Modes A and B, AT+COPS=2 has already been sent exactly once above
+    # before reaching here. In Mode C, no COPS command is sent — the modem
+    # is already in LIMSRV state and the loop runs directly.
     # ══════════════════════════════════════════════════════════════════════════
     for band in lte_bands:
 

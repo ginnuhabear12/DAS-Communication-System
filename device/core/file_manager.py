@@ -436,6 +436,108 @@ def append_to_daily_file(averaged_results: list) -> None:
         print(f"[FILE] Cleanup failed: {cleanup_e} — old files may accumulate.")
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# update_vpn_status
+# ══════════════════════════════════════════════════════════════════════════════
+
+def update_vpn_status(vpn_status: str) -> None:
+    """
+    Updates only the vpn_status field in device_data_test.json without
+    modifying other fields. Uses the same robust read/write pattern as
+    update_gui_json with retry and fallback logic.
+
+    Flow:
+        1. Attempt read — with retry/fallback logic per error type
+        2. Update vpn_status field in-memory
+        3. Update _gui_cache from memory — always, every cycle
+        4. Attempt write — retry once on failure, trap every cycle it persists
+
+    Args:
+        vpn_status: Status string — "ACTIVE" or "DOWN"
+    """
+    global _gui_cache
+
+    _DEFAULT_GUI_STRUCTURE = {
+        "device_status": "ONLINE",
+        "modem_status":  "CONNECTED",
+        "vpn_status":    "ACTIVE",
+        "snmp_status":   "RUNNING",
+        "site_name":     "DAS",
+        "alert_message": "No active alarms",
+        "bands":         [],
+        "logs":          []
+    }
+
+    # ── Step 1: Read existing file ────────────────────────────────────────────
+    data = None
+
+    try:
+        with open(GUI_JSON_PATH, "r") as f:
+            data = json.load(f)
+
+    except OSError as e:
+        # OSError can be transient (EIO hardware glitch) — retry once.
+        print(f"{_ts()} [FILE] VPN status read OSError: {e} — retrying in {_RETRY_SLEEP_SECONDS}s...")
+        time.sleep(_RETRY_SLEEP_SECONDS)
+        try:
+            with open(GUI_JSON_PATH, "r") as f:
+                data = json.load(f)
+            print(f"{_ts()} [FILE] VPN status read retry succeeded.")
+        except Exception as retry_e:
+            print(f"{_ts()} [FILE] VPN status read retry failed: {retry_e} — using cache or defaults.")
+            _send_trap(
+                component = "VPN status read",
+                detail    = "OSError: hardware I/O error on VPN status read, retry failed."
+            )
+            data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    except json.JSONDecodeError as e:
+        print(f"{_ts()} [FILE] VPN status file corrupted (JSONDecodeError): {e} — using cache or defaults.")
+        data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    except PermissionError as e:
+        print(f"{_ts()} [FILE] VPN status read PermissionError: {e} — using cache or defaults.")
+        _send_trap(
+            component = "VPN status read",
+            detail    = "PermissionError: process cannot read VPN status file."
+        )
+        data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    except Exception as e:
+        print(f"{_ts()} [FILE] VPN status read unexpected error ({type(e).__name__}): {e} — using cache or defaults.")
+        _send_trap(
+            component = "VPN status read",
+            detail    = f"{type(e).__name__}: unexpected read failure on VPN status."
+        )
+        data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    # ── Step 2: Update in-memory data ─────────────────────────────────────────
+    data["vpn_status"] = vpn_status
+
+    # ── Step 3: Update cache — always, every cycle, before write ──────────────
+    _gui_cache = data
+
+    # ── Step 4: Write to file — with one retry ────────────────────────────────
+    for write_attempt in range(_WRITE_RETRY_COUNT + 1):
+        try:
+            with open(GUI_JSON_PATH, "w") as f:
+                json.dump(data, f, indent=4)
+            print(f"{_ts()} [FILE] VPN status updated to: {vpn_status}")
+            return  # Success — exit function
+
+        except Exception as write_e:
+            if write_attempt < _WRITE_RETRY_COUNT:
+                print(f"{_ts()} [FILE] VPN status write failed: {write_e} — "
+                      f"retrying in {_RETRY_SLEEP_SECONDS}s...")
+                time.sleep(_RETRY_SLEEP_SECONDS)
+            else:
+                print(f"{_ts()} [FILE] VPN status write failed after retry: {write_e}")
+                _send_trap(
+                    component = "VPN status write",
+                    detail    = f"{type(write_e).__name__}: VPN status write failed after retry: {write_e}."
+                )
+
+
 if __name__ == "__main__":
     print("script started")
     class Dummy:

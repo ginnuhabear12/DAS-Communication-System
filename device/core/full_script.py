@@ -18,7 +18,7 @@ from standin_kpi_collection import (
     _trigger_modem_restart
 )
 from alarms import process_window
-from file_manager import update_gui_json, append_to_daily_file
+from file_manager import update_gui_json, append_to_daily_file, update_vpn_status
 from models import LTEKPI, NR5GKPI, SamplingSession, AveragedLTEKPI, AveragedNR5GKPI
 from snmpSend import send_invalid_kpi_alarm, send_runtime_alarm, send_threshold_alarm
 from constants import (
@@ -96,6 +96,110 @@ def start_vpn(ovpn_path):
     time.sleep(10)
     print(f"{_ts()} [VPN] OpenVPN should be connected.")
     return process
+
+
+def check_vpn_connected():
+    """
+    Check if VPN tunnel (tun0) is active.
+    Returns: True if connected, False otherwise
+    """
+    try:
+        result = subprocess.run(
+            ["ip", "addr", "show", "tun0"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        is_connected = result.returncode == 0
+        status_str = "ACTIVE" if is_connected else "DOWN"
+        print(f"{_ts()} [VPN] VPN check: {status_str} (returncode: {result.returncode})")
+        return is_connected
+    except Exception as e:
+        print(f"{_ts()} [VPN] VPN check error: {e}")
+        return False
+
+
+def restart_vpn(ovpn_path):
+    """
+    Kill any existing OpenVPN process and restart VPN connection.
+    """
+    try:
+        print(f"{_ts()} [VPN] Attempting to restart VPN...")
+        
+        # Kill existing OpenVPN process
+        subprocess.run(
+            ["sudo", "killall", "openvpn"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        print(f"{_ts()} [VPN] Killed existing OpenVPN process(es).")
+        
+        # Wait a moment before restarting
+        time.sleep(2)
+        
+        # Start new VPN process
+        process = subprocess.Popen(
+            ["sudo", "openvpn", "--config", ovpn_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        
+        # Give it time to connect
+        time.sleep(10)
+        print(f"{_ts()} [VPN] OpenVPN restart initiated.")
+        return process
+        
+    except Exception as e:
+        print(f"{_ts()} [VPN] VPN restart failed: {e}")
+        send_runtime_alarm(
+            "VPN restart",
+            f"Failed to restart VPN: {e}. Manual intervention may be required."
+        )
+        return None
+
+
+def check_and_update_vpn_status(ovpn_path):
+    """
+    Check VPN connection status and update device_data.json.
+    If VPN is down, attempt to restart it.
+    """
+    try:
+        is_connected = check_vpn_connected()
+        
+        if is_connected:
+            # VPN is active
+            update_vpn_status("ACTIVE")
+        else:
+            # VPN is down - update status and attempt restart
+            print(f"{_ts()} [VPN] VPN is DOWN - updating status and attempting restart...")
+            update_vpn_status("DOWN")
+            send_runtime_alarm(
+                "VPN connection",
+                "VPN tunnel (tun0) is down. Attempting automatic restart."
+            )
+            restart_vpn(ovpn_path)
+            
+            # Check again after restart attempt
+            time.sleep(5)
+            is_connected_after = check_vpn_connected()
+            if is_connected_after:
+                print(f"{_ts()} [VPN] VPN reconnected successfully!")
+                update_vpn_status("ACTIVE")
+            else:
+                print(f"{_ts()} [VPN] VPN still down after restart attempt.")
+                update_vpn_status("DOWN")
+                send_runtime_alarm(
+                    "VPN connection",
+                    "VPN tunnel remains down after restart attempt. Check .ovpn file and network connectivity."
+                )
+                
+    except Exception as e:
+        print(f"{_ts()} [VPN] VPN status check/update error: {e}")
+        send_runtime_alarm(
+            "VPN status check",
+            f"Error checking VPN status: {e}"
+        )
 
 # Start VPN BEFORE everything else
 vpn_process = start_vpn("/home/das/DAS-Communication-System/device/GUI/vpn/client.ovpn")
@@ -387,3 +491,9 @@ while True:
         # if collection is consistently taking longer than SAMPLE_INTERVAL_SECONDS.
         print(f"{_ts()} [MAIN] Warning: overran window by {abs(sleep_duration):.1f}s — "
               f"starting next session immediately.")
+
+    # ── VPN Status Check ──────────────────────────────────────────────────────
+    # Check VPN connection at the end of each collection cycle and update
+    # device_data.json accordingly. If VPN is down, attempt automatic restart.
+    # This ensures VPN status is always current and recovery is attempted.
+    check_and_update_vpn_status("/home/das/DAS-Communication-System/device/GUI/vpn/client.ovpn")

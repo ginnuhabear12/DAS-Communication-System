@@ -873,6 +873,7 @@
     const config = {
       site_name:          document.getElementById('cfg-site-name').value,
       device_id:          document.getElementById('cfg-device-id').value,
+      monitored_bands:    getSelectedBands(),
       //poll_interval:      parseInt(document.getElementById('cfg-poll-interval').value),
       snmp_host: [1,2,3,4].map(n => document.getElementById(`cfg-snmp-host-${n}`).value || '0').join('.'),
       rssi_threshold_min: parseInt(document.getElementById('cfg-RSSI-threshold-min').value),

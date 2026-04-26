@@ -163,7 +163,7 @@
                 <label>OpenVPN Config File (.ovpn)</label>
                 <input type="file" id="cfg-ovpn-file" accept=".ovpn" style="display:none;" onchange="uploadOvpnFile()">
                 <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('cfg-ovpn-file').click()">
-                  <i class="fas fa-folder-open mr-1"></i> Choose & Upload VPN File
+                  <i class="fas fa-folder-open mr-1"></i> Upload .ovpn File
                 </button>
                 <span id="ovpn-upload-status" class="ml-2 text-muted" style="font-size:0.85rem;"></span>
               </div>
@@ -178,13 +178,13 @@
                   <div><input type="checkbox" value="b13" onchange="applyBandFilter()"> Band 13</div>
                   <div><input type="checkbox" value="b17" onchange="applyBandFilter()"> Band 17</div>
                   <div><input type="checkbox" value="b66" onchange="applyBandFilter()"> Band 66</div>
-                  <div><input type="checkbox" value="n2"  onchange="applyBandFilter()"> n2</div>
+                  <!-- <div><input type="checkbox" value="n2"  onchange="applyBandFilter()"> n2</div>
                   <div><input type="checkbox" value="n5"  onchange="applyBandFilter()"> n5</div>
                   <div><input type="checkbox" value="n12" onchange="applyBandFilter()"> n12</div>
                   <div><input type="checkbox" value="n66" onchange="applyBandFilter()"> n66</div>
                   <div><input type="checkbox" value="n71" onchange="applyBandFilter()"> n71</div>
                   <div><input type="checkbox" value="n77" onchange="applyBandFilter()"> n77</div>
-                  <div><input type="checkbox" value="n78" onchange="applyBandFilter()"> n78</div>
+                  <div><input type="checkbox" value="n78" onchange="applyBandFilter()"> n78</div> -->
                 </div>
               </div>
 
@@ -344,8 +344,11 @@
         <!-- Cell Info -->
         <div class="col-lg-3 col-md-4">
           <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-broadcast-tower mr-2"></i>Cell Info</h3>
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h3 class="card-title mb-0"><i class="fas fa-broadcast-tower mr-2"></i>Cell Info</h3>
+              <a href="/api/download-logs" class="btn btn-sm btn-outline-secondary" title="Download device logs">
+                <i class="fas fa-download mr-1"></i>Download Logs
+              </a>
             </div>
             <div class="card-body p-0">
               <table class="table device-info-table mb-0">

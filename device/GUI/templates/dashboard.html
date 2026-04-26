@@ -312,8 +312,6 @@
             <div class="info-box-content">
               <span class="info-box-text">SNMP Status</span>
               <span class="info-box-number" id="snmp-status">{{ data.snmp_status }}</span>
-              <span class="info-box-text text-muted" id="snmp-trap-endpoint" style="font-size:0.72rem;">
-                {{ data.snmp_trap_endpoint if data.snmp_trap_endpoint else '⚠ No trap endpoint' }}
               </span>
             </div>
           </div>
@@ -722,16 +720,16 @@
     //   hint:   epOk ? null : 'Set the trap destination in Device Configuration → SNMP Trap Endpoint (e.g. 192.168.1.10:162)',
     // });
 
-    /* 6. SNMP service running */
-    const snmpStatus = st.snmp_status ?? 'UNKNOWN';
-    const snmpOk = snmpStatus === 'RUNNING';
-    checks.push({
-      id:     'snmp_service',
-      label:  'SNMP Service',
-      detail: snmpOk ? 'Service is RUNNING' : `Service is ${snmpStatus}`,
-      status: snmpOk ? 'ok' : (snmpStatus === 'UNKNOWN' ? 'warn' : 'error'),
-      hint:   snmpOk ? null : 'SNMP service may have failed to start — check device logs',
-    });
+    // /* 6. SNMP service running */
+    // const snmpStatus = st.snmp_status ?? 'UNKNOWN';
+    // const snmpOk = snmpStatus === 'RUNNING';
+    // checks.push({
+    //   id:     'snmp_service',
+    //   label:  'SNMP Service',
+    //   detail: snmpOk ? 'Service is RUNNING' : `Service is ${snmpStatus}`,
+    //   status: snmpOk ? 'ok' : (snmpStatus === 'UNKNOWN' ? 'warn' : 'error'),
+    //   hint:   snmpOk ? null : 'SNMP service may have failed to start — check device logs',
+    // });
 
     return { checks };
   }

@@ -151,7 +151,7 @@
                 <input type="number" class="form-control" id="cfg-poll-interval">
               </div>
               <div class="form-group">
-                <label>VPN IP Address</label>
+                <label>SNMP IP Address</label>
                 <div class="d-flex align-items-center" style="gap:4px;">
                   <input type="number" class="form-control text-center" id="cfg-snmp-host-1" min="0" max="255" placeholder="0" style="width:70px;" oninput="validateVpnIp()">
                   <span class="text-muted font-weight-bold">.</span>
@@ -560,7 +560,7 @@
 
     // All-zeros likely misconfigured
     if (octets.every(o => o === 0)) {
-      fb.textContent = '⚠ VPN IP is 0.0.0.0 — SNMP traps will have no reachable tunnel endpoint';
+      fb.textContent = '⚠ IP is 0.0.0.0 — SNMP traps will have no reachable tunnel endpoint';
       fb.className = 'form-text text-warning';
       fb.style.display = 'block';
       return false;
@@ -674,13 +674,13 @@
     const octets = ip.split('.').map(Number);
     const ipOk = ip && octets.length === 4 && octets.every(o => !isNaN(o) && o >= 0 && o <= 255) && !octets.every(o => o === 0) && octets[0] !== 127;
     checks.push({
-      id:     'vpn_ip',
-      label:  'VPN IP Address',
+      id:     'snmp_ip',
+      label:  'SNMP IP Address',
       detail: ipOk
         ? `Configured: ${ip}`
-        : (ip ? `IP "${ip}" is invalid or unreachable as a VPN tunnel address` : 'No VPN IP configured'),
+        : (ip ? `IP "${ip}" is invalid or unreachable as a VPN tunnel address` : 'No IP configured'),
       status: ipOk ? 'ok' : 'error',
-      hint:   ipOk ? null : 'Set a valid VPN peer IP in Device Configuration → VPN IP Address',
+      hint:   ipOk ? null : 'Set a valid VPN peer IP in Device Configuration → IP Address',
     });
 
     /* 3. VPN tunnel live */
@@ -691,7 +691,7 @@
       label:  'VPN Tunnel',
       detail: vpnOk ? 'Tunnel is ACTIVE' : `Tunnel is ${vpnStatus}`,
       status: vpnOk ? 'ok' : (vpnStatus === 'UNKNOWN' ? 'warn' : 'error'),
-      hint:   vpnOk ? null : 'Upload a valid .ovpn file and ensure the VPN IP is reachable',
+      hint:   vpnOk ? null : 'Upload a valid .ovpn file',
     });
 
     /* 4. OpenVPN config uploaded */

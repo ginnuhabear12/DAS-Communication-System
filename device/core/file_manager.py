@@ -50,6 +50,7 @@ except Exception as _snmp_err:
 # ── File Paths ────────────────────────────────────────────────────────────────
 KPI_DIR      = "/home/das/DAS-Communication-System/device/data/kpi_data" 
 GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/data/device_data_test.json"
+CONFIG_PATH   = "/home/das/DAS-Communication-System/device/data/core/GUI/config.json"
 MAX_DAYS     = 7
 
 # ── Write retry configuration ─────────────────────────────────────────────────
@@ -152,6 +153,7 @@ def update_gui_json(averaged_results: list) -> None:
         "vpn_status":    "ACTIVE",
         "snmp_status":   "RUNNING",
         "site_name":     "DAS",
+        "device_id":     "",
         "alert_message": "No active alarms",
         "bands":         [],
         "logs":          []
@@ -215,6 +217,14 @@ def update_gui_json(averaged_results: list) -> None:
     data["last_update"] = averaged_results[0].end_time.strftime("%Y-%m-%d %H:%M:%S")
     data["bands"]       = [_averaged_to_dict(avg) for avg in averaged_results]
     data["snmp_status"] = "RUNNING" if SNMP_READY else "DOWN"  # ADDED
+   
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            cfg = json.load(f)
+        data["device_id"] = cfg.get("device_id", "")
+        data["site_name"] = cfg.get("site_name", data.get("site_name", "DAS"))
+    except Exception:
+        pass
 
     # ── Step 3: Update cache — always, every cycle, before write ──────────────
     # Cache is updated unconditionally from the in-memory data object.

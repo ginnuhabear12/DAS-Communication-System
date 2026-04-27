@@ -494,11 +494,11 @@
   }
 
   function applyBandFilter() {
-    const selected = getSelectedBands();
-    document.querySelectorAll('#bands-table tbody tr').forEach(row => {
-      const band = row.children[1]?.textContent.trim() ?? '';
-      row.style.display = (selected.length === 0 || selected.includes(band)) ? '' : 'none';
-    });
+      const selected = getSelectedBands().map(b => b.replace(/^[bn]/, ''));  // strip 'b' or 'n' prefix
+      document.querySelectorAll('#bands-table tbody tr').forEach(row => {
+          const band = row.children[1]?.textContent.trim() ?? '';
+          row.style.display = (selected.length === 0 || selected.includes(band)) ? '' : 'none';
+      });
   }
 
   /* ─────────────────────────────────────────────

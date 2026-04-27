@@ -389,7 +389,7 @@
                   <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
                   <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
                   <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
-                  <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
+                  <tr><td>Device ID</td><td><strong id="cell-device-id">{{ data.device_id }}</strong></td></tr>
                 </tbody>
               </table>
             </div>
@@ -576,7 +576,7 @@
     updateBandsTable(data.bands ?? []);
     setText('site', data.site_name);
     updateLogTable(data.logs ?? []);
-    setText('footer-device-id', data.device_id);
+    setText('cell-device-id', data.device_id);
     setText('footer-site-name', data.site_name);
   }
   setInterval(refreshStatus, 5000);

@@ -54,7 +54,7 @@ CONFIG_PATH = CONFIG_DIR / "config.json"
 OVPN_DIR = CONFIG_DIR / "vpn"
 OVPN_PATH = OVPN_DIR / "client.ovpn"
 
-KPI_DATA_DIR = Path("/home/das/DAS-Communication-System/data/kpi_data")
+KPI_DATA_DIR = Path("/home/das/DAS-Communication-System/device/data/kpi_data")
 
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 OVPN_DIR.mkdir(parents=True, exist_ok=True)

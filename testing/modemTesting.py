@@ -2,9 +2,10 @@
 # No SIM — multi-carrier LTE scan + NR passive scan
 
 import time
-from testing.testing.atCommandExample import at_command_comms
+from atCommandExample import at_command_comms
 
-bands = [ 'b2']
+
+bands = [ 'b2','b4', 'b5' ]
 
 nrBand = []
 lteBand = []
@@ -56,9 +57,6 @@ while True:
         time.sleep(3)
         print(at_command_comms("AT+CFUN=1", 15))
         time.sleep(3)
-        print(at_command_comms("AT+CPIN?", 15))   # CME ERROR without SIM, used as dwell
-        time.sleep(3)
-        at_command_comms("AT+QNWINFO", 0.3)
         print(at_command_comms('AT+QENG="servingcell"', 0.3))
 
     print()

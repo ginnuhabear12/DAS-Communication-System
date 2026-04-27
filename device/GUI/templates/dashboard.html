@@ -147,6 +147,21 @@
                 <input type="text" class="form-control" id="cfg-device-id">
               </div>
               <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" id="cfg-gui-username">
+              </div>
+              <div class="form-group">
+                <label>New Password <span class="text-muted" style="font-size:0.8rem;">(leave blank to keep current)</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="cfg-gui-new-password" placeholder="Enter new password">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="toggleCfgPw()">
+                      <i class="fas fa-eye" id="cfg-pw-icon"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
                 <label>SNMP Endpoint (OpenVPN Tunnel Address)</label>
                 <div class="d-flex align-items-center" style="gap:4px;">
                   <input type="number" class="form-control text-center" id="cfg-snmp-host-1" min="0" max="255" placeholder="0" style="width:70px;" oninput="validateVpnIp()">
@@ -253,12 +268,27 @@
         <i class="fas fa-info-circle mr-2"></i> <span id="alert-message">{{ data.alert_message }}</span>
       </div>
 
+        <!-- Device Configuration Button and Logout -->
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div></div>
+        <div>
+          <button class="btn btn-warning btn-sm mr-2" onclick="showSection('config')">
+            <i class="fas fa-cog mr-1"></i> Device Configuration
+          </button>
+          <a href="/logout" class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+          </a>
+        </div>
+      </div>
+
+
       <!-- Device Configuration Button -->
-      <div class="mb-3 text-right">
+      <!-- <div class="mb-3 text-right">
         <button class="btn btn-warning btn-sm" onclick="showSection('config')">
           <i class="fas fa-cog mr-1"></i> Device Configuration
         </button>
-      </div>
+      </div> -->
+
 
       <!-- Status Info Boxes -->
       <div class="row status-row flex-wrap">
@@ -359,7 +389,7 @@
                   <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
                   <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
                   <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
-                  <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
+                  <tr><td>Device ID</td><td><strong id="cell-device-id">{{ data.device_id }}</strong></td></tr>
                 </tbody>
               </table>
             </div>
@@ -405,6 +435,18 @@
       name === 'dashboard' ? 'Dashboard' : 'Settings';
 
     if (name === 'config') runDiagnostics();
+
+    function toggleCfgPw() {
+      const input = document.getElementById('cfg-gui-new-password');
+      const icon  = document.getElementById('cfg-pw-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    } 
   }
 
   /* ─────────────────────────────────────────────
@@ -452,11 +494,11 @@
   }
 
   function applyBandFilter() {
-    const selected = getSelectedBands();
-    document.querySelectorAll('#bands-table tbody tr').forEach(row => {
-      const band = row.children[1]?.textContent.trim() ?? '';
-      row.style.display = (selected.length === 0 || selected.includes(band)) ? '' : 'none';
-    });
+      const selected = getSelectedBands().map(b => b.replace(/^[bn]/, ''));  // strip 'b' or 'n' prefix
+      document.querySelectorAll('#bands-table tbody tr').forEach(row => {
+          const band = row.children[1]?.textContent.trim() ?? '';
+          row.style.display = (selected.length === 0 || selected.includes(band)) ? '' : 'none';
+      });
   }
 
   /* ─────────────────────────────────────────────
@@ -534,7 +576,7 @@
     updateBandsTable(data.bands ?? []);
     setText('site', data.site_name);
     updateLogTable(data.logs ?? []);
-    setText('footer-device-id', data.device_id);
+    setText('cell-device-id', data.device_id);
     setText('footer-site-name', data.site_name);
   }
   setInterval(refreshStatus, 5000);
@@ -790,6 +832,7 @@
 
       document.getElementById('cfg-site-name').value    = cfg.site_name    ?? '';
       document.getElementById('cfg-device-id').value    = cfg.device_id    ?? '';
+      document.getElementById('cfg-gui-username').value = cfg.gui_username ?? 'admin';
       //document.getElementById('cfg-poll-interval').value = cfg.poll_interval ?? 30;
 
       const octets = (cfg.snmp_host ?? '0.0.0.0').split('.');
@@ -868,6 +911,7 @@
     // Run inline validations before saving 
     const ipOk = validateVpnIp();
     const statusEl = document.getElementById('cfg-status');
+    
 
     if (!ipOk) {
       statusEl.textContent = '⚠ Fix validation errors before saving';
@@ -885,6 +929,9 @@
       rsrp_threshold_min: parseInt(document.getElementById('cfg-RSRP-threshold-min').value),
       rsrq_threshold_min: parseInt(document.getElementById('cfg-RSRQ-threshold-min').value),
       sinr_threshold_min: parseInt(document.getElementById('cfg-SINR-threshold-min').value),
+
+      gui_username:    document.getElementById('cfg-gui-username').value,
+      gui_new_password: document.getElementById('cfg-gui-new-password').value,
     };
 
     try {

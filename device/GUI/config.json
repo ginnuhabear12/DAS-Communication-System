@@ -1,14 +1,15 @@
 {
-    "site_name": "das",
-    "device_id": "676767",
+    "site_name": "design",
+    "device_id": "12",
     "monitored_bands": [
         "b2",
         "b4",
-        "b5"
+        "b66"
     ],
     "snmp_host": "10.8.0.1",
     "rssi_threshold_min": -90,
     "rsrp_threshold_min": -110,
     "rsrq_threshold_min": -14,
-    "sinr_threshold_min": 0
+    "sinr_threshold_min": 0,
+    "gui_username": "admin"
 }

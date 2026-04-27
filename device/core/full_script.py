@@ -43,7 +43,7 @@ def _ts():
 
 
 REQUIRED_FIELDS = [
-    "site_name", "device_id", "poll_interval",
+    "site_name", "device_id",
     "snmp_host", "monitored_bands",
     "rssi_threshold_min",
     "rsrp_threshold_min",
@@ -379,6 +379,9 @@ while True:
     # NR5G bands first, LTE bands second. process_window uses positional index
     # to match readings across all 5 sessions, so a mismatch here would silently
     # pair the wrong bands together during averaging.
+    monitored_bands = cfg["monitored_bands"]
+    lte_bands  = [b for b in monitored_bands if b.startswith("b")]
+    nr5g_bands = [b for b in monitored_bands if b.startswith("n")]
     total_bands             = len(nr5g_bands) + len(lte_bands)
     session_cmd_failures    = 0
     session_serial_failures = 0
@@ -522,6 +525,7 @@ while True:
             sessions      = []
             session_count = 0
 
+<<<<<<< HEAD
         # ── Reload config after every completed window ────────────────────────
         # Picks up any changes saved via the GUI (bands, thresholds, etc.)
         # without requiring a service restart.
@@ -531,6 +535,19 @@ while True:
             site_name   = cfg["site_name"]
             device_id   = cfg["device_id"]
             snmp_host   = cfg["snmp_host"]
+=======
+                # ── Reload config after every completed averaging window ──────────────
+        # This makes GUI band changes take effect at the beginning of the next
+        # big loop/window, after the current 5-session average has completed.
+        try:
+            old_monitored_bands = monitored_bands.copy()
+
+            cfg = load_config()
+
+            site_name = cfg["site_name"]
+            device_id = cfg["device_id"]
+            snmp_host = cfg["snmp_host"]
+>>>>>>> fd2b2e42c86a9e05b3b0369a00d67ec8e170f336
 
             monitored_bands = cfg["monitored_bands"]
             lte_bands  = [b for b in monitored_bands if b.startswith("b")]
@@ -542,11 +559,16 @@ while True:
                 "rsrq": cfg["rsrq_threshold_min"],
                 "sinr": cfg["sinr_threshold_min"],
             }
+<<<<<<< HEAD
+=======
+
+>>>>>>> fd2b2e42c86a9e05b3b0369a00d67ec8e170f336
             nr5g_thresholds = {
                 "ss_rsrp": cfg["rsrp_threshold_min"],
                 "ss_rsrq": cfg["rsrq_threshold_min"],
                 "ss_sinr": cfg["sinr_threshold_min"],
             }
+<<<<<<< HEAD
             print(f"{_ts()} [CONFIG] Config reloaded — bands: {monitored_bands}, "
                   f"thresholds: RSRP={lte_thresholds['rsrp']} RSRQ={lte_thresholds['rsrq']} "
                   f"SINR={lte_thresholds['sinr']}")
@@ -554,6 +576,23 @@ while True:
         except Exception as e:
             print(f"{_ts()} [CONFIG] Config reload failed: {e} — retaining previous values.")
             send_runtime_alarm("config_reload", f"Config reload after window failed: {e}. Previous values retained.")
+=======
+
+            if monitored_bands != old_monitored_bands:
+                print(f"{_ts()} [CONFIG] GUI band configuration changed.")
+                print(f"{_ts()} [CONFIG] Previous bands: {old_monitored_bands}")
+                print(f"{_ts()} [CONFIG] New bands for next window: {monitored_bands}")
+            else:
+                print(f"{_ts()} [CONFIG] Config reloaded — bands unchanged: {monitored_bands}")
+
+        except Exception as e:
+            print(f"{_ts()} [CONFIG] Config reload failed after averaging window: {e}")
+            send_runtime_alarm(
+                "config reload",
+                f"Failed to reload config after averaging window: {e}. "
+                f"Continuing with previous monitored bands: {monitored_bands}"
+            )
+>>>>>>> fd2b2e42c86a9e05b3b0369a00d67ec8e170f336
 
     # ── Timing ────────────────────────────────────────────────────────────────
     # session_start was captured before instKPIcollection ran so collection

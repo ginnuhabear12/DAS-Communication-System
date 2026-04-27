@@ -53,23 +53,23 @@ def at_command_comms(command, timeout):
 
 def main():
     # 1. Power on full functionality
-    at_command_comms("AT+COPS=0", 180)
-    time.sleep(3)
-    print(at_command_comms('AT+CEREG?', 2))
-    print(at_command_comms('AT+COPS?', 2))
+     at_command_comms("AT+COPS=0", 180)
+     time.sleep(3)
+    # print(at_command_comms('AT+CEREG?', 2))
+    # print(at_command_comms('AT+COPS?', 2))
 
-    time.sleep(1)
-    at_command_comms("AT+CFUN=1", 2)
-    time.sleep(10)
-    at_command_comms("AT+COPS=2", 180)
-    time.sleep(2)
-    # 2. Scan for BOTH LTE and 5G (Parameter 3)
-    # This can take 30-60 seconds, so we set a long timeout
+    # time.sleep(1)
+     at_command_comms("AT+CFUN=1", 2)
+     time.sleep(10)
+    # at_command_comms("AT+COPS=2", 180)
+    # time.sleep(2)
+    # # 2. Scan for BOTH LTE and 5G (Parameter 3)
+    # # This can take 30-60 seconds, so we set a long timeout
     
-    results = at_command_comms("AT+QSCAN=3", 60)
-    print(results)
+     results = at_command_comms("AT+QSCAN=3", 60)
+     print(results)
     
-    print("\n--- Scan Complete ---")
+     print("\n--- Scan Complete ---")
 
 #This is for safety. __main__ is attributed to the file that is being ran. This means that other python files or scripts won't
 #accidentally start running along with this one.

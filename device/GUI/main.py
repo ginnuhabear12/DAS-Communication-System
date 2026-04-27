@@ -225,12 +225,21 @@ def get_config():
 # @app.post("/api/config")
 @app.post("/api/config", dependencies=[Depends(require_auth)])
 async def save_config(request: Request):
+    existing_config = {}
     try:
         new_config = await request.json()
 
         if new_config.get("gui_new_password"):
             new_config["gui_password_hash"] = _hash_password(new_config["gui_new_password"])
+
+        else:
+        # No new password — carry over the existing hash so it isn't lost
+            if "gui_password_hash" in existing_config:
+                new_config["gui_password_hash"] = existing_config["gui_password_hash"]
+
         new_config.pop("gui_new_password", None)
+
+
 
         CONFIG_DIR.mkdir(parents=True, exist_ok=True)
         with open(CONFIG_PATH, "w") as f:

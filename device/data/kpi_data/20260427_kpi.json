@@ -3852,6 +3852,218 @@
                     "avg_sinr": -5.999999999999998
                 }
             ]
+        },
+        {
+            "start_time": "13:33:35",
+            "end_time": "13:39:35",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -59.6,
+                    "avg_rsrp": -94.0,
+                    "avg_rsrq": -15.0,
+                    "avg_sinr": 14.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.0,
+                    "avg_rsrp": -103.6,
+                    "avg_rsrq": -16.4,
+                    "avg_sinr": -0.8
+                },
+                {
+                    "rat": "LTE",
+                    "band": 66,
+                    "pci": 111,
+                    "earfcn": 66711,
+                    "avg_rssi": -65.6,
+                    "avg_rsrp": -98.4,
+                    "avg_rsrq": -13.8,
+                    "avg_sinr": 10.8
+                }
+            ]
+        },
+        {
+            "start_time": "13:41:05",
+            "end_time": "13:47:06",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -61.4,
+                    "avg_rsrp": -93.6,
+                    "avg_rsrq": -13.2,
+                    "avg_sinr": 15.6
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -69.6,
+                    "avg_rsrp": -104.4,
+                    "avg_rsrq": -17.6,
+                    "avg_sinr": -1.2
+                },
+                {
+                    "rat": "LTE",
+                    "band": 66,
+                    "pci": 111,
+                    "earfcn": 66711,
+                    "avg_rssi": -67.6,
+                    "avg_rsrp": -100.2,
+                    "avg_rsrq": -13.6,
+                    "avg_sinr": 8.4
+                }
+            ]
+        },
+        {
+            "start_time": "13:48:36",
+            "end_time": "13:54:36",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -61.0,
+                    "avg_rsrp": -94.2,
+                    "avg_rsrq": -13.6,
+                    "avg_sinr": 14.8
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.2,
+                    "avg_rsrp": -104.0,
+                    "avg_rsrq": -16.2,
+                    "avg_sinr": -0.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 66,
+                    "pci": 111,
+                    "earfcn": 66711,
+                    "avg_rssi": -66.2,
+                    "avg_rsrp": -98.2,
+                    "avg_rsrq": -13.0,
+                    "avg_sinr": 10.8
+                }
+            ]
+        },
+        {
+            "start_time": "13:56:06",
+            "end_time": "14:02:06",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -60.2,
+                    "avg_rsrp": -93.4,
+                    "avg_rsrq": -14.0,
+                    "avg_sinr": 15.2
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.0,
+                    "avg_rsrp": -104.2,
+                    "avg_rsrq": -16.8,
+                    "avg_sinr": -0.8
+                },
+                {
+                    "rat": "LTE",
+                    "band": 66,
+                    "pci": 111,
+                    "earfcn": 66711,
+                    "avg_rssi": -67.6,
+                    "avg_rsrp": -100.0,
+                    "avg_rsrq": -13.4,
+                    "avg_sinr": 8.0
+                }
+            ]
+        },
+        {
+            "start_time": "14:03:36",
+            "end_time": "14:09:36",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -61.6,
+                    "avg_rsrp": -94.0,
+                    "avg_rsrq": -13.4,
+                    "avg_sinr": 14.8
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.0,
+                    "avg_rsrp": -105.0,
+                    "avg_rsrq": -17.8,
+                    "avg_sinr": -2.0
+                },
+                {
+                    "rat": "LTE",
+                    "band": 66,
+                    "pci": 111,
+                    "earfcn": 66711,
+                    "avg_rssi": -66.4,
+                    "avg_rsrp": -98.2,
+                    "avg_rsrq": -13.0,
+                    "avg_sinr": 12.4
+                }
+            ]
+        },
+        {
+            "start_time": "14:11:06",
+            "end_time": "14:17:06",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -59.6,
+                    "avg_rsrp": -93.0,
+                    "avg_rsrq": -14.2,
+                    "avg_sinr": 14.4
+                }
+            ]
+        },
+        {
+            "start_time": "14:18:36",
+            "end_time": "14:24:36",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -60.2,
+                    "avg_rsrp": -93.2,
+                    "avg_rsrq": -13.8,
+                    "avg_sinr": 15.2
+                }
+            ]
         }
     ]
 }

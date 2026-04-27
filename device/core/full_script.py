@@ -519,10 +519,41 @@ while True:
             send_runtime_alarm("process_window", f"Window processing failed: {e}")
 
         finally:
-            # Always resets regardless of outcome above — success, exception,
-            # or any other exit path from the try/except.
             sessions      = []
             session_count = 0
+
+        # ── Reload config after every completed window ────────────────────────
+        # Picks up any changes saved via the GUI (bands, thresholds, etc.)
+        # without requiring a service restart.
+        try:
+            cfg = load_config()
+
+            site_name   = cfg["site_name"]
+            device_id   = cfg["device_id"]
+            snmp_host   = cfg["snmp_host"]
+
+            monitored_bands = cfg["monitored_bands"]
+            lte_bands  = [b for b in monitored_bands if b.startswith("b")]
+            nr5g_bands = [b for b in monitored_bands if b.startswith("n")]
+
+            lte_thresholds = {
+                "rssi": cfg["rssi_threshold_min"],
+                "rsrp": cfg["rsrp_threshold_min"],
+                "rsrq": cfg["rsrq_threshold_min"],
+                "sinr": cfg["sinr_threshold_min"],
+            }
+            nr5g_thresholds = {
+                "ss_rsrp": cfg["rsrp_threshold_min"],
+                "ss_rsrq": cfg["rsrq_threshold_min"],
+                "ss_sinr": cfg["sinr_threshold_min"],
+            }
+            print(f"{_ts()} [CONFIG] Config reloaded — bands: {monitored_bands}, "
+                  f"thresholds: RSRP={lte_thresholds['rsrp']} RSRQ={lte_thresholds['rsrq']} "
+                  f"SINR={lte_thresholds['sinr']}")
+
+        except Exception as e:
+            print(f"{_ts()} [CONFIG] Config reload failed: {e} — retaining previous values.")
+            send_runtime_alarm("config_reload", f"Config reload after window failed: {e}. Previous values retained.")
 
     # ── Timing ────────────────────────────────────────────────────────────────
     # session_start was captured before instKPIcollection ran so collection

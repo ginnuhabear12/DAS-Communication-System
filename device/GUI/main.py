@@ -46,7 +46,7 @@ def _ts():
 # Paths
 # ----------------------------
 BASE_DIR = Path(__file__).resolve().parent
-DEVICE_DATA_PATH = Path("/home/das/DAS-Communication-System/device/data/device_data.json")
+DEVICE_DATA_PATH = Path("/home/das/DAS-Communication-System/device/data/device_data_test.json")
 
 CONFIG_DIR = Path("/home/das/DAS-Communication-System/device/GUI")
 CONFIG_PATH = CONFIG_DIR / "config.json"

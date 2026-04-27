@@ -3348,6 +3348,42 @@
                     "avg_sinr": -4.0
                 }
             ]
+        },
+        {
+            "start_time": "11:44:01",
+            "end_time": "11:50:01",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -59.8,
+                    "avg_rsrp": -93.6,
+                    "avg_rsrq": -14.6,
+                    "avg_sinr": 14.8
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -69.8,
+                    "avg_rsrp": -104.0,
+                    "avg_rsrq": -16.4,
+                    "avg_sinr": 0.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.0,
+                    "avg_rsrp": -107.0,
+                    "avg_rsrq": -18.6,
+                    "avg_sinr": -5.199999999999998
+                }
+            ]
         }
     ]
 }

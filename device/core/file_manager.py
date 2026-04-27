@@ -49,7 +49,7 @@ except Exception as _snmp_err:
 
 # ── File Paths ────────────────────────────────────────────────────────────────
 KPI_DIR      = "/home/das/DAS-Communication-System/device/data/kpi_data" 
-GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/data/device_data.json"
+GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/data/device_data_test.json"
 MAX_DAYS     = 7
 
 # ── Write retry configuration ─────────────────────────────────────────────────

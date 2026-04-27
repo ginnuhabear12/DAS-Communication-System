@@ -11,32 +11,32 @@
             "band": 2,
             "pci": 447,
             "earfcn": 675,
-            "avg_rssi": -61.6,
-            "avg_rsrp": -94.0,
-            "avg_rsrq": -13.2,
-            "avg_sinr": 15.2
+            "avg_rssi": -59.8,
+            "avg_rsrp": -93.6,
+            "avg_rsrq": -14.6,
+            "avg_sinr": 14.8
         },
         {
             "rat": "LTE",
             "band": 4,
             "pci": 367,
             "earfcn": 2350,
-            "avg_rssi": -71.8,
-            "avg_rsrp": -105.2,
-            "avg_rsrq": -16.2,
-            "avg_sinr": -2.0
+            "avg_rssi": -69.8,
+            "avg_rsrp": -104.0,
+            "avg_rsrq": -16.4,
+            "avg_sinr": 0.4
         },
         {
             "rat": "LTE",
             "band": 5,
             "pci": 336,
             "earfcn": 2450,
-            "avg_rssi": -70.2,
-            "avg_rsrp": -105.8,
-            "avg_rsrq": -18.2,
-            "avg_sinr": -4.0
+            "avg_rssi": -71.0,
+            "avg_rsrp": -107.0,
+            "avg_rsrq": -18.6,
+            "avg_sinr": -5.199999999999998
         }
     ],
     "logs": [],
-    "last_update": "2026-04-27 11:42:31"
+    "last_update": "2026-04-27 11:50:01"
 }

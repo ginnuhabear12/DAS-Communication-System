@@ -525,15 +525,17 @@ while True:
             sessions      = []
             session_count = 0
 
-        # ── Reload config after every completed window ────────────────────────
-        # Picks up any changes saved via the GUI (bands, thresholds, etc.)
-        # without requiring a service restart.
+                # ── Reload config after every completed averaging window ──────────────
+        # This makes GUI band changes take effect at the beginning of the next
+        # big loop/window, after the current 5-session average has completed.
         try:
+            old_monitored_bands = monitored_bands.copy()
+
             cfg = load_config()
 
-            site_name   = cfg["site_name"]
-            device_id   = cfg["device_id"]
-            snmp_host   = cfg["snmp_host"]
+            site_name = cfg["site_name"]
+            device_id = cfg["device_id"]
+            snmp_host = cfg["snmp_host"]
 
             monitored_bands = cfg["monitored_bands"]
             lte_bands  = [b for b in monitored_bands if b.startswith("b")]
@@ -545,18 +547,27 @@ while True:
                 "rsrq": cfg["rsrq_threshold_min"],
                 "sinr": cfg["sinr_threshold_min"],
             }
+
             nr5g_thresholds = {
                 "ss_rsrp": cfg["rsrp_threshold_min"],
                 "ss_rsrq": cfg["rsrq_threshold_min"],
                 "ss_sinr": cfg["sinr_threshold_min"],
             }
-            print(f"{_ts()} [CONFIG] Config reloaded — bands: {monitored_bands}, "
-                  f"thresholds: RSRP={lte_thresholds['rsrp']} RSRQ={lte_thresholds['rsrq']} "
-                  f"SINR={lte_thresholds['sinr']}")
+
+            if monitored_bands != old_monitored_bands:
+                print(f"{_ts()} [CONFIG] GUI band configuration changed.")
+                print(f"{_ts()} [CONFIG] Previous bands: {old_monitored_bands}")
+                print(f"{_ts()} [CONFIG] New bands for next window: {monitored_bands}")
+            else:
+                print(f"{_ts()} [CONFIG] Config reloaded — bands unchanged: {monitored_bands}")
 
         except Exception as e:
-            print(f"{_ts()} [CONFIG] Config reload failed: {e} — retaining previous values.")
-            send_runtime_alarm("config_reload", f"Config reload after window failed: {e}. Previous values retained.")
+            print(f"{_ts()} [CONFIG] Config reload failed after averaging window: {e}")
+            send_runtime_alarm(
+                "config reload",
+                f"Failed to reload config after averaging window: {e}. "
+                f"Continuing with previous monitored bands: {monitored_bands}"
+            )
 
     # ── Timing ────────────────────────────────────────────────────────────────
     # session_start was captured before instKPIcollection ran so collection

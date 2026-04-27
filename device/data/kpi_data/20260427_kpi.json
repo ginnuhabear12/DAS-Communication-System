@@ -3600,6 +3600,258 @@
                     "avg_sinr": -5.599999999999999
                 }
             ]
+        },
+        {
+            "start_time": "12:36:32",
+            "end_time": "12:42:32",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -59.2,
+                    "avg_rsrp": -92.4,
+                    "avg_rsrq": -14.2,
+                    "avg_sinr": 16.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.6,
+                    "avg_rsrp": -104.4,
+                    "avg_rsrq": -16.4,
+                    "avg_sinr": -1.6
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.0,
+                    "avg_rsrp": -106.8,
+                    "avg_rsrq": -18.4,
+                    "avg_sinr": -5.599999999999999
+                }
+            ]
+        },
+        {
+            "start_time": "12:44:02",
+            "end_time": "12:50:02",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -60.0,
+                    "avg_rsrp": -93.4,
+                    "avg_rsrq": -14.0,
+                    "avg_sinr": 14.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.0,
+                    "avg_rsrp": -103.4,
+                    "avg_rsrq": -16.2,
+                    "avg_sinr": -0.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.0,
+                    "avg_rsrp": -107.8,
+                    "avg_rsrq": -19.2,
+                    "avg_sinr": -5.599999999999999
+                }
+            ]
+        },
+        {
+            "start_time": "12:51:32",
+            "end_time": "12:57:32",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -60.2,
+                    "avg_rsrp": -93.4,
+                    "avg_rsrq": -14.4,
+                    "avg_sinr": 15.2
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.2,
+                    "avg_rsrp": -104.2,
+                    "avg_rsrq": -16.4,
+                    "avg_sinr": 0.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.4,
+                    "avg_rsrp": -108.4,
+                    "avg_rsrq": -19.4,
+                    "avg_sinr": -5.999999999999998
+                }
+            ]
+        },
+        {
+            "start_time": "12:59:02",
+            "end_time": "13:05:02",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -60.8,
+                    "avg_rsrp": -93.6,
+                    "avg_rsrq": -13.6,
+                    "avg_sinr": 15.2
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.2,
+                    "avg_rsrp": -104.6,
+                    "avg_rsrq": -17.2,
+                    "avg_sinr": 0.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.2,
+                    "avg_rsrp": -108.4,
+                    "avg_rsrq": -19.6,
+                    "avg_sinr": -6.399999999999999
+                }
+            ]
+        },
+        {
+            "start_time": "13:06:32",
+            "end_time": "13:12:32",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -63.4,
+                    "avg_rsrp": -94.8,
+                    "avg_rsrq": -12.4,
+                    "avg_sinr": 14.4
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.8,
+                    "avg_rsrp": -103.6,
+                    "avg_rsrq": -15.6,
+                    "avg_sinr": 1.2
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.4,
+                    "avg_rsrp": -108.0,
+                    "avg_rsrq": -19.2,
+                    "avg_sinr": -6.799999999999999
+                }
+            ]
+        },
+        {
+            "start_time": "13:14:02",
+            "end_time": "13:20:02",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 402,
+                    "earfcn": 1000,
+                    "avg_rssi": -62.2,
+                    "avg_rsrp": -95.4,
+                    "avg_rsrq": -14.4,
+                    "avg_sinr": 10.8
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.2,
+                    "avg_rsrp": -105.4,
+                    "avg_rsrq": -17.4,
+                    "avg_sinr": -1.1999999999999997
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.4,
+                    "avg_rsrp": -108.0,
+                    "avg_rsrq": -18.8,
+                    "avg_sinr": -6.799999999999999
+                }
+            ]
+        },
+        {
+            "start_time": "13:21:32",
+            "end_time": "13:27:32",
+            "bands": [
+                {
+                    "rat": "LTE",
+                    "band": 2,
+                    "pci": 447,
+                    "earfcn": 675,
+                    "avg_rssi": -61.4,
+                    "avg_rsrp": -94.6,
+                    "avg_rsrq": -14.0,
+                    "avg_sinr": 13.6
+                },
+                {
+                    "rat": "LTE",
+                    "band": 4,
+                    "pci": 367,
+                    "earfcn": 2350,
+                    "avg_rssi": -70.6,
+                    "avg_rsrp": -104.2,
+                    "avg_rsrq": -16.2,
+                    "avg_sinr": -0.8
+                },
+                {
+                    "rat": "LTE",
+                    "band": 5,
+                    "pci": 336,
+                    "earfcn": 2450,
+                    "avg_rssi": -71.2,
+                    "avg_rsrp": -108.0,
+                    "avg_rsrq": -19.6,
+                    "avg_sinr": -5.999999999999998
+                }
+            ]
         }
     ]
 }

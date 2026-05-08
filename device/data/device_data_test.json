@@ -11,22 +11,22 @@
             "band": 2,
             "pci": 447,
             "earfcn": 675,
-            "avg_rssi": -60.8,
-            "avg_rsrp": -94.2,
-            "avg_rsrq": -14.2,
-            "avg_sinr": 12.4
+            "avg_rssi": -67.8,
+            "avg_rsrp": -96.0,
+            "avg_rsrq": -8.8,
+            "avg_sinr": 13.6
         },
         {
             "rat": "LTE",
             "band": 4,
-            "pci": 367,
-            "earfcn": 2350,
-            "avg_rssi": -70.4,
-            "avg_rsrp": -103.4,
-            "avg_rsrq": -15.8,
-            "avg_sinr": 0.4
+            "pci": 111,
+            "earfcn": 2225,
+            "avg_rssi": -66.4,
+            "avg_rsrp": -96.4,
+            "avg_rsrq": -11.0,
+            "avg_sinr": 14.4
         }
     ],
     "logs": [],
-    "last_update": "2026-04-27 14:56:21"
+    "last_update": "2026-05-03 13:04:34"
 }

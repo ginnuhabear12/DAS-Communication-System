@@ -5,141 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DAS Monitoring | {{ data.site_name }}</title>
 
-  <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- AdminLTE -->
   <link rel="stylesheet" href="{{ url_for('static', path='css/adminlte.min.css') }}">
 
   <style>
-    .kpi-card {
-      border-left: 4px solid;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-    }
-    .kpi-value {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-    .kpi-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #6c757d;
-    }
+    .kpi-card { border-left: 4px solid; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+    .kpi-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #6c757d; }
     .device-info-table td { vertical-align: middle; padding: 6px 10px; }
     .device-info-table td:first-child { color: #6c757d; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; width: 120px; }
     .log-row-warning { background: #fff3cd !important; }
     .log-row-normal { background: #f0fff4 !important; }
     .brand-text { font-size: 1rem; font-weight: 700; letter-spacing: 0.04em; }
-    .alert-banner {
-      border-left: 4px solid #17a2b8;
-      background: #e8f7fb;
-      color: #0c5460;
-      border-radius: 4px;
-      padding: 10px 16px;
-      font-size: 0.875rem;
-    }
-    .content-wrapper {
-      padding: 0 18px 20px 18px;
-    }
+    .alert-banner { border-left: 4px solid #17a2b8; background: #e8f7fb; color: #0c5460; border-radius: 4px; padding: 10px 16px; font-size: 0.875rem; }
+    .alert-banner.alert-error { border-left-color: #dc3545; background: #fdf2f2; color: #721c24; }
+    .alert-banner.alert-warning { border-left-color: #ffc107; background: #fffbea; color: #856404; }
+    .content-wrapper { padding: 0 18px 20px 18px; }
+    .dashboard-section { margin-bottom: 18px; }
+    .card { margin-bottom: 18px; }
+    .info-box { min-height: 90px; border-radius: 6px; }
+    .info-box-content { display: flex; flex-direction: column; justify-content: center; }
+    #bands-table th, #bands-table td, #kpi-log-table th, #kpi-log-table td { padding: 10px 14px; vertical-align: middle; }
+    .card-header { padding: 12px 16px; }
+    .card-title { font-weight: 600; }
+    .status-row .col-md-3 { max-width: 230px; }
+    .info-box { min-height: 70px; padding: 8px; }
+    .info-box-icon { width: 55px !important; height: 55px !important; font-size: 1.4rem !important; line-height: 55px !important; }
+    .info-box-content { padding: 5px 8px; }
+    .info-box-text { font-size: 0.85rem; }
+    .info-box-number { font-size: 1rem; }
+    html, body { height: 100%; }
+    .wrapper { min-height: 100vh; display: flex; flex-direction: column; }
+    .content-wrapper { flex: 1; }
+    .main-footer { margin-top: auto; padding: 10px 18px; font-size: 0.85rem; }
 
-    .dashboard-section {
-      margin-bottom: 18px;
-    }
-
-    .card {
-      margin-bottom: 18px;
-    }
-
-    .info-box {
-      min-height: 90px;
-      border-radius: 6px;
-    }
-
-    .info-box-content {
+    /* ── Diagnostics Panel ── */
+    .diag-panel { border-radius: 6px; overflow: hidden; }
+    .diag-item {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    #bands-table th,
-    #bands-table td,
-    #kpi-log-table th,
-    #kpi-log-table td {
-      padding: 10px 14px;
-      vertical-align: middle;
-    }
-
-    .card-header {
+      align-items: flex-start;
+      gap: 12px;
       padding: 12px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.15s;
     }
-
-    .card-title {
-      font-weight: 600;
-    }
-
-    .status-row .col-md-3 {
-      max-width: 230px;
-    }
-
-    .info-box {
-      min-height: 70px;
-      padding: 8px;
-    }
-
-    .info-box-icon {
-      width: 55px !important;
-      height: 55px !important;
-      font-size: 1.4rem !important;
-      line-height: 55px !important;
-    }
-
-    .info-box-content {
-      padding: 5px 8px;
-    }
-
-    .info-box-text {
-      font-size: 0.85rem;
-    }
-
-    .info-box-number {
-      font-size: 1rem;
-    }
-
-    html, body {
-      height: 100%;
-    }
-
-    .wrapper {
-      min-height: 100vh;
+    .diag-item:last-child { border-bottom: none; }
+    .diag-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       display: flex;
-      flex-direction: column;
-    }
-
-    .content-wrapper {
-      flex: 1;
-    }
-
-    .main-footer {
-      margin-top: auto;
-      padding: 10px 18px;
+      align-items: center;
+      justify-content: center;
       font-size: 0.85rem;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
-  </style>
+    .diag-icon.ok    { background: #d4edda; color: #155724; }
+    .diag-icon.warn  { background: #fff3cd; color: #856404; }
+    .diag-icon.error { background: #f8d7da; color: #721c24; }
+    .diag-icon.info  { background: #d1ecf1; color: #0c5460; }
+    .diag-label { font-weight: 600; font-size: 0.875rem; margin-bottom: 2px; }
+    .diag-detail { font-size: 0.8rem; color: #6c757d; margin: 0; }
+    .diag-detail.text-danger { color: #dc3545 !important; }
+    .diag-detail.text-warning { color: #856404 !important; }
+    .diag-badge {
+      margin-left: auto;
+      align-self: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .badge-ok    { background: #28a745; color: #fff; }
+    .badge-warn  { background: #ffc107; color: #000; }
+    .badge-error { background: #dc3545; color: #fff; }
+    .badge-info  { background: #17a2b8; color: #fff; }
 
+    /* pulsing dot for live errors */
+    .diag-item.has-error { background: #fff8f8; }
+    .diag-item.has-warn  { background: #fffdf0; }
+
+    /* SNMP status in dashboard */
+    .snmp-status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
   </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
- <!-- Content Wrapper -->
 <div class="content-wrapper">
   <div class="content-header">
     <div class="container-fluid">
@@ -158,18 +122,15 @@
   </div>
 
   <!-- ===== SECTION: CONFIG ===== -->
+  <section class="content" id="section-config" style="display:none;">
+    <div class="container-fluid">
 
-  <!-- Back to Dashboard Button -->
-    <section class="content" id="section-config" style="display:none;">
-      <div class="container-fluid">
+      <div class="mb-3">
+        <button class="btn btn-secondary btn-sm" onclick="showSection('dashboard')">
+          <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+        </button>
+      </div>
 
-        <div class="mb-3">
-          <button class="btn btn-secondary btn-sm" onclick="showSection('dashboard')">
-            <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
-          </button>
-        </div>
-
-  
       <div class="row">
         <div class="col-md-6">
           <div class="card card-warning card-outline">
@@ -186,100 +147,79 @@
                 <input type="text" class="form-control" id="cfg-device-id">
               </div>
               <div class="form-group">
-                <label>Poll Interval (seconds)</label>
-                <input type="number" class="form-control" id="cfg-poll-interval">
+                <label>Username</label>
+                <input type="text" class="form-control" id="cfg-gui-username">
               </div>
               <div class="form-group">
-                <label>VPN IP Address</label>
-                <div class="d-flex align-items-center" style="gap:4px;">
-                  <input type="number" class="form-control text-center" id="cfg-snmp-host-1" min="0" placeholder="0" style="width:70px;">
-                  <span class="text-muted font-weight-bold">.</span>
-                  <input type="number" class="form-control text-center" id="cfg-snmp-host-2" min="0" placeholder="0" style="width:70px;">
-                  <span class="text-muted font-weight-bold">.</span>
-                  <input type="number" class="form-control text-center" id="cfg-snmp-host-3" min="0" placeholder="0" style="width:70px;">
-                  <span class="text-muted font-weight-bold">.</span>
-                  <input type="number" class="form-control text-center" id="cfg-snmp-host-4" min="0" placeholder="0" style="width:70px;">
+                <label>New Password <span class="text-muted" style="font-size:0.8rem;">(leave blank to keep current)</span></label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="cfg-gui-new-password" placeholder="Enter new password">
+                  <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="toggleCfgPw()">
+                      <i class="fas fa-eye" id="cfg-pw-icon"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
-
-
-                <div class="form-group">
-                  <label>OpenVPN Config File (.ovpn)</label>
-
-                  <input
-                    type="file"
-                    id="cfg-ovpn-file"
-                    accept=".ovpn"
-                    style="display:none;"
-                    onchange="uploadOvpnFile()"
-                  >
-
-                  <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('cfg-ovpn-file').click()">
-                    <i class="fas fa-folder-open mr-1"></i> Choose & Upload VPN File
-                  </button>
-
-                  <span id="ovpn-upload-status" class="ml-2 text-muted" style="font-size:0.85rem;"></span>
+              <div class="form-group">
+                <label>SNMP Endpoint (OpenVPN Tunnel Address)</label>
+                <div class="d-flex align-items-center" style="gap:4px;">
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-1" min="0" max="255" placeholder="0" style="width:70px;" oninput="validateVpnIp()">
+                  <span class="text-muted font-weight-bold">.</span>
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-2" min="0" max="255" placeholder="0" style="width:70px;" oninput="validateVpnIp()">
+                  <span class="text-muted font-weight-bold">.</span>
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-3" min="0" max="255" placeholder="0" style="width:70px;" oninput="validateVpnIp()">
+                  <span class="text-muted font-weight-bold">.</span>
+                  <input type="number" class="form-control text-center" id="cfg-snmp-host-4" min="0" max="255" placeholder="0" style="width:70px;" oninput="validateVpnIp()">
                 </div>
+                <small id="vpn-ip-feedback" class="form-text" style="display:none;"></small>
+              </div>
+              <div class="form-group">
+                <label>OpenVPN Config File (.ovpn)</label>
+                <input type="file" id="cfg-ovpn-file" accept=".ovpn" style="display:none;" onchange="uploadOvpnFile()">
+                <button type="button" class="btn btn-info btn-sm" onclick="document.getElementById('cfg-ovpn-file').click()">
+                  <i class="fas fa-folder-open mr-1"></i> Upload .ovpn File
+                </button>
+                <span id="ovpn-upload-status" class="ml-2 text-muted" style="font-size:0.85rem;"></span>
+              </div>
 
-              
-
-              <!-- Bands to monitor -->
               <div class="form-group">
                 <label>Bands to Monitor</label>
-
                 <div id="cfg-monitor-bands">
-                  <div><input type="checkbox" value="b2" onchange="applyBandFilter()"> Band 2</div>
-                  <div><input type="checkbox" value="b4" onchange="applyBandFilter()"> Band 4</div>
-                  <div><input type="checkbox" value="b5" onchange="applyBandFilter()"> Band 5</div>
+                  <div><input type="checkbox" value="b2"  onchange="applyBandFilter()"> Band 2</div>
+                  <div><input type="checkbox" value="b4"  onchange="applyBandFilter()"> Band 4</div>
+                  <div><input type="checkbox" value="b5"  onchange="applyBandFilter()"> Band 5</div>
                   <div><input type="checkbox" value="b12" onchange="applyBandFilter()"> Band 12</div>
                   <div><input type="checkbox" value="b13" onchange="applyBandFilter()"> Band 13</div>
                   <div><input type="checkbox" value="b17" onchange="applyBandFilter()"> Band 17</div>
                   <div><input type="checkbox" value="b66" onchange="applyBandFilter()"> Band 66</div>
-                  <div><input type="checkbox" value="n2" onchange="applyBandFilter()"> n2</div>
-                  <div><input type="checkbox" value="n5" onchange="applyBandFilter()"> n5</div>
+                  <!-- <div><input type="checkbox" value="n2"  onchange="applyBandFilter()"> n2</div>
+                  <div><input type="checkbox" value="n5"  onchange="applyBandFilter()"> n5</div>
                   <div><input type="checkbox" value="n12" onchange="applyBandFilter()"> n12</div>
                   <div><input type="checkbox" value="n66" onchange="applyBandFilter()"> n66</div>
                   <div><input type="checkbox" value="n71" onchange="applyBandFilter()"> n71</div>
                   <div><input type="checkbox" value="n77" onchange="applyBandFilter()"> n77</div>
-                  <div><input type="checkbox" value="n78" onchange="applyBandFilter()"> n78</div>
+                  <div><input type="checkbox" value="n78" onchange="applyBandFilter()"> n78</div> -->
                 </div>
               </div>
 
-
-
- 
               <div class="form-group">
                 <label>RSSI Threshold (dBm)</label>
-                <div class="d-flex align-items-center" style="gap:8px;">
-                  <input type="number" class="form-control" id="cfg-RSSI-threshold-min" placeholder="Min" min="-100" max="100">
-            
-                
-                </div>
+                <input type="number" class="form-control" id="cfg-RSSI-threshold-min" placeholder="Min" min="-100" max="100">
               </div>
               <div class="form-group">
                 <label>RSRP Threshold (dBm)</label>
-                <div class="d-flex align-items-center" style="gap:8px;">
-                  <input type="number" class="form-control" id="cfg-RSRP-threshold-min" placeholder="Min" min="-140" max="-44">
-                 
-                  
-                </div>
+                <input type="number" class="form-control" id="cfg-RSRP-threshold-min" placeholder="Min" min="-140" max="-44">
               </div>
               <div class="form-group">
                 <label>RSRQ Threshold (dB)</label>
-                <div class="d-flex align-items-center" style="gap:8px;">
-                  <input type="number" class="form-control" id="cfg-RSRQ-threshold-min" placeholder="Min" min="-20" max="0">
-              
-                
-                </div>
+                <input type="number" class="form-control" id="cfg-RSRQ-threshold-min" placeholder="Min" min="-20" max="0">
               </div>
               <div class="form-group">
                 <label>SINR Threshold (dB)</label>
-                <div class="d-flex align-items-center" style="gap:8px;">
-                  <input type="number" class="form-control" id="cfg-SINR-threshold-min" placeholder="Min" min="-20" max="30">
-             
-                
-                </div>
+                <input type="number" class="form-control" id="cfg-SINR-threshold-min" placeholder="Min" min="-20" max="30">
               </div>
+
               <button class="btn btn-warning" onclick="saveConfig()">
                 <i class="fas fa-save mr-1"></i> Save Configuration
               </button>
@@ -287,7 +227,35 @@
             </div>
           </div>
         </div>
+
+        <!-- ── Diagnostics Panel ── -->
+        <div class="col-md-6">
+          <div class="card card-outline card-secondary">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <h3 class="card-title mb-0"><i class="fas fa-stethoscope mr-2"></i>System Diagnostics</h3>
+              <button class="btn btn-outline-secondary btn-xs" onclick="runDiagnostics()" title="Re-run diagnostics">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+            <div class="card-body p-0 diag-panel" id="diag-panel">
+              <!-- populated by runDiagnostics() -->
+              <div class="diag-item">
+                <div class="diag-icon info"><i class="fas fa-spinner fa-spin"></i></div>
+                <div>
+                  <div class="diag-label">Running diagnostics…</div>
+                  <p class="diag-detail">Checking system health</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Diagnostics summary bar -->
+            <div class="card-footer py-2 px-3" id="diag-summary" style="font-size:0.8rem; color:#6c757d;">
+              Awaiting check…
+            </div>
+          </div>
+        </div>
       </div>
+
     </div>
   </section>
 
@@ -296,19 +264,35 @@
     <div class="container-fluid">
 
       <!-- Alert Banner -->
-      <div class="alert-banner mb-3">
+      <div class="alert-banner mb-3" id="alert-banner">
         <i class="fas fa-info-circle mr-2"></i> <span id="alert-message">{{ data.alert_message }}</span>
       </div>
 
+        <!-- Device Configuration Button and Logout -->
+      <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div></div>
+        <div>
+          <button class="btn btn-warning btn-sm mr-2" onclick="showSection('config')">
+            <i class="fas fa-cog mr-1"></i> Device Configuration
+          </button>
+          <a href="/logout" class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+          </a>
+        </div>
+      </div>
+
+
       <!-- Device Configuration Button -->
-      <div class="mb-3 text-right">
+      <!-- <div class="mb-3 text-right">
         <button class="btn btn-warning btn-sm" onclick="showSection('config')">
           <i class="fas fa-cog mr-1"></i> Device Configuration
         </button>
-      </div>
+      </div> -->
+
 
       <!-- Status Info Boxes -->
-      <div class="row status-row">
+      <div class="row status-row flex-wrap">
+        <!-- Device Status -->
         <div class="col-md-3 col-sm-6">
           <div class="info-box">
             <span class="info-box-icon bg-{{ 'success' if data.device_status == 'ONLINE' else 'danger' }} elevation-1" id="icon-device-status">
@@ -320,6 +304,7 @@
             </div>
           </div>
         </div>
+        <!-- Modem Status -->
         <div class="col-md-3 col-sm-6">
           <div class="info-box">
             <span class="info-box-icon bg-{{ 'success' if data.modem_status == 'CONNECTED' else 'warning' }} elevation-1" id="icon-modem-status">
@@ -331,51 +316,58 @@
             </div>
           </div>
         </div>
+        <!-- VPN Status -->
         <div class="col-md-3 col-sm-6">
           <div class="info-box">
             <span class="info-box-icon bg-{{ 'success' if data.vpn_status == 'ACTIVE' else 'warning' }} elevation-1" id="icon-vpn-status">
               <i class="fas fa-shield-alt"></i>
             </span>
             <div class="info-box-content">
-              <span class="info-box-text">VPN Status</span>              
+              <span class="info-box-text">VPN Status</span>
               <span class="info-box-number" id="vpn-status">{{ data.vpn_status }}</span>
+            </div>
+          </div>
+        </div>
+        <!-- SNMP Status (NEW) -->
+        <div class="col-md-3 col-sm-6">
+          <div class="info-box">
+            <span class="info-box-icon bg-{{ 'success' if data.snmp_status == 'RUNNING' else 'danger' }} elevation-1" id="icon-snmp-status">
+              <i class="fas fa-network-wired"></i>
+            </span>
+            <div class="info-box-content">
+              <span class="info-box-text">SNMP Status</span>
+              <span class="info-box-number" id="snmp-status">{{ data.snmp_status }}</span>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
+
+       <!-- Bands KPIs -->
       <div class="row dashboard-section">
-        <!-- Bands Table -->
         <div class="col-lg-9 col-md-8">
           <div class="card card-primary card-outline">
-            <div class="card-header">
-              <h3 class="card-title"><i class="fas fa-broadcast-tower mr-2"></i>Band KPIs</h3>
+            <div class="card-header d-flex align-items-center">
+              <h3 class="card-title mb-0"><i class="fas fa-broadcast-tower mr-2"></i>Band KPIs</h3>
+              &nbsp;&nbsp;&nbsp;
+              <a href="/api/download-logs" class="btn btn-sm btn-outline-secondary ml-2" title="Download device logs">
+                <i class="fas fa-download mr-1"></i>Download Logs
+              </a>
             </div>
             <div class="card-body p-0">
               <table class="table table-sm table-hover mb-0" id="bands-table">
                 <thead class="thead-light">
                   <tr>
-                    <th>RAT</th>
-                    <th>Band</th>
-                    <th>PCI</th>
-                    <th>EARFCN</th>
-                    <th>RSSI</th>
-                    <th>RSRP</th>
-                    <th>RSRQ</th>
-                    <th>SINR</th>
+                    <th>RAT</th><th>Band</th><th>PCI</th><th>EARFCN</th>
+                    <th>RSSI</th><th>RSRP</th><th>RSRQ</th><th>SINR</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for b in bands %}
                   <tr>
-                    <td>{{ b.rat }}</td>
-                    <td>{{ b.band }}</td>
-                    <td>{{ b.pci }}</td>
-                    <td>{{ b.earfcn }}</td>
-                    <td>{{ b.avg_rssi }}</td>
-                    <td>{{ b.avg_rsrp }}</td>
-                    <td>{{ b.avg_rsrq }}</td>
-                    <td>{{ b.avg_sinr }}</td>
+                    <td>{{ b.rat }}</td><td>{{ b.band }}</td><td>{{ b.pci }}</td><td>{{ b.earfcn }}</td>
+                    <td>{{ b.avg_rssi }}</td><td>{{ b.avg_rsrp }}</td><td>{{ b.avg_rsrq }}</td><td>{{ b.avg_sinr }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -397,7 +389,7 @@
                   <tr><td>Band</td><td><strong id="band">{{ data.band }}</strong></td></tr>
                   <tr><td>EARFCN</td><td><strong id="earfcn">{{ data.earfcn }}</strong></td></tr>
                   <tr><td>Site</td><td><strong>{{ data.site_name }}</strong></td></tr>
-                  <tr><td>Device ID</td><td><strong>{{ data.device_id }}</strong></td></tr>
+                  <tr><td>Device ID</td><td><strong id="cell-device-id">{{ data.device_id }}</strong></td></tr>
                 </tbody>
               </table>
             </div>
@@ -408,22 +400,16 @@
     </div>
   </section>
 
-</div>
+</div><!-- /content-wrapper -->
 
 <!-- Footer -->
 <footer class="main-footer d-flex justify-content-between align-items-center">
+  <div><strong>DAS Monitoring System © 2026</strong></div>
   <div>
-    <strong>DAS Monitoring System © 2026</strong>
-  </div>
-  <div>
-    <b>Device:</b> {{ data.device_id }} &nbsp;|&nbsp;
-    <b>Site:</b> {{ data.site_name }}
+    <b>Device:</b> <span id="footer-device-id">{{ data.device_id }}</span> &nbsp;|&nbsp;
+    <b>Site:</b> <span id="footer-site-name">{{ data.site_name }}</span>
   </div>
 </footer>
-
-
-
-
 
 <!-- jQuery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -433,6 +419,9 @@
 <script src="{{ url_for('static', path='js/adminlte.min.js') }}"></script>
 
 <script>
+  /* ─────────────────────────────────────────────
+     SECTION NAVIGATION
+  ───────────────────────────────────────────── */
   function showSection(name) {
     document.getElementById('section-dashboard').style.display = name === 'dashboard' ? 'block' : 'none';
     document.getElementById('section-config').style.display    = name === 'config'    ? 'block' : 'none';
@@ -445,13 +434,24 @@
     document.getElementById('breadcrumb-active').textContent =
       name === 'dashboard' ? 'Dashboard' : 'Settings';
 
-    const navDash = document.getElementById('nav-dashboard');
-    const navCfg  = document.getElementById('nav-config');
-    if (navDash) navDash.classList.toggle('active', name === 'dashboard');
-    if (navCfg)  navCfg.classList.toggle('active', name === 'config');
+    if (name === 'config') runDiagnostics();
+
+    function toggleCfgPw() {
+      const input = document.getElementById('cfg-gui-new-password');
+      const icon  = document.getElementById('cfg-pw-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    } 
   }
 
-
+  /* ─────────────────────────────────────────────
+     STATUS BOX HELPERS
+  ───────────────────────────────────────────── */
   const STATUS_COLORS = {
     'device-status': { ONLINE:    'success', _default: 'danger'  },
     'modem-status':  { CONNECTED: 'success', _default: 'warning' },
@@ -459,24 +459,9 @@
     'snmp-status':   { RUNNING:   'success', _default: 'danger'  },
   };
 
-  function updateBandsTable(bands) {
-    const tbody = document.querySelector('#bands-table tbody');
-    if (!tbody || !Array.isArray(bands)) return;
-
-    tbody.innerHTML = bands.map(b => `
-      <tr>
-        <td>${b.rat ?? '—'}</td>
-        <td>${b.band ?? '—'}</td>
-        <td>${b.pci ?? '—'}</td>
-        <td>${b.earfcn ?? '—'}</td>
-        <td>${b.avg_rssi ?? '—'}</td>
-        <td>${b.avg_rsrp ?? '—'}</td>
-        <td>${b.avg_rsrq ?? '—'}</td>
-        <td>${b.avg_sinr ?? '—'}</td>
-      </tr>`
-    ).join('');
-
-    applyBandFilter();
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el && val !== undefined) el.textContent = val;
   }
 
   function updateStatusBox(fieldId, value) {
@@ -484,12 +469,41 @@
     const icon = document.getElementById('icon-' + fieldId);
     if (!icon) return;
     const map = STATUS_COLORS[fieldId];
-    const colorClass = (map && map[value]) ? map[value] : map._default;
-    // Strip existing bg-* class and apply new one
+    const colorClass = (map && map[value]) ? map[value] : (map ? map._default : 'secondary');
     icon.className = icon.className.replace(/\bbg-\w+\b/g, '').trim();
     icon.classList.add('bg-' + colorClass);
   }
 
+  /* ─────────────────────────────────────────────
+     BAND TABLE
+  ───────────────────────────────────────────── */
+  function updateBandsTable(bands) {
+    const tbody = document.querySelector('#bands-table tbody');
+    if (!tbody || !Array.isArray(bands)) return;
+    tbody.innerHTML = bands.map(b => `
+      <tr>
+        <td>${b.rat??'—'}</td><td>${b.band??'—'}</td><td>${b.pci??'—'}</td><td>${b.earfcn??'—'}</td>
+        <td>${b.avg_rssi??'—'}</td><td>${b.avg_rsrp??'—'}</td><td>${b.avg_rsrq??'—'}</td><td>${b.avg_sinr??'—'}</td>
+      </tr>`).join('');
+    applyBandFilter();
+  }
+
+  function getSelectedBands() {
+    return Array.from(document.querySelectorAll('#cfg-monitor-bands input[type="checkbox"]:checked'))
+      .map(cb => cb.value);
+  }
+
+  function applyBandFilter() {
+      const selected = getSelectedBands().map(b => b.replace(/^[bn]/, ''));  // strip 'b' or 'n' prefix
+      document.querySelectorAll('#bands-table tbody tr').forEach(row => {
+          const band = row.children[1]?.textContent.trim() ?? '';
+          row.style.display = (selected.length === 0 || selected.includes(band)) ? '' : 'none';
+      });
+  }
+
+  /* ─────────────────────────────────────────────
+     LOG TABLE
+  ───────────────────────────────────────────── */
   function updateLogTable(logs) {
     const tbody = document.querySelector('#kpi-log-table tbody');
     if (!tbody || !Array.isArray(logs)) return;
@@ -497,210 +511,449 @@
       const isWarning = log.status === 'Warning';
       return `
         <tr class="${isWarning ? 'log-row-warning' : 'log-row-normal'}">
-          <td>${log.time ?? '—'}</td>
-          <td>${log.rsrp ?? '—'}</td>
-          <td>${log.sinr ?? '—'}</td>
-          <td>
-            <span style="
-              background-color: ${isWarning ? '#ffc107' : '#28a745'};
-              color: ${isWarning ? '#000' : '#fff'};
-              font-size: 0.82rem;
-              padding: 3px 12px;
-              border-radius: 20px;
-              font-weight: 600;
-              display: inline-block;">
-              ${log.status ?? '—'}
-            </span>
-          </td>
+          <td>${log.time??'—'}</td><td>${log.rsrp??'—'}</td><td>${log.sinr??'—'}</td>
+          <td><span style="background:${isWarning?'#ffc107':'#28a745'};color:${isWarning?'#000':'#fff'};
+            font-size:0.82rem;padding:3px 12px;border-radius:20px;font-weight:600;display:inline-block;">
+            ${log.status??'—'}</span></td>
         </tr>`;
     }).join('');
   }
 
-  function getSelectedBands() {
-  return Array.from(document.querySelectorAll('#cfg-monitor-bands input[type="checkbox"]:checked'))
-    .map(cb => cb.value);
-}
-
-  function applyBandFilter() {
-    const selectedBands = getSelectedBands();
-    const rows = document.querySelectorAll('#bands-table tbody tr');
-
-    rows.forEach(row => {
-      const bandText = row.children[1]?.textContent.trim() ?? '';
-
-      if (selectedBands.length === 0 || selectedBands.includes(bandText)) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
-      }
-    });
+  /* ─────────────────────────────────────────────
+     ALERT BANNER HELPER
+  ───────────────────────────────────────────── */
+  function setAlertBanner(msg, level = 'info') {
+    const banner = document.getElementById('alert-banner');
+    const span   = document.getElementById('alert-message');
+    if (!banner || !span) return;
+    banner.className = 'alert-banner mb-3';
+    if (level === 'error')   banner.classList.add('alert-error');
+    if (level === 'warning') banner.classList.add('alert-warning');
+    const icons = { info: 'fa-info-circle', warning: 'fa-exclamation-triangle', error: 'fa-times-circle' };
+    banner.innerHTML = `<i class="fas ${icons[level]??'fa-info-circle'} mr-2"></i><span>${msg}</span>`;
   }
 
+  /* ─────────────────────────────────────────────
+     POLLING
+  ───────────────────────────────────────────── */
   async function refreshStatus() {
     let data;
     try {
       const res = await fetch('/api/status');
       if (!res.ok) return;
       data = await res.json();
-    } catch (e) {
-      console.warn('Poll failed:', e);
-      return;
-    }
+    } catch (e) { console.warn('Poll failed:', e); return; }
 
-    // Navbar
     setText('last-update', data.last_update);
 
-    // Alert banner
-    setText('alert-message', data.alert_message);
+    // Alert banner — elevate level if any critical faults reported by server
+    if (data.fault_level === 'error') {
+      setAlertBanner(data.alert_message, 'error');
+    } else if (data.fault_level === 'warning') {
+      setAlertBanner(data.alert_message, 'warning');
+    } else {
+      setAlertBanner(data.alert_message ?? 'System nominal', 'info');
+    }
 
-    // Status info boxes (text + icon color)
     updateStatusBox('device-status', data.device_status);
     updateStatusBox('modem-status',  data.modem_status);
     updateStatusBox('vpn-status',    data.vpn_status);
     updateStatusBox('snmp-status',   data.snmp_status);
 
-    updateBandsTable(data.bands);
+    // // SNMP trap endpoint sub-label
+    // const epEl = document.getElementById('snmp-trap-endpoint');
+    // if (epEl) {
+    //   if (data.snmp_trap_endpoint) {
+    //     epEl.textContent = data.snmp_trap_endpoint;
+    //     epEl.style.color = '';
+    //   } else {
+    //     epEl.textContent = '⚠ No trap endpoint';
+    //     epEl.style.color = '#dc3545';
+    //   }
+    // }
 
-    setText('site',    data.site_name);
-    
-    // Log table rows
-    updateLogTable(data.logs);
+
+    updateBandsTable(data.bands ?? []);
+    setText('site', data.site_name);
+    updateLogTable(data.logs ?? []);
+    setText('cell-device-id', data.device_id);
+    setText('footer-site-name', data.site_name);
   }
-  // Poll every 5 seconds
   setInterval(refreshStatus, 5000);
 
+  /* ─────────────────────────────────────────────
+     INLINE VALIDATION HELPERS (live feedback)
+  ───────────────────────────────────────────── */
+  function validateVpnIp() {
+    const octets = [1,2,3,4].map(n => parseInt(document.getElementById(`cfg-snmp-host-${n}`).value));
+    const fb = document.getElementById('vpn-ip-feedback');
 
-// for RAT - function controls which fields are shown or hidden based on what the user picks in the RAT dropdown.
-function updateRATFields() {  // this line is called every time the dropdown changes via onchange="updateRATFields()"
-  const rat = document.getElementById('cfg-rat').value;  //Reads whatever the user currently has selected in the RAT dropdown
-  document.getElementById('rat-lte-fields').style.display = rat === 'LTE' ? 'block' : 'none';   //if read LTE meanu drops down, if not hide it 
-  document.getElementById('rat-5g-fields').style.display  = rat === '5G'  ? 'block' : 'none';
-}
+    // All blank → might be intentional, no error
+    if (octets.every(isNaN)) { fb.style.display = 'none'; return true; }
 
-// Load config into the form when the page loads
-async function loadConfig() {
-  try {
-    const res = await fetch('/api/config');
-    const cfg = await res.json();
+    // Each octet 0-255
+    const invalid = octets.some(o => isNaN(o) || o < 0 || o > 255);
+    if (invalid) {
+      fb.textContent = '✗ Each octet must be 0–255';
+      fb.className = 'form-text text-danger';
+      fb.style.display = 'block';
+      return false;
+    }
 
-    document.getElementById('cfg-site-name').value = cfg.site_name ?? '';
-    document.getElementById('cfg-device-id').value = cfg.device_id ?? '';
-    document.getElementById('cfg-poll-interval').value = cfg.poll_interval ?? 30;
+    // All-zeros likely misconfigured
+    if (octets.every(o => o === 0)) {
+      fb.textContent = '⚠ IP is 0.0.0.0 — SNMP traps will have no reachable tunnel endpoint';
+      fb.className = 'form-text text-warning';
+      fb.style.display = 'block';
+      return false;
+    }
 
-    const octets = (cfg.snmp_host ?? '0.0.0.0').split('.');
-    document.getElementById('cfg-snmp-host-1').value = octets[0] ?? 0;
-    document.getElementById('cfg-snmp-host-2').value = octets[1] ?? 0;
-    document.getElementById('cfg-snmp-host-3').value = octets[2] ?? 0;
-    document.getElementById('cfg-snmp-host-4').value = octets[3] ?? 0;
+    // Loopback won't reach VPN peer
+    if (octets[0] === 127) {
+      fb.textContent = '⚠ Loopback address (127.x.x.x) — SNMP tunnel unreachable from remote peers';
+      fb.className = 'form-text text-warning';
+      fb.style.display = 'block';
+      return false;
+    }
 
-    const monitoredBands = cfg.monitored_bands ?? [];
-    document.querySelectorAll('#cfg-monitor-bands input[type="checkbox"]').forEach(cb => {
-      cb.checked = monitoredBands.includes(cb.value);
+    fb.textContent = '✓ Valid IP';
+    fb.className = 'form-text text-success';
+    fb.style.display = 'block';
+    return true;
+  }
+
+  // function validateSnmpEndpoint() {
+  //   const val = (document.getElementById('cfg-snmp-trap-endpoint').value ?? '').trim();
+  //   const fb  = document.getElementById('snmp-endpoint-feedback');
+
+  //   if (!val) {
+  //     fb.textContent = '⚠ No SNMP trap endpoint — traps will not be delivered';
+  //     fb.className = 'form-text text-warning';
+  //     fb.style.display = 'block';
+  //     return false;
+  //   }
+
+  //   // Expect host:port
+  //   const parts = val.split(':');
+  //   if (parts.length !== 2 || !parts[0] || isNaN(parseInt(parts[1]))) {
+  //     fb.textContent = '✗ Format must be host:port (e.g. 192.168.1.10:162)';
+  //     fb.className = 'form-text text-danger';
+  //     fb.style.display = 'block';
+  //     return false;
+  //   }
+
+  //   const port = parseInt(parts[1]);
+  //   if (port < 1 || port > 65535) {
+  //     fb.textContent = '✗ Port must be 1–65535 (SNMP default is 162)';
+  //     fb.className = 'form-text text-danger';
+  //     fb.style.display = 'block';
+  //     return false;
+  //   }
+
+  //   fb.textContent = '✓ Valid endpoint';
+  //   fb.className = 'form-text text-success';
+  //   fb.style.display = 'block';
+  //   return true;
+  // }
+
+  /* ─────────────────────────────────────────────
+     DIAGNOSTICS PANEL
+  ───────────────────────────────────────────── */
+  async function runDiagnostics() {
+    const panel   = document.getElementById('diag-panel');
+    const summary = document.getElementById('diag-summary');
+    if (!panel) return;
+
+    panel.innerHTML = `
+      <div class="diag-item">
+        <div class="diag-icon info"><i class="fas fa-spinner fa-spin"></i></div>
+        <div><div class="diag-label">Running diagnostics…</div>
+        <p class="diag-detail">Contacting device</p></div>
+      </div>`;
+
+    let diagData = null;
+    try {
+      const res = await fetch('/api/diagnostics');
+      if (res.ok) diagData = await res.json();
+    } catch (e) { /* server might not have endpoint yet */ }
+
+    // If server doesn't support /api/diagnostics yet, build from config + status
+    if (!diagData) {
+      try {
+        const [cfgRes, stRes] = await Promise.all([fetch('/api/config'), fetch('/api/status')]);
+        const cfg = cfgRes.ok ? await cfgRes.json() : {};
+        const st  = stRes.ok  ? await stRes.json()  : {};
+        diagData  = buildDiagFromClientSide(cfg, st);
+      } catch(e) {
+        diagData = buildDiagFromClientSide({}, {});
+      }
+    }
+
+    renderDiagnostics(diagData, panel, summary);
+  }
+
+  /**
+   * Build a diagnostics object from config + status when /api/diagnostics
+   * isn't available. Mirrors what the server would return.
+   */
+  function buildDiagFromClientSide(cfg, st) {
+    const checks = [];
+
+    /* 1. Config file readable */
+    const cfgLoaded = Object.keys(cfg).length > 0;
+    checks.push({
+      id:     'config_file',
+      label:  'Configuration File',
+      detail: cfgLoaded
+        ? 'config.json loaded successfully'
+        : 'config.json could not be read or is missing — using defaults',
+      status: cfgLoaded ? 'ok' : 'error',
+      hint:   cfgLoaded ? null : 'Check that config.json exists on the device and is valid JSON',
     });
 
-    document.getElementById('cfg-RSSI-threshold-min').value = cfg.rssi_threshold_min ?? '';
-    document.getElementById('cfg-RSRP-threshold-min').value = cfg.rsrp_threshold_min ?? '';
-    document.getElementById('cfg-RSRQ-threshold-min').value = cfg.rsrq_threshold_min ?? '';
-    document.getElementById('cfg-SINR-threshold-min').value = cfg.sinr_threshold_min ?? '';
-
-    applyBandFilter();
-
-  } catch (e) {
-    console.warn('Could not load config:', e);
-  }
-}
-
-
-async function uploadOvpnFile() {
-  const fileInput = document.getElementById('cfg-ovpn-file');
-  const statusEl = document.getElementById('ovpn-upload-status');
-
-  if (!fileInput.files.length) {
-    statusEl.textContent = 'No file selected';
-    statusEl.style.color = 'red';
-    return;
-  }
-
-  const file = fileInput.files[0];
-
-  if (!file.name.toLowerCase().endsWith('.ovpn')) {
-    statusEl.textContent = 'Only .ovpn files are allowed';
-    statusEl.style.color = 'red';
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('ovpn_file', file);
-
-  statusEl.textContent = 'Uploading...';
-  statusEl.style.color = 'gray';
-
-  try {
-    const res = await fetch('/api/upload-ovpn', {
-      method: 'POST',
-      body: formData
+    /* 2. VPN IP not blank / all-zeros */
+    const ip = cfg.snmp_host ?? '';
+    const octets = ip.split('.').map(Number);
+    const ipOk = ip && octets.length === 4 && octets.every(o => !isNaN(o) && o >= 0 && o <= 255) && !octets.every(o => o === 0) && octets[0] !== 127;
+    checks.push({
+      id:     'snmp_ip',
+      label:  'SNMP IP Address',
+      detail: ipOk
+        ? `Configured: ${ip}`
+        : (ip ? `IP "${ip}" is invalid or unreachable as a VPN tunnel address` : 'No IP configured'),
+      status: ipOk ? 'ok' : 'error',
+      hint:   ipOk ? null : 'Set a valid VPN peer IP in Device Configuration → IP Address',
     });
 
-    const result = await res.json();
+    /* 3. VPN tunnel live */
+    const vpnStatus = st.vpn_status ?? 'UNKNOWN';
+    const vpnOk = vpnStatus === 'ACTIVE';
+    checks.push({
+      id:     'vpn_tunnel',
+      label:  'VPN Tunnel',
+      detail: vpnOk ? 'Tunnel is ACTIVE' : `Tunnel is ${vpnStatus}`,
+      status: vpnOk ? 'ok' : (vpnStatus === 'UNKNOWN' ? 'warn' : 'error'),
+      hint:   vpnOk ? null : 'Upload a valid .ovpn file',
+    });
 
-    if (result.status === 'uploaded') {
-      statusEl.textContent = '✓ Uploaded to device';
-      statusEl.style.color = 'green';
+    /* 4. OpenVPN config uploaded */
+    const ovpnPresent = cfg.ovpn_uploaded ?? null;   // server may include this flag
+    checks.push({
+      id:     'ovpn_file',
+      label:  'OpenVPN Config File (.ovpn)',
+      detail: ovpnPresent === false
+        ? 'No .ovpn file found on device — VPN cannot start'
+        : ovpnPresent === true
+          ? '.ovpn file present on device'
+          : 'Upload status unknown (check server)',
+      status: ovpnPresent === false ? 'error' : ovpnPresent === true ? 'ok' : 'warn',
+      hint:   ovpnPresent === false ? 'Upload a valid .ovpn file via Device Configuration' : null,
+    });
+
+    // /* 5. SNMP trap endpoint */
+    // const endpoint = cfg.snmp_trap_endpoint ?? '';
+    // const epParts  = endpoint.split(':');
+    // const epOk     = epParts.length === 2 && epParts[0] && !isNaN(parseInt(epParts[1]));
+    // checks.push({
+    //   id:     'snmp_endpoint',
+    //   label:  'SNMP Trap Endpoint',
+    //   detail: epOk
+    //     ? `Endpoint: ${endpoint}`
+    //     : (endpoint ? `"${endpoint}" is not a valid host:port` : 'No SNMP trap endpoint configured — traps will not be delivered'),
+    //   status: epOk ? 'ok' : 'error',
+    //   hint:   epOk ? null : 'Set the trap destination in Device Configuration → SNMP Trap Endpoint (e.g. 192.168.1.10:162)',
+    // });
+
+    // /* 6. SNMP service running */
+    // const snmpStatus = st.snmp_status ?? 'UNKNOWN';
+    // const snmpOk = snmpStatus === 'RUNNING';
+    // checks.push({
+    //   id:     'snmp_service',
+    //   label:  'SNMP Service',
+    //   detail: snmpOk ? 'Service is RUNNING' : `Service is ${snmpStatus}`,
+    //   status: snmpOk ? 'ok' : (snmpStatus === 'UNKNOWN' ? 'warn' : 'error'),
+    //   hint:   snmpOk ? null : 'SNMP service may have failed to start — check device logs',
+    // });
+
+    return { checks };
+  }
+
+  function renderDiagnostics(data, panel, summary) {
+    if (!data || !Array.isArray(data.checks) || data.checks.length === 0) {
+      panel.innerHTML = `
+        <div class="diag-item">
+          <div class="diag-icon warn"><i class="fas fa-question-circle"></i></div>
+          <div><div class="diag-label">No diagnostic data</div>
+          <p class="diag-detail">Could not retrieve results</p></div>
+        </div>`;
+      return;
+    }
+
+    const iconMap  = { ok: 'fa-check', warn: 'fa-exclamation-triangle', error: 'fa-times', info: 'fa-info' };
+    const badgeMap = { ok: 'badge-ok', warn: 'badge-warn', error: 'badge-error', info: 'badge-info' };
+    const labelMap = { ok: 'OK', warn: 'WARNING', error: 'ERROR', info: 'INFO' };
+
+    let errors = 0, warns = 0;
+
+    panel.innerHTML = data.checks.map(c => {
+      if (c.status === 'error') errors++;
+      if (c.status === 'warn')  warns++;
+      const rowClass = c.status === 'error' ? 'has-error' : c.status === 'warn' ? 'has-warn' : '';
+      return `
+        <div class="diag-item ${rowClass}">
+          <div class="diag-icon ${c.status}"><i class="fas ${iconMap[c.status]??'fa-info'}"></i></div>
+          <div style="flex:1; min-width:0;">
+            <div class="diag-label">${c.label}</div>
+            <p class="diag-detail ${c.status==='error'?'text-danger':c.status==='warn'?'text-warning':''}">${c.detail}</p>
+            ${c.hint ? `<p class="diag-detail" style="margin-top:2px;color:#495057;"><i class="fas fa-lightbulb mr-1" style="color:#ffc107;"></i>${c.hint}</p>` : ''}
+          </div>
+          <span class="diag-badge ${badgeMap[c.status]??'badge-info'}">${labelMap[c.status]??c.status}</span>
+        </div>`;
+    }).join('');
+
+    // Summary bar
+    if (errors > 0) {
+      summary.innerHTML = `<i class="fas fa-times-circle text-danger mr-1"></i><strong class="text-danger">${errors} error${errors>1?'s':''}</strong>${warns>0?`, ${warns} warning${warns>1?'s':''}`:''} — action required`;
+    } else if (warns > 0) {
+      summary.innerHTML = `<i class="fas fa-exclamation-triangle text-warning mr-1"></i><strong>${warns} warning${warns>1?'s':''}</strong> — review recommended`;
     } else {
-      statusEl.textContent = '✗ Upload failed';
+      summary.innerHTML = `<i class="fas fa-check-circle text-success mr-1"></i>All checks passed`;
+    }
+  }
+
+  /* ─────────────────────────────────────────────
+     CONFIG LOAD / SAVE
+  ───────────────────────────────────────────── */
+  async function loadConfig() {
+    try {
+      const res = await fetch('/api/config');
+      if (!res.ok) throw new Error('bad response');
+      const cfg = await res.json();
+
+      document.getElementById('cfg-site-name').value    = cfg.site_name    ?? '';
+      document.getElementById('cfg-device-id').value    = cfg.device_id    ?? '';
+      document.getElementById('cfg-gui-username').value = cfg.gui_username ?? 'admin';
+      //document.getElementById('cfg-poll-interval').value = cfg.poll_interval ?? 30;
+
+      const octets = (cfg.snmp_host ?? '0.0.0.0').split('.');
+      [1,2,3,4].forEach((n,i) => {
+        document.getElementById(`cfg-snmp-host-${n}`).value = octets[i] ?? 0;
+      });
+      validateVpnIp();
+
+      // // SNMP trap endpoint
+      // const epEl = document.getElementById('cfg-snmp-trap-endpoint');
+      // if (epEl) { epEl.value = cfg.snmp_trap_endpoint ?? ''; validateSnmpEndpoint(); }
+
+      const monitoredBands = cfg.monitored_bands ?? [];
+      document.querySelectorAll('#cfg-monitor-bands input[type="checkbox"]').forEach(cb => {
+        cb.checked = monitoredBands.includes(cb.value);
+      });
+
+      document.getElementById('cfg-RSSI-threshold-min').value = cfg.rssi_threshold_min ?? '';
+      document.getElementById('cfg-RSRP-threshold-min').value = cfg.rsrp_threshold_min ?? '';
+      document.getElementById('cfg-RSRQ-threshold-min').value = cfg.rsrq_threshold_min ?? '';
+      document.getElementById('cfg-SINR-threshold-min').value = cfg.sinr_threshold_min ?? '';
+
+      applyBandFilter();
+    } catch (e) {
+      console.warn('Could not load config:', e);
+      // Surface the error visually
+      const statusEl = document.getElementById('cfg-status');
+      if (statusEl) {
+        statusEl.textContent = '✗ Could not read configuration file from device';
+        statusEl.style.color = 'red';
+      }
+    }
+  }
+
+  async function uploadOvpnFile() {
+    const fileInput = document.getElementById('cfg-ovpn-file');
+    const statusEl  = document.getElementById('ovpn-upload-status');
+
+    if (!fileInput.files.length) {
+      statusEl.textContent = 'No file selected';
+      statusEl.style.color = 'red'; return;
+    }
+    const file = fileInput.files[0];
+    if (!file.name.toLowerCase().endsWith('.ovpn')) {
+      statusEl.textContent = '✗ Only .ovpn files are allowed — wrong file type uploaded';
+      statusEl.style.color = 'red'; fileInput.value = ''; return;
+    }
+
+    const formData = new FormData();
+    formData.append('ovpn_file', file);
+    statusEl.textContent = 'Uploading…'; statusEl.style.color = 'gray';
+
+    try {
+      const res    = await fetch('/api/upload-ovpn', { method: 'POST', body: formData });
+      const result = await res.json();
+      if (result.status === 'uploaded') {
+        statusEl.textContent = '✓ Uploaded to device';
+        statusEl.style.color = 'green';
+      } else if (result.status === 'invalid_format') {
+        statusEl.textContent = '✗ Server rejected file — invalid or corrupt .ovpn format';
+        statusEl.style.color = 'red';
+      } else {
+        statusEl.textContent = '✗ Upload failed: ' + (result.reason ?? 'unknown error');
+        statusEl.style.color = 'red';
+      }
+    } catch (e) {
+      statusEl.textContent = '✗ Upload error — check device connection';
       statusEl.style.color = 'red';
     }
-  } catch (e) {
-    statusEl.textContent = '✗ Upload error';
-    statusEl.style.color = 'red';
+    fileInput.value = '';
+    // Re-run diagnostics so panel reflects new state
+    runDiagnostics();
   }
 
-  fileInput.value = '';
-}
-// Save form values back to config.json on the server
-async function saveConfig() {
-    const config = {
-        site_name:       document.getElementById('cfg-site-name').value,
-        device_id:       document.getElementById('cfg-device-id').value,
-        poll_interval:   parseInt(document.getElementById('cfg-poll-interval').value),
-        snmp_host: [
-            document.getElementById('cfg-snmp-host-1').value || '0',
-            document.getElementById('cfg-snmp-host-2').value || '0',
-            document.getElementById('cfg-snmp-host-3').value || '0',
-            document.getElementById('cfg-snmp-host-4').value || '0'
-        ].join('.'),
+  async function saveConfig() {
+    // Run inline validations before saving 
+    const ipOk = validateVpnIp();
+    const statusEl = document.getElementById('cfg-status');
+    
 
-        monitored_bands: getSelectedBands(),
-        rssi_threshold_min: parseInt(document.getElementById('cfg-RSSI-threshold-min').value),
-        rsrp_threshold_min: parseInt(document.getElementById('cfg-RSRP-threshold-min').value),
-        rsrq_threshold_min: parseInt(document.getElementById('cfg-RSRQ-threshold-min').value),
-        sinr_threshold_min: parseInt(document.getElementById('cfg-SINR-threshold-min').value),
+    if (!ipOk) {
+      statusEl.textContent = '⚠ Fix validation errors before saving';
+      statusEl.style.color = 'orange';
+      return;
+    }
+
+    const config = {
+      site_name:          document.getElementById('cfg-site-name').value,
+      device_id:          document.getElementById('cfg-device-id').value,
+      monitored_bands:    getSelectedBands(),
+      //poll_interval:      parseInt(document.getElementById('cfg-poll-interval').value),
+      snmp_host: [1,2,3,4].map(n => document.getElementById(`cfg-snmp-host-${n}`).value || '0').join('.'),
+      rssi_threshold_min: parseInt(document.getElementById('cfg-RSSI-threshold-min').value),
+      rsrp_threshold_min: parseInt(document.getElementById('cfg-RSRP-threshold-min').value),
+      rsrq_threshold_min: parseInt(document.getElementById('cfg-RSRQ-threshold-min').value),
+      sinr_threshold_min: parseInt(document.getElementById('cfg-SINR-threshold-min').value),
+
+      gui_username:    document.getElementById('cfg-gui-username').value,
+      gui_new_password: document.getElementById('cfg-gui-new-password').value,
     };
 
-    const statusEl = document.getElementById('cfg-status');
     try {
-        const res = await fetch('/api/config', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(config)
-        });
-        const result = await res.json();
-        statusEl.textContent = result.status === 'saved' ? '✓ Saved successfully' : '✗ Save failed';
-        statusEl.style.color = result.status === 'saved' ? 'green' : 'red';
-    } catch (e) {
-        statusEl.textContent = '✗ Error saving config';
+      const res    = await fetch('/api/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(config) });
+      const result = await res.json();
+      if (result.status === 'saved') {
+        statusEl.textContent = '✓ Saved successfully';
+        statusEl.style.color = 'green';
+        runDiagnostics();
+      } else {
+        statusEl.textContent = '✗ Save failed: ' + (result.reloason ?? 'unknown error');
         statusEl.style.color = 'red';
+      }
+    } catch (e) {
+      statusEl.textContent = '✗ Error saving — check device connection';
+      statusEl.style.color = 'red';
     }
-}
-
-// Run on page load
-loadConfig();
-
-
+  }
+  // Boot
+  loadConfig();
+  refreshStatus();
 </script>
-
-</body>
-</html>
 
 </body>
 </html>

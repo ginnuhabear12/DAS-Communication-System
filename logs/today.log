@@ -1,0 +1,1799 @@
+Apr 27 10:24:32 das-edge-01 systemd[1]: Started das-gui.service - DAS FastAPI GUI.
+Apr 27 10:24:33 das-edge-01 python[1073]: INFO:     Started server process [1073]
+Apr 27 10:24:33 das-edge-01 python[1073]: INFO:     Waiting for application startup.
+Apr 27 10:24:33 das-edge-01 python[1073]: INFO:     Application startup complete.
+Apr 27 10:24:33 das-edge-01 python[1073]: INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Apr 27 10:24:42 das-edge-01 systemd[1]: Starting das-init.service - DAS Edge Device Initialization...
+Apr 27 10:24:42 das-edge-01 python3[1098]: [INIT] starting system initialization
+Apr 27 10:24:42 das-edge-01 python3[1098]: [INIT][OK] storage writable
+Apr 27 10:24:42 das-edge-01 python3[1098]: [INIT][WARN] earfcn missing for LTE mode
+Apr 27 10:24:42 das-edge-01 python3[1098]: [INIT][OK] config valid
+Apr 27 10:24:42 das-edge-01 python3[1098]: [INIT][OK] network up
+Apr 27 10:24:44 das-edge-01 python3[1098]: [INIT][OK] modem serial device detected
+Apr 27 10:24:44 das-edge-01 python3[1098]: [INIT][WARN] tun0 not present, continuing in degraded mode
+Apr 27 10:24:44 das-edge-01 python3[1098]: [INIT][OK] created ready flag: /run/das/init.ready
+Apr 27 10:24:44 das-edge-01 python3[1098]: [INIT] initialization complete
+Apr 27 10:24:44 das-edge-01 systemd[1]: Finished das-init.service - DAS Edge Device Initialization.
+Apr 27 10:24:44 das-edge-01 systemd[1]: Starting das-monitor.service - DAS KPI Monitoring Service...
+Apr 27 10:24:44 das-edge-01 systemd[1]: Started das-monitor.service - DAS KPI Monitoring Service.
+Apr 27 10:24:45 das-edge-01 python3[1518]: 10:24:45.516 [VPN] Starting OpenVPN...
+Apr 27 10:24:45 das-edge-01 sudo[1548]:      das : PWD=/home/das/DAS-Communication-System ; USER=root ; COMMAND=/usr/sbin/openvpn --config /home/das/DAS-Communication-System/device/GUI/vpn/client.ovpn
+Apr 27 10:24:45 das-edge-01 sudo[1548]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=1000)
+Apr 27 10:24:55 das-edge-01 python3[1518]: 10:24:55.518 [VPN] OpenVPN should be connected.
+Apr 27 10:24:55 das-edge-01 python3[1518]: 10:24:55.518 [STARTUP] Loading config...
+Apr 27 10:24:55 das-edge-01 python3[1518]: 10:24:55.518 [CONFIG] Config loaded successfully.
+Apr 27 10:24:55 das-edge-01 python3[1518]: 10:24:55.518 [STARTUP] Sending AT+CFUN=1 — full modem reset...
+Apr 27 10:24:55 das-edge-01 python3[1518]: 10:24:55.518 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:24:55 das-edge-01 python3[1518]: 10:24:55.568 [STARTUP] AT+CFUN=1 accepted — waiting 15 seconds for modem to fully boot...
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.178 [STARTUP] Checking for SIM card...
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.178 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.228 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.228 [STARTUP] No SIM detected — skipping network initialization commands.
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.228 [STARTUP] Running in no-SIM mode. All KPI readings will be invalid until a SIM is inserted. The device polls for SIM insertion at the start of each collection session.
+Apr 27 10:36:31 das-edge-01 python3[1518]: [SNMP SENT]  RUNTIME | SIM card | No SIM card detected at startup. Network registration skipped. KPI readings will be invalid. Device will recover automatically when a SIM is inserted.
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.370 [STARTUP] Modem initialized — beginning collection loop.
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.370 [MAIN] Starting session 1 of 5
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.370 [MAIN] Mode C — checking for SIM insertion before session 1...
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.370 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.420 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.420 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:36:31.420485
+Apr 27 10:36:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.420 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.470 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.470 [LTE] Configuring band b2...
+Apr 27 10:36:31 das-edge-01 python3[1518]: 10:36:31.470 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:36:33 das-edge-01 python3[1518]: 10:36:33.520 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:36:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:36:37 das-edge-01 python3[1518]: 10:36:37.171 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:36:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:36:41 das-edge-01 python3[1518]: OK
+Apr 27 10:36:41 das-edge-01 python3[1518]: 
+Apr 27 10:36:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:36:44 das-edge-01 python3[1518]: 10:36:44.528 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:36:44 das-edge-01 python3[1518]: 10:36:44.578 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:36:44 das-edge-01 python3[1518]: 10:36:44.578 [LTE] Band b2: collected — RSRP=-93, RSRQ=-12, SINR=14.0
+Apr 27 10:36:44 das-edge-01 python3[1518]: 10:36:44.578 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:36:44 das-edge-01 python3[1518]: 10:36:44.628 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:36:44 das-edge-01 python3[1518]: 10:36:44.628 [LTE] Configuring band b4...
+Apr 27 10:36:44 das-edge-01 python3[1518]: 10:36:44.628 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:36:46 das-edge-01 python3[1518]: 10:36:46.678 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:36:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:36:50 das-edge-01 python3[1518]: 10:36:50.379 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:36:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:36:54 das-edge-01 python3[1518]: OK
+Apr 27 10:36:54 das-edge-01 python3[1518]: 
+Apr 27 10:36:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:36:57 das-edge-01 python3[1518]: 10:36:57.739 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:36:57 das-edge-01 python3[1518]: 10:36:57.790 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:36:57 das-edge-01 python3[1518]: 10:36:57.790 [LTE] Band b4: collected — RSRP=-104, RSRQ=-17, SINR=0.0
+Apr 27 10:36:57 das-edge-01 python3[1518]: 10:36:57.790 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:36:57 das-edge-01 python3[1518]: 10:36:57.840 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:36:57 das-edge-01 python3[1518]: 10:36:57.840 [LTE] Configuring band b5...
+Apr 27 10:36:57 das-edge-01 python3[1518]: 10:36:57.840 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:36:59 das-edge-01 python3[1518]: 10:36:59.890 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:37:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:37:03 das-edge-01 python3[1518]: 10:37:03.441 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:37:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:37:07 das-edge-01 python3[1518]: OK
+Apr 27 10:37:07 das-edge-01 python3[1518]: 
+Apr 27 10:37:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:37:10 das-edge-01 python3[1518]: 10:37:10.798 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:37:10 das-edge-01 python3[1518]: 10:37:10.849 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:37:10 das-edge-01 python3[1518]: 10:37:10.849 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-4.0
+Apr 27 10:37:10 das-edge-01 python3[1518]: 10:37:10.849 [MAIN] Session 1 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:37:10 das-edge-01 python3[1518]: 10:37:10.849 [MAIN] Sleeping 50.5s until next session...
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.398 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.400 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.400 [MAIN] Starting session 2 of 5
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.400 [MAIN] Mode C — checking for SIM insertion before session 2...
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.410 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.461 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.461 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:38:01.461679
+Apr 27 10:38:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.463 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.513 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.513 [LTE] Configuring band b2...
+Apr 27 10:38:01 das-edge-01 python3[1518]: 10:38:01.513 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:38:03 das-edge-01 python3[1518]: 10:38:03.563 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:38:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:38:07 das-edge-01 python3[1518]: 10:38:07.215 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:38:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:38:11 das-edge-01 python3[1518]: OK
+Apr 27 10:38:11 das-edge-01 python3[1518]: 
+Apr 27 10:38:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:38:14 das-edge-01 python3[1518]: 10:38:14.571 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:38:14 das-edge-01 python3[1518]: 10:38:14.622 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:38:14 das-edge-01 python3[1518]: 10:38:14.622 [LTE] Band b2: collected — RSRP=-93, RSRQ=-14, SINR=16.0
+Apr 27 10:38:14 das-edge-01 python3[1518]: 10:38:14.622 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:38:14 das-edge-01 python3[1518]: 10:38:14.672 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:38:14 das-edge-01 python3[1518]: 10:38:14.672 [LTE] Configuring band b4...
+Apr 27 10:38:14 das-edge-01 python3[1518]: 10:38:14.672 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:38:16 das-edge-01 python3[1518]: 10:38:16.722 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:38:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:38:20 das-edge-01 python3[1518]: 10:38:20.274 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:38:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:38:24 das-edge-01 python3[1518]: OK
+Apr 27 10:38:24 das-edge-01 python3[1518]: 
+Apr 27 10:38:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:38:27 das-edge-01 python3[1518]: 10:38:27.630 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:38:27 das-edge-01 python3[1518]: 10:38:27.680 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:38:27 das-edge-01 python3[1518]: 10:38:27.680 [LTE] Band b4: collected — RSRP=-104, RSRQ=-16, SINR=0.0
+Apr 27 10:38:27 das-edge-01 python3[1518]: 10:38:27.680 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:38:27 das-edge-01 python3[1518]: 10:38:27.730 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:38:27 das-edge-01 python3[1518]: 10:38:27.730 [LTE] Configuring band b5...
+Apr 27 10:38:27 das-edge-01 python3[1518]: 10:38:27.730 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:38:29 das-edge-01 python3[1518]: 10:38:29.781 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:38:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:38:33 das-edge-01 python3[1518]: 10:38:33.332 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:38:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:38:37 das-edge-01 python3[1518]: OK
+Apr 27 10:38:37 das-edge-01 python3[1518]: 
+Apr 27 10:38:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:38:40 das-edge-01 python3[1518]: 10:38:40.688 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:38:40 das-edge-01 python3[1518]: 10:38:40.738 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:38:40 das-edge-01 python3[1518]: 10:38:40.738 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 10:38:40 das-edge-01 python3[1518]: 10:38:40.738 [MAIN] Session 2 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:38:40 das-edge-01 python3[1518]: 10:38:40.738 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.403 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.404 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.404 [MAIN] Starting session 3 of 5
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.404 [MAIN] Mode C — checking for SIM insertion before session 3...
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.404 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.455 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.455 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:39:31.455092
+Apr 27 10:39:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.455 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.505 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.505 [LTE] Configuring band b2...
+Apr 27 10:39:31 das-edge-01 python3[1518]: 10:39:31.505 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:39:33 das-edge-01 python3[1518]: 10:39:33.555 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:39:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:39:37 das-edge-01 python3[1518]: 10:39:37.157 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:39:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:39:41 das-edge-01 python3[1518]: OK
+Apr 27 10:39:41 das-edge-01 python3[1518]: 
+Apr 27 10:39:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:39:44 das-edge-01 python3[1518]: 10:39:44.513 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:39:44 das-edge-01 python3[1518]: 10:39:44.563 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:39:44 das-edge-01 python3[1518]: 10:39:44.563 [LTE] Band b2: collected — RSRP=-94, RSRQ=-15, SINR=14.0
+Apr 27 10:39:44 das-edge-01 python3[1518]: 10:39:44.563 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:39:44 das-edge-01 python3[1518]: 10:39:44.613 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:39:44 das-edge-01 python3[1518]: 10:39:44.613 [LTE] Configuring band b4...
+Apr 27 10:39:44 das-edge-01 python3[1518]: 10:39:44.613 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:39:46 das-edge-01 python3[1518]: 10:39:46.664 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:39:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:39:50 das-edge-01 python3[1518]: 10:39:50.215 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:39:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:39:54 das-edge-01 python3[1518]: OK
+Apr 27 10:39:54 das-edge-01 python3[1518]: 
+Apr 27 10:39:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:39:57 das-edge-01 python3[1518]: 10:39:57.571 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:39:57 das-edge-01 python3[1518]: 10:39:57.621 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:39:57 das-edge-01 python3[1518]: 10:39:57.621 [LTE] Band b4: collected — RSRP=-104, RSRQ=-16, SINR=0.0
+Apr 27 10:39:57 das-edge-01 python3[1518]: 10:39:57.621 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:39:57 das-edge-01 python3[1518]: 10:39:57.672 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:39:57 das-edge-01 python3[1518]: 10:39:57.672 [LTE] Configuring band b5...
+Apr 27 10:39:57 das-edge-01 python3[1518]: 10:39:57.672 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:39:59 das-edge-01 python3[1518]: 10:39:59.722 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:40:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:40:03 das-edge-01 python3[1518]: 10:40:03.373 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:40:04 das-edge-01 python[1073]: INFO:     10.231.237.31:61884 - "GET / HTTP/1.1" 302 Found
+Apr 27 10:40:04 das-edge-01 python[1073]: INFO:     10.231.237.31:61884 - "GET /login HTTP/1.1" 200 OK
+Apr 27 10:40:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:40:07 das-edge-01 python3[1518]: OK
+Apr 27 10:40:07 das-edge-01 python3[1518]: 
+Apr 27 10:40:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:40:10 das-edge-01 python3[1518]: 10:40:10.730 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:40:10 das-edge-01 python3[1518]: 10:40:10.780 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:40:10 das-edge-01 python3[1518]: 10:40:10.780 [LTE] Band b5: collected — RSRP=-106, RSRQ=-18, SINR=-4.0
+Apr 27 10:40:10 das-edge-01 python3[1518]: 10:40:10.780 [MAIN] Session 3 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:40:10 das-edge-01 python3[1518]: 10:40:10.780 [MAIN] Sleeping 50.6s until next session...
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.406 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.407 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.407 [MAIN] Starting session 4 of 5
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.407 [MAIN] Mode C — checking for SIM insertion before session 4...
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.407 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.457 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.457 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:41:01.457809
+Apr 27 10:41:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.457 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.508 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.508 [LTE] Configuring band b2...
+Apr 27 10:41:01 das-edge-01 python3[1518]: 10:41:01.508 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:41:03 das-edge-01 python3[1518]: 10:41:03.558 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:41:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:41:07 das-edge-01 python3[1518]: 10:41:07.109 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:41:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:41:11 das-edge-01 python3[1518]: OK
+Apr 27 10:41:11 das-edge-01 python3[1518]: 
+Apr 27 10:41:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:41:14 das-edge-01 python3[1518]: 10:41:14.465 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:41:14 das-edge-01 python3[1518]: 10:41:14.515 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:41:14 das-edge-01 python3[1518]: 10:41:14.515 [LTE] Band b2: collected — RSRP=-94, RSRQ=-13, SINR=14.0
+Apr 27 10:41:14 das-edge-01 python3[1518]: 10:41:14.515 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:41:14 das-edge-01 python3[1518]: 10:41:14.566 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:41:14 das-edge-01 python3[1518]: 10:41:14.566 [LTE] Configuring band b4...
+Apr 27 10:41:14 das-edge-01 python3[1518]: 10:41:14.566 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:41:16 das-edge-01 python3[1518]: 10:41:16.616 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:41:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:41:20 das-edge-01 python3[1518]: 10:41:20.167 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:41:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:41:24 das-edge-01 python3[1518]: OK
+Apr 27 10:41:24 das-edge-01 python3[1518]: 
+Apr 27 10:41:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:41:27 das-edge-01 python3[1518]: 10:41:27.523 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:41:27 das-edge-01 python3[1518]: 10:41:27.573 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:41:27 das-edge-01 python3[1518]: 10:41:27.573 [LTE] Band b4: collected — RSRP=-103, RSRQ=-18, SINR=0.0
+Apr 27 10:41:27 das-edge-01 python3[1518]: 10:41:27.573 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:41:27 das-edge-01 python3[1518]: 10:41:27.624 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:41:27 das-edge-01 python3[1518]: 10:41:27.624 [LTE] Configuring band b5...
+Apr 27 10:41:27 das-edge-01 python3[1518]: 10:41:27.624 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:41:29 das-edge-01 python3[1518]: 10:41:29.674 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:41:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:41:33 das-edge-01 python3[1518]: 10:41:33.325 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:41:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:41:37 das-edge-01 python3[1518]: OK
+Apr 27 10:41:37 das-edge-01 python3[1518]: 
+Apr 27 10:41:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:41:40 das-edge-01 python3[1518]: 10:41:40.682 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:41:40 das-edge-01 python3[1518]: 10:41:40.732 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:41:40 das-edge-01 python3[1518]: 10:41:40.733 [LTE] Band b5: collected — RSRP=-108, RSRQ=-20, SINR=-5.999999999999998
+Apr 27 10:41:40 das-edge-01 python3[1518]: 10:41:40.733 [MAIN] Session 4 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:41:40 das-edge-01 python3[1518]: 10:41:40.733 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.410 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.411 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.411 [MAIN] Starting session 5 of 5
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.411 [MAIN] Mode C — checking for SIM insertion before session 5...
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.411 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.461 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.461 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:42:31.461773
+Apr 27 10:42:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.461 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.512 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.512 [LTE] Configuring band b2...
+Apr 27 10:42:31 das-edge-01 python3[1518]: 10:42:31.512 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:42:33 das-edge-01 python3[1518]: 10:42:33.562 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:42:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:42:37 das-edge-01 python3[1518]: 10:42:37.113 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:42:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:42:41 das-edge-01 python3[1518]: OK
+Apr 27 10:42:41 das-edge-01 python3[1518]: 
+Apr 27 10:42:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:42:44 das-edge-01 python3[1518]: 10:42:44.470 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:42:44 das-edge-01 python3[1518]: 10:42:44.520 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:42:44 das-edge-01 python3[1518]: 10:42:44.520 [LTE] Band b2: collected — RSRP=-93, RSRQ=-13, SINR=16.0
+Apr 27 10:42:44 das-edge-01 python3[1518]: 10:42:44.520 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:42:44 das-edge-01 python3[1518]: 10:42:44.570 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:42:44 das-edge-01 python3[1518]: 10:42:44.570 [LTE] Configuring band b4...
+Apr 27 10:42:44 das-edge-01 python3[1518]: 10:42:44.570 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:42:46 das-edge-01 python3[1518]: 10:42:46.621 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:42:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:42:50 das-edge-01 python3[1518]: 10:42:50.322 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:42:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:42:54 das-edge-01 python3[1518]: OK
+Apr 27 10:42:54 das-edge-01 python3[1518]: 
+Apr 27 10:42:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:42:57 das-edge-01 python3[1518]: 10:42:57.678 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:42:57 das-edge-01 python3[1518]: 10:42:57.729 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:42:57 das-edge-01 python3[1518]: 10:42:57.729 [LTE] Band b4: collected — RSRP=-103, RSRQ=-17, SINR=-2.0
+Apr 27 10:42:57 das-edge-01 python3[1518]: 10:42:57.729 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:42:57 das-edge-01 python3[1518]: 10:42:57.779 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:42:57 das-edge-01 python3[1518]: 10:42:57.779 [LTE] Configuring band b5...
+Apr 27 10:42:57 das-edge-01 python3[1518]: 10:42:57.779 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:42:59 das-edge-01 python3[1518]: 10:42:59.829 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:43:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:43:03 das-edge-01 python3[1518]: 10:43:03.531 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:43:06 das-edge-01 python[1073]: INFO:     10.231.237.31:54235 - "POST /login HTTP/1.1" 302 Found
+Apr 27 10:43:06 das-edge-01 python[1073]: INFO:     10.231.237.31:54235 - "GET / HTTP/1.1" 200 OK
+Apr 27 10:43:06 das-edge-01 python[1073]: INFO:     10.231.237.31:54235 - "GET /static/css/adminlte.min.css HTTP/1.1" 304 Not Modified
+Apr 27 10:43:06 das-edge-01 python[1073]: INFO:     10.231.237.31:53529 - "GET /static/js/adminlte.min.js HTTP/1.1" 304 Not Modified
+Apr 27 10:43:06 das-edge-01 python[1073]: INFO:     10.231.237.31:54235 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:06 das-edge-01 python[1073]: INFO:     10.231.237.31:53529 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:43:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:43:07 das-edge-01 python3[1518]: OK
+Apr 27 10:43:07 das-edge-01 python3[1518]: 
+Apr 27 10:43:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.887 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937 [MAIN] Session 5 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937 [MAIN] 5 sessions collected — running time averaging and alarms...
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937 ── Input Sessions ───────────────────────────────────────
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937   Session 1 | Start: 2026-04-27 10:36:31.420485
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:36:44.578344 | RSRP: -93 | RSRQ: -12 | RSSI: -62 | SINR: 14.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.937     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:36:57.790088 | RSRP: -104 | RSRQ: -17 | RSSI: -70 | SINR: 0.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:37:10.849271 | RSRP: -107 | RSRQ: -19 | RSSI: -71 | SINR: -4.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938   Session 2 | Start: 2026-04-27 10:38:01.461679
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:38:14.622266 | RSRP: -93 | RSRQ: -14 | RSSI: -60 | SINR: 16.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:38:27.680351 | RSRP: -104 | RSRQ: -16 | RSSI: -71 | SINR: 0.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:38:40.738888 | RSRP: -107 | RSRQ: -19 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938   Session 3 | Start: 2026-04-27 10:39:31.455092
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:39:44.563498 | RSRP: -94 | RSRQ: -15 | RSSI: -60 | SINR: 14.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:39:57.621810 | RSRP: -104 | RSRQ: -16 | RSSI: -71 | SINR: 0.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:40:10.780701 | RSRP: -106 | RSRQ: -18 | RSSI: -71 | SINR: -4.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938   Session 4 | Start: 2026-04-27 10:41:01.457809
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:41:14.515927 | RSRP: -94 | RSRQ: -13 | RSSI: -62 | SINR: 14.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:41:27.573851 | RSRP: -103 | RSRQ: -18 | RSSI: -68 | SINR: 0.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:41:40.733005 | RSRP: -108 | RSRQ: -20 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938   Session 5 | Start: 2026-04-27 10:42:31.461773
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:42:44.520615 | RSRP: -93 | RSRQ: -13 | RSSI: -61 | SINR: 16.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:42:57.729196 | RSRP: -103 | RSRQ: -17 | RSSI: -69 | SINR: -2.0
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:43:10.937669 | RSRP: -107 | RSRQ: -19 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938 ────────────────────────────────────────────────────
+Apr 27 10:43:10 das-edge-01 python3[1518]: 10:43:10.938 [THRESHOLD] Band 4 | RSRQ: avg = -16.8, below threshold (-14.0)
+Apr 27 10:43:11 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 4 | RSRQ | avg = -16.8, below threshold (-14.0)
+Apr 27 10:43:11 das-edge-01 python3[1518]: 10:43:11.116 [THRESHOLD] Band 4 | SINR: avg = -0.4, below threshold (0.0)
+Apr 27 10:43:11 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 4 | SINR | avg = -0.4, below threshold (0.0)
+Apr 27 10:43:11 das-edge-01 python3[1518]: 10:43:11.241 [THRESHOLD] Band 5 | RSRQ: avg = -19.0, below threshold (-14.0)
+Apr 27 10:43:11 das-edge-01 python[1073]: INFO:     10.231.237.31:53529 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:11 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | RSRQ | avg = -19.0, below threshold (-14.0)
+Apr 27 10:43:11 das-edge-01 python3[1518]: 10:43:11.365 [THRESHOLD] Band 5 | SINR: avg = -5.2, below threshold (0.0)
+Apr 27 10:43:11 das-edge-01 python[1073]: INFO:     10.231.237.31:53529 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:43:11 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | SINR | avg = -5.2, below threshold (0.0)
+Apr 27 10:43:11 das-edge-01 python3[1518]: 10:43:11.490 [FILE] GUI JSON updated at 2026-04-27 10:42:31
+Apr 27 10:43:11 das-edge-01 python3[1518]: [FILE] Entry appended to /home/das/DAS-Communication-System/device/data/kpi_data/20260427_kpi.json (85 entries today)
+Apr 27 10:43:11 das-edge-01 python3[1518]: 10:43:11.502 [MAIN] Window processed — resetting for next collection window.
+Apr 27 10:43:11 das-edge-01 python3[1518]: 10:43:11.502 [MAIN] Sleeping 49.9s until next session...
+Apr 27 10:43:11 das-edge-01 python[1073]: INFO:     10.231.237.31:53529 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:43:11 das-edge-01 python[1073]: INFO:     10.231.237.31:57370 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:16 das-edge-01 python[1073]: INFO:     10.231.237.31:57370 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:21 das-edge-01 python[1073]: INFO:     10.231.237.31:57370 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:26 das-edge-01 python[1073]: INFO:     10.231.237.31:53543 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:31 das-edge-01 python[1073]: INFO:     10.231.237.31:53543 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:36 das-edge-01 python[1073]: INFO:     10.231.237.31:53543 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:39 das-edge-01 python[1073]: 10:43:39.448 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 10:43:39 das-edge-01 python[1073]: INFO:     10.231.237.31:53543 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 10:43:39 das-edge-01 python[1073]: INFO:     10.231.237.31:53543 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:43:39 das-edge-01 python[1073]: INFO:     10.231.237.31:53543 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:43:39 das-edge-01 python[1073]: INFO:     10.231.237.31:50854 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:41 das-edge-01 python[1073]: INFO:     10.231.237.31:50854 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:46 das-edge-01 python[1073]: INFO:     10.231.237.31:50854 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:51 das-edge-01 python[1073]: INFO:     10.231.237.31:60472 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:43:56 das-edge-01 python[1073]: INFO:     10.231.237.31:58354 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:01 das-edge-01 python[1073]: INFO:     10.231.237.31:58354 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.413 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.414 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.414 [MAIN] Starting session 1 of 5
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.414 [MAIN] Mode C — checking for SIM insertion before session 1...
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.414 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.464 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.464 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:44:01.464801
+Apr 27 10:44:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.464 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.515 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.515 [LTE] Configuring band b2...
+Apr 27 10:44:01 das-edge-01 python3[1518]: 10:44:01.515 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:44:03 das-edge-01 python3[1518]: 10:44:03.565 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:44:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:44:06 das-edge-01 python[1073]: INFO:     10.231.237.31:52316 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:07 das-edge-01 python3[1518]: 10:44:07.066 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:44:11 das-edge-01 python[1073]: INFO:     10.231.237.31:52316 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:44:11 das-edge-01 python3[1518]: OK
+Apr 27 10:44:11 das-edge-01 python3[1518]: 
+Apr 27 10:44:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:44:14 das-edge-01 python3[1518]: 10:44:14.422 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:44:14 das-edge-01 python3[1518]: 10:44:14.473 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:44:14 das-edge-01 python3[1518]: 10:44:14.473 [LTE] Band b2: collected — RSRP=-93, RSRQ=-12, SINR=14.0
+Apr 27 10:44:14 das-edge-01 python3[1518]: 10:44:14.473 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:44:14 das-edge-01 python3[1518]: 10:44:14.523 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:44:14 das-edge-01 python3[1518]: 10:44:14.523 [LTE] Configuring band b4...
+Apr 27 10:44:14 das-edge-01 python3[1518]: 10:44:14.523 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:44:16 das-edge-01 python[1073]: INFO:     10.231.237.31:52316 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:16 das-edge-01 python3[1518]: 10:44:16.573 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:44:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:44:20 das-edge-01 python3[1518]: 10:44:20.225 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:44:21 das-edge-01 python[1073]: INFO:     10.231.237.31:52316 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:44:24 das-edge-01 python3[1518]: OK
+Apr 27 10:44:24 das-edge-01 python3[1518]: 
+Apr 27 10:44:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:44:26 das-edge-01 python[1073]: INFO:     10.231.237.31:52316 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:27 das-edge-01 python3[1518]: 10:44:27.581 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:44:27 das-edge-01 python3[1518]: 10:44:27.631 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:44:27 das-edge-01 python3[1518]: 10:44:27.631 [LTE] Band b4: collected — RSRP=-104, RSRQ=-17, SINR=-2.0
+Apr 27 10:44:27 das-edge-01 python3[1518]: 10:44:27.631 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:44:27 das-edge-01 python3[1518]: 10:44:27.681 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:44:27 das-edge-01 python3[1518]: 10:44:27.681 [LTE] Configuring band b5...
+Apr 27 10:44:27 das-edge-01 python3[1518]: 10:44:27.681 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:44:29 das-edge-01 python3[1518]: 10:44:29.732 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:44:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:44:31 das-edge-01 python[1073]: INFO:     10.231.237.31:50477 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:33 das-edge-01 python3[1518]: 10:44:33.283 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:44:36 das-edge-01 python[1073]: INFO:     10.231.237.31:50477 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:44:37 das-edge-01 python3[1518]: OK
+Apr 27 10:44:37 das-edge-01 python3[1518]: 
+Apr 27 10:44:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:44:40 das-edge-01 python3[1518]: 10:44:40.638 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:44:40 das-edge-01 python3[1518]: 10:44:40.689 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:44:40 das-edge-01 python3[1518]: 10:44:40.689 [LTE] Band b5: collected — RSRP=-107, RSRQ=-18, SINR=-5.999999999999998
+Apr 27 10:44:40 das-edge-01 python3[1518]: 10:44:40.689 [MAIN] Session 1 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:44:40 das-edge-01 python3[1518]: 10:44:40.689 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:44:41 das-edge-01 python[1073]: INFO:     10.231.237.31:59109 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:46 das-edge-01 python[1073]: INFO:     10.231.237.31:59109 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:51 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:44:56 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:00 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET / HTTP/1.1" 200 OK
+Apr 27 10:45:00 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:45:00 das-edge-01 python[1073]: INFO:     10.231.237.31:58638 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:03 das-edge-01 python[1073]: INFO:     10.231.237.31:58638 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:45:03 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:03 das-edge-01 python[1073]: INFO:     10.231.237.31:58638 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:45:05 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:09 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET / HTTP/1.1" 200 OK
+Apr 27 10:45:09 das-edge-01 python[1073]: INFO:     10.231.237.31:65379 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:09 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:45:11 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:15 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:20 das-edge-01 python[1073]: INFO:     10.231.237.31:53129 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:25 das-edge-01 python[1073]: INFO:     10.231.237.31:51668 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:30 das-edge-01 python[1073]: INFO:     10.231.237.31:51668 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.417 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.418 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.418 [MAIN] Starting session 2 of 5
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.418 [MAIN] Mode C — checking for SIM insertion before session 2...
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.418 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.468 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.468 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:45:31.468708
+Apr 27 10:45:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.468 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.518 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.518 [LTE] Configuring band b2...
+Apr 27 10:45:31 das-edge-01 python3[1518]: 10:45:31.519 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:45:33 das-edge-01 python3[1518]: 10:45:33.569 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:45:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:45:35 das-edge-01 python[1073]: INFO:     10.231.237.31:59723 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:37 das-edge-01 python3[1518]: 10:45:37.020 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:45:40 das-edge-01 python[1073]: INFO:     10.231.237.31:59723 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:45:41 das-edge-01 python3[1518]: OK
+Apr 27 10:45:41 das-edge-01 python3[1518]: 
+Apr 27 10:45:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:45:44 das-edge-01 python3[1518]: 10:45:44.376 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:45:44 das-edge-01 python3[1518]: 10:45:44.426 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:45:44 das-edge-01 python3[1518]: 10:45:44.426 [LTE] Band b2: collected — RSRP=-94, RSRQ=-9, SINR=16.0
+Apr 27 10:45:44 das-edge-01 python3[1518]: 10:45:44.426 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:45:44 das-edge-01 python3[1518]: 10:45:44.476 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:45:44 das-edge-01 python3[1518]: 10:45:44.476 [LTE] Configuring band b4...
+Apr 27 10:45:44 das-edge-01 python3[1518]: 10:45:44.476 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:45:45 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:46 das-edge-01 python3[1518]: 10:45:46.527 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:45:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:45:50 das-edge-01 python3[1518]: 10:45:50.078 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:45:50 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:45:54 das-edge-01 python3[1518]: OK
+Apr 27 10:45:54 das-edge-01 python3[1518]: 
+Apr 27 10:45:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:45:55 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:57 das-edge-01 python3[1518]: 10:45:57.433 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:45:57 das-edge-01 python3[1518]: 10:45:57.484 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:45:57 das-edge-01 python3[1518]: 10:45:57.484 [LTE] Band b4: collected — RSRP=-105, RSRQ=-16, SINR=-2.0
+Apr 27 10:45:57 das-edge-01 python3[1518]: 10:45:57.484 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:45:57 das-edge-01 python3[1518]: 10:45:57.534 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:45:57 das-edge-01 python3[1518]: 10:45:57.534 [LTE] Configuring band b5...
+Apr 27 10:45:57 das-edge-01 python3[1518]: 10:45:57.534 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:45:58 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET / HTTP/1.1" 200 OK
+Apr 27 10:45:58 das-edge-01 python[1073]: INFO:     10.231.237.31:49670 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:45:58 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:45:59 das-edge-01 python3[1518]: 10:45:59.584 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:46:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:46:00 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:46:01 das-edge-01 python[1073]: INFO:     10.231.237.31:49670 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:01 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:46:03 das-edge-01 python3[1518]: 10:46:03.235 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:46:03 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:46:07 das-edge-01 python3[1518]: OK
+Apr 27 10:46:07 das-edge-01 python3[1518]: 
+Apr 27 10:46:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:46:08 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:09 das-edge-01 python[1073]: 10:46:09.763 OVPN saved to: /home/das/DAS-Communication-System/device/GUI/vpn/client.ovpn
+Apr 27 10:46:09 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "POST /api/upload-ovpn HTTP/1.1" 200 OK
+Apr 27 10:46:09 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:46:09 das-edge-01 python[1073]: INFO:     10.231.237.31:56321 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:46:09 das-edge-01 python[1073]: INFO:     10.231.237.31:63097 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:10 das-edge-01 python3[1518]: 10:46:10.592 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:46:10 das-edge-01 python3[1518]: 10:46:10.642 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:46:10 das-edge-01 python3[1518]: 10:46:10.642 [LTE] Band b5: collected — RSRP=-108, RSRQ=-20, SINR=-5.999999999999998
+Apr 27 10:46:10 das-edge-01 python3[1518]: 10:46:10.642 [MAIN] Session 2 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:46:10 das-edge-01 python3[1518]: 10:46:10.642 [MAIN] Sleeping 50.8s until next session...
+Apr 27 10:46:13 das-edge-01 python[1073]: INFO:     10.231.237.31:63097 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:14 das-edge-01 python[1073]: 10:46:14.920 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 10:46:14 das-edge-01 python[1073]: INFO:     10.231.237.31:63097 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 10:46:14 das-edge-01 python[1073]: INFO:     10.231.237.31:63097 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:46:14 das-edge-01 python[1073]: INFO:     10.231.237.31:63097 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:46:14 das-edge-01 python[1073]: INFO:     10.231.237.31:53956 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:18 das-edge-01 python[1073]: INFO:     10.231.237.31:53956 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:23 das-edge-01 python[1073]: INFO:     10.231.237.31:53956 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:28 das-edge-01 python[1073]: INFO:     10.231.237.31:53956 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:34 das-edge-01 python[1073]: INFO:     10.231.237.31:55676 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:39 das-edge-01 python[1073]: INFO:     10.231.237.31:55676 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:44 das-edge-01 python[1073]: INFO:     10.231.237.31:55676 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:49 das-edge-01 python[1073]: INFO:     10.231.237.31:55676 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:54 das-edge-01 python[1073]: INFO:     10.231.237.31:55676 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:46:59 das-edge-01 python[1073]: INFO:     10.231.237.31:55676 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.475 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.484 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.484 [MAIN] Starting session 3 of 5
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.484 [MAIN] Mode C — checking for SIM insertion before session 3...
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.486 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.537 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.537 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:47:01.537618
+Apr 27 10:47:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.538 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.588 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.588 [LTE] Configuring band b2...
+Apr 27 10:47:01 das-edge-01 python3[1518]: 10:47:01.588 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:47:03 das-edge-01 python3[1518]: 10:47:03.638 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:47:04 das-edge-01 python[1073]: INFO:     10.231.237.31:64009 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:47:07 das-edge-01 python3[1518]: 10:47:07.139 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:47:09 das-edge-01 python[1073]: INFO:     10.231.237.31:64009 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:47:11 das-edge-01 python3[1518]: OK
+Apr 27 10:47:11 das-edge-01 python3[1518]: 
+Apr 27 10:47:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:47:14 das-edge-01 python[1073]: INFO:     10.231.237.31:64009 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:14 das-edge-01 python3[1518]: 10:47:14.501 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:47:14 das-edge-01 python3[1518]: 10:47:14.551 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:47:14 das-edge-01 python3[1518]: 10:47:14.551 [LTE] Band b2: collected — RSRP=-93, RSRQ=-16, SINR=16.0
+Apr 27 10:47:14 das-edge-01 python3[1518]: 10:47:14.552 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:47:14 das-edge-01 python3[1518]: 10:47:14.602 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:47:14 das-edge-01 python3[1518]: 10:47:14.602 [LTE] Configuring band b4...
+Apr 27 10:47:14 das-edge-01 python3[1518]: 10:47:14.602 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:47:16 das-edge-01 python3[1518]: 10:47:16.652 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:47:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:47:19 das-edge-01 python[1073]: INFO:     10.231.237.31:64009 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:20 das-edge-01 python3[1518]: 10:47:20.255 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:47:24 das-edge-01 python[1073]: INFO:     10.231.237.31:64009 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:47:24 das-edge-01 python3[1518]: OK
+Apr 27 10:47:24 das-edge-01 python3[1518]: 
+Apr 27 10:47:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:47:27 das-edge-01 python3[1518]: 10:47:27.612 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:47:27 das-edge-01 python3[1518]: 10:47:27.662 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:47:27 das-edge-01 python3[1518]: 10:47:27.662 [LTE] Band b4: collected — RSRP=-104, RSRQ=-16, SINR=0.0
+Apr 27 10:47:27 das-edge-01 python3[1518]: 10:47:27.662 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:47:27 das-edge-01 python3[1518]: 10:47:27.712 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:47:27 das-edge-01 python3[1518]: 10:47:27.712 [LTE] Configuring band b5...
+Apr 27 10:47:27 das-edge-01 python3[1518]: 10:47:27.712 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:47:29 das-edge-01 python[1073]: INFO:     10.231.237.31:64009 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:29 das-edge-01 python3[1518]: 10:47:29.763 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:47:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:47:33 das-edge-01 python3[1518]: 10:47:33.414 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:47:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:47:37 das-edge-01 python3[1518]: OK
+Apr 27 10:47:37 das-edge-01 python3[1518]: 
+Apr 27 10:47:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:47:38 das-edge-01 python[1073]: INFO:     10.231.237.31:53492 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:47:40 das-edge-01 python3[1518]: 10:47:40.770 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:47:40 das-edge-01 python3[1518]: 10:47:40.821 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:47:40 das-edge-01 python3[1518]: 10:47:40.821 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 10:47:40 das-edge-01 python3[1518]: 10:47:40.821 [MAIN] Session 3 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:47:40 das-edge-01 python3[1518]: 10:47:40.821 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.487 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.488 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.488 [MAIN] Starting session 4 of 5
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.489 [MAIN] Mode C — checking for SIM insertion before session 4...
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.489 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.539 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.539 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:48:31.539343
+Apr 27 10:48:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.539 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.589 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.589 [LTE] Configuring band b2...
+Apr 27 10:48:31 das-edge-01 python3[1518]: 10:48:31.589 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:48:33 das-edge-01 python3[1518]: 10:48:33.640 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:48:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:48:37 das-edge-01 python3[1518]: 10:48:37.141 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:48:38 das-edge-01 python[1073]: INFO:     10.231.237.31:50610 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:48:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:48:41 das-edge-01 python3[1518]: OK
+Apr 27 10:48:41 das-edge-01 python3[1518]: 
+Apr 27 10:48:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:48:44 das-edge-01 python3[1518]: 10:48:44.497 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:48:44 das-edge-01 python3[1518]: 10:48:44.547 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:48:44 das-edge-01 python3[1518]: 10:48:44.547 [LTE] Band b2: collected — RSRP=-93, RSRQ=-14, SINR=16.0
+Apr 27 10:48:44 das-edge-01 python3[1518]: 10:48:44.548 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:48:44 das-edge-01 python3[1518]: 10:48:44.598 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:48:44 das-edge-01 python3[1518]: 10:48:44.598 [LTE] Configuring band b4...
+Apr 27 10:48:44 das-edge-01 python3[1518]: 10:48:44.598 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:48:46 das-edge-01 python3[1518]: 10:48:46.648 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:48:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:48:50 das-edge-01 python3[1518]: 10:48:50.350 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:48:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:48:54 das-edge-01 python3[1518]: OK
+Apr 27 10:48:54 das-edge-01 python3[1518]: 
+Apr 27 10:48:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:48:57 das-edge-01 python3[1518]: 10:48:57.706 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:48:57 das-edge-01 python3[1518]: 10:48:57.757 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:48:57 das-edge-01 python3[1518]: 10:48:57.757 [LTE] Band b4: collected — RSRP=-104, RSRQ=-18, SINR=0.0
+Apr 27 10:48:57 das-edge-01 python3[1518]: 10:48:57.757 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:48:57 das-edge-01 python3[1518]: 10:48:57.807 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:48:57 das-edge-01 python3[1518]: 10:48:57.807 [LTE] Configuring band b5...
+Apr 27 10:48:57 das-edge-01 python3[1518]: 10:48:57.807 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:48:59 das-edge-01 python3[1518]: 10:48:59.858 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:49:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:49:03 das-edge-01 python3[1518]: 10:49:03.359 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:49:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:49:07 das-edge-01 python3[1518]: OK
+Apr 27 10:49:07 das-edge-01 python3[1518]: 
+Apr 27 10:49:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:49:10 das-edge-01 python3[1518]: 10:49:10.716 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:49:10 das-edge-01 python3[1518]: 10:49:10.766 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:49:10 das-edge-01 python3[1518]: 10:49:10.766 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 10:49:10 das-edge-01 python3[1518]: 10:49:10.766 [MAIN] Session 4 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:49:10 das-edge-01 python3[1518]: 10:49:10.766 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:49:38 das-edge-01 python[1073]: INFO:     10.231.237.31:50390 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.492 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.493 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.493 [MAIN] Starting session 5 of 5
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.493 [MAIN] Mode C — checking for SIM insertion before session 5...
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.493 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.543 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.543 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:50:01.543628
+Apr 27 10:50:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.543 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.593 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.593 [LTE] Configuring band b2...
+Apr 27 10:50:01 das-edge-01 python3[1518]: 10:50:01.594 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:50:03 das-edge-01 python3[1518]: 10:50:03.644 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:50:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:50:07 das-edge-01 python3[1518]: 10:50:07.195 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:50:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:50:11 das-edge-01 python3[1518]: OK
+Apr 27 10:50:11 das-edge-01 python3[1518]: 
+Apr 27 10:50:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:50:14 das-edge-01 python3[1518]: 10:50:14.551 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:50:14 das-edge-01 python3[1518]: 10:50:14.602 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:50:14 das-edge-01 python3[1518]: 10:50:14.602 [LTE] Band b2: collected — RSRP=-94, RSRQ=-14, SINR=16.0
+Apr 27 10:50:14 das-edge-01 python3[1518]: 10:50:14.602 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:50:14 das-edge-01 python3[1518]: 10:50:14.652 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:50:14 das-edge-01 python3[1518]: 10:50:14.652 [LTE] Configuring band b4...
+Apr 27 10:50:14 das-edge-01 python3[1518]: 10:50:14.652 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:50:16 das-edge-01 python3[1518]: 10:50:16.702 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:50:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:50:20 das-edge-01 python3[1518]: 10:50:20.303 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:50:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:50:24 das-edge-01 python3[1518]: OK
+Apr 27 10:50:24 das-edge-01 python3[1518]: 
+Apr 27 10:50:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:50:27 das-edge-01 python3[1518]: 10:50:27.660 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:50:27 das-edge-01 python3[1518]: 10:50:27.710 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:50:27 das-edge-01 python3[1518]: 10:50:27.710 [LTE] Band b4: collected — RSRP=-103, RSRQ=-17, SINR=0.0
+Apr 27 10:50:27 das-edge-01 python3[1518]: 10:50:27.710 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:50:27 das-edge-01 python3[1518]: 10:50:27.760 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:50:27 das-edge-01 python3[1518]: 10:50:27.761 [LTE] Configuring band b5...
+Apr 27 10:50:27 das-edge-01 python3[1518]: 10:50:27.761 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:50:29 das-edge-01 python3[1518]: 10:50:29.811 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:50:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:50:33 das-edge-01 python3[1518]: 10:50:33.462 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:50:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:50:37 das-edge-01 python3[1518]: OK
+Apr 27 10:50:37 das-edge-01 python3[1518]: 
+Apr 27 10:50:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:50:38 das-edge-01 python[1073]: INFO:     10.231.237.31:53678 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.819 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869 [LTE] Band b5: collected — RSRP=-105, RSRQ=-18, SINR=-4.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869 [MAIN] Session 5 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869 [MAIN] 5 sessions collected — running time averaging and alarms...
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869 ── Input Sessions ───────────────────────────────────────
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869   Session 1 | Start: 2026-04-27 10:44:01.464801
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:44:14.473128 | RSRP: -93 | RSRQ: -12 | RSSI: -62 | SINR: 14.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:44:27.631614 | RSRP: -104 | RSRQ: -17 | RSSI: -70 | SINR: -2.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:44:40.689309 | RSRP: -107 | RSRQ: -18 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869   Session 2 | Start: 2026-04-27 10:45:31.468708
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:45:44.426509 | RSRP: -94 | RSRQ: -9 | RSSI: -65 | SINR: 16.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:45:57.484248 | RSRP: -105 | RSRQ: -16 | RSSI: -72 | SINR: -2.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:46:10.642679 | RSRP: -108 | RSRQ: -20 | RSSI: -70 | SINR: -5.999999999999998
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869   Session 3 | Start: 2026-04-27 10:47:01.537618
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:47:14.551898 | RSRP: -93 | RSRQ: -16 | RSSI: -59 | SINR: 16.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:47:27.662651 | RSRP: -104 | RSRQ: -16 | RSSI: -70 | SINR: 0.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:47:40.821232 | RSRP: -107 | RSRQ: -19 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869   Session 4 | Start: 2026-04-27 10:48:31.539343
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:48:44.547946 | RSRP: -93 | RSRQ: -14 | RSSI: -59 | SINR: 16.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:48:57.757458 | RSRP: -104 | RSRQ: -18 | RSSI: -69 | SINR: 0.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:49:10.766790 | RSRP: -107 | RSRQ: -19 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.869   Session 5 | Start: 2026-04-27 10:50:01.543628
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.870     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:50:14.602151 | RSRP: -94 | RSRQ: -14 | RSSI: -61 | SINR: 16.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.870     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:50:27.710767 | RSRP: -103 | RSRQ: -17 | RSSI: -69 | SINR: 0.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.870     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:50:40.869407 | RSRP: -105 | RSRQ: -18 | RSSI: -70 | SINR: -4.0
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.870 ────────────────────────────────────────────────────
+Apr 27 10:50:40 das-edge-01 python3[1518]: 10:50:40.870 [THRESHOLD] Band 4 | RSRQ: avg = -16.8, below threshold (-14.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 4 | RSRQ | avg = -16.8, below threshold (-14.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: 10:50:41.067 [THRESHOLD] Band 4 | SINR: avg = -0.8, below threshold (0.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 4 | SINR | avg = -0.8, below threshold (0.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: 10:50:41.190 [THRESHOLD] Band 5 | RSRQ: avg = -18.8, below threshold (-14.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | RSRQ | avg = -18.8, below threshold (-14.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: 10:50:41.424 [THRESHOLD] Band 5 | SINR: avg = -5.6, below threshold (0.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | SINR | avg = -5.6, below threshold (0.0)
+Apr 27 10:50:41 das-edge-01 python3[1518]: 10:50:41.550 [FILE] GUI JSON updated at 2026-04-27 10:50:01
+Apr 27 10:50:41 das-edge-01 python3[1518]: [FILE] Entry appended to /home/das/DAS-Communication-System/device/data/kpi_data/20260427_kpi.json (86 entries today)
+Apr 27 10:50:41 das-edge-01 python3[1518]: 10:50:41.558 [MAIN] Window processed — resetting for next collection window.
+Apr 27 10:50:41 das-edge-01 python3[1518]: 10:50:41.558 [MAIN] Sleeping 49.9s until next session...
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.495 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.496 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.496 [MAIN] Starting session 1 of 5
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.496 [MAIN] Mode C — checking for SIM insertion before session 1...
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.496 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.546 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.546 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:51:31.546470
+Apr 27 10:51:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.546 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.596 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.596 [LTE] Configuring band b2...
+Apr 27 10:51:31 das-edge-01 python3[1518]: 10:51:31.596 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:51:33 das-edge-01 python3[1518]: 10:51:33.647 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:51:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:51:37 das-edge-01 python3[1518]: 10:51:37.148 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:51:38 das-edge-01 python[1073]: INFO:     10.231.237.31:64100 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:51:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:51:41 das-edge-01 python3[1518]: OK
+Apr 27 10:51:41 das-edge-01 python3[1518]: 
+Apr 27 10:51:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:51:44 das-edge-01 python3[1518]: 10:51:44.504 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:51:44 das-edge-01 python3[1518]: 10:51:44.554 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:51:44 das-edge-01 python3[1518]: 10:51:44.554 [LTE] Band b2: collected — RSRP=-93, RSRQ=-16, SINR=16.0
+Apr 27 10:51:44 das-edge-01 python3[1518]: 10:51:44.554 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:51:44 das-edge-01 python3[1518]: 10:51:44.605 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:51:44 das-edge-01 python3[1518]: 10:51:44.605 [LTE] Configuring band b4...
+Apr 27 10:51:44 das-edge-01 python3[1518]: 10:51:44.605 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:51:46 das-edge-01 python3[1518]: 10:51:46.655 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:51:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:51:50 das-edge-01 python3[1518]: 10:51:50.456 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:51:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:51:54 das-edge-01 python3[1518]: OK
+Apr 27 10:51:54 das-edge-01 python3[1518]: 
+Apr 27 10:51:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:51:57 das-edge-01 python3[1518]: 10:51:57.812 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:51:57 das-edge-01 python3[1518]: 10:51:57.863 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:51:57 das-edge-01 python3[1518]: 10:51:57.863 [LTE] Band b4: collected — RSRP=-105, RSRQ=-16, SINR=0.0
+Apr 27 10:51:57 das-edge-01 python3[1518]: 10:51:57.863 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:51:57 das-edge-01 python3[1518]: 10:51:57.913 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:51:57 das-edge-01 python3[1518]: 10:51:57.913 [LTE] Configuring band b5...
+Apr 27 10:51:57 das-edge-01 python3[1518]: 10:51:57.913 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:51:59 das-edge-01 python3[1518]: 10:51:59.963 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:52:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:52:03 das-edge-01 python3[1518]: 10:52:03.514 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:52:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:52:07 das-edge-01 python3[1518]: OK
+Apr 27 10:52:07 das-edge-01 python3[1518]: 
+Apr 27 10:52:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:52:10 das-edge-01 python3[1518]: 10:52:10.871 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:52:10 das-edge-01 python3[1518]: 10:52:10.922 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:52:10 das-edge-01 python3[1518]: 10:52:10.922 [LTE] Band b5: collected — RSRP=-108, RSRQ=-20, SINR=-5.999999999999998
+Apr 27 10:52:10 das-edge-01 python3[1518]: 10:52:10.922 [MAIN] Session 1 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:52:10 das-edge-01 python3[1518]: 10:52:10.922 [MAIN] Sleeping 50.6s until next session...
+Apr 27 10:52:38 das-edge-01 python[1073]: INFO:     10.231.237.31:54932 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.499 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.500 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.500 [MAIN] Starting session 2 of 5
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.500 [MAIN] Mode C — checking for SIM insertion before session 2...
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.500 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.550 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.550 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:53:01.550506
+Apr 27 10:53:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.550 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.600 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.600 [LTE] Configuring band b2...
+Apr 27 10:53:01 das-edge-01 python3[1518]: 10:53:01.600 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:53:03 das-edge-01 python3[1518]: 10:53:03.651 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:53:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:53:07 das-edge-01 python3[1518]: 10:53:07.152 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:53:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:53:11 das-edge-01 python3[1518]: OK
+Apr 27 10:53:11 das-edge-01 python3[1518]: 
+Apr 27 10:53:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:53:14 das-edge-01 python3[1518]: 10:53:14.509 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:53:14 das-edge-01 python3[1518]: 10:53:14.559 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:53:14 das-edge-01 python3[1518]: 10:53:14.559 [LTE] Band b2: collected — RSRP=-94, RSRQ=-14, SINR=16.0
+Apr 27 10:53:14 das-edge-01 python3[1518]: 10:53:14.559 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:53:14 das-edge-01 python3[1518]: 10:53:14.609 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:53:14 das-edge-01 python3[1518]: 10:53:14.609 [LTE] Configuring band b4...
+Apr 27 10:53:14 das-edge-01 python3[1518]: 10:53:14.609 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:53:16 das-edge-01 python3[1518]: 10:53:16.659 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:53:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:53:20 das-edge-01 python3[1518]: 10:53:20.311 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:53:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:53:24 das-edge-01 python3[1518]: OK
+Apr 27 10:53:24 das-edge-01 python3[1518]: 
+Apr 27 10:53:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:53:27 das-edge-01 python3[1518]: 10:53:27.667 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:53:27 das-edge-01 python3[1518]: 10:53:27.717 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:53:27 das-edge-01 python3[1518]: 10:53:27.717 [LTE] Band b4: collected — RSRP=-104, RSRQ=-17, SINR=0.0
+Apr 27 10:53:27 das-edge-01 python3[1518]: 10:53:27.717 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:53:27 das-edge-01 python3[1518]: 10:53:27.767 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:53:27 das-edge-01 python3[1518]: 10:53:27.768 [LTE] Configuring band b5...
+Apr 27 10:53:27 das-edge-01 python3[1518]: 10:53:27.768 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:53:29 das-edge-01 python3[1518]: 10:53:29.818 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:53:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:53:33 das-edge-01 python3[1518]: 10:53:33.369 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:53:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:53:37 das-edge-01 python3[1518]: OK
+Apr 27 10:53:37 das-edge-01 python3[1518]: 
+Apr 27 10:53:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:53:38 das-edge-01 python[1073]: INFO:     10.231.237.31:59802 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:53:40 das-edge-01 python3[1518]: 10:53:40.726 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:53:40 das-edge-01 python3[1518]: 10:53:40.776 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:53:40 das-edge-01 python3[1518]: 10:53:40.776 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 10:53:40 das-edge-01 python3[1518]: 10:53:40.776 [MAIN] Session 2 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:53:40 das-edge-01 python3[1518]: 10:53:40.776 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:54:29 das-edge-01 python[1073]: INFO:     10.231.237.31:56815 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.503 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.504 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.504 [MAIN] Starting session 3 of 5
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.504 [MAIN] Mode C — checking for SIM insertion before session 3...
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.504 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.554 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.554 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:54:31.554985
+Apr 27 10:54:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.555 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.605 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.605 [LTE] Configuring band b2...
+Apr 27 10:54:31 das-edge-01 python3[1518]: 10:54:31.605 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:54:33 das-edge-01 python[1073]: INFO:     10.231.237.31:56815 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:33 das-edge-01 python3[1518]: 10:54:33.655 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:54:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:54:37 das-edge-01 python3[1518]: 10:54:37.206 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:54:38 das-edge-01 python[1073]: INFO:     10.231.237.31:51218 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:40 das-edge-01 python[1073]: INFO:     10.231.237.31:51218 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:54:40 das-edge-01 python[1073]: INFO:     10.231.237.31:51218 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:54:40 das-edge-01 python[1073]: INFO:     10.231.237.31:56194 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:54:41 das-edge-01 python3[1518]: OK
+Apr 27 10:54:41 das-edge-01 python3[1518]: 
+Apr 27 10:54:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:54:43 das-edge-01 python[1073]: INFO:     10.231.237.31:56194 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:44 das-edge-01 python3[1518]: 10:54:44.562 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:54:44 das-edge-01 python3[1518]: 10:54:44.612 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:54:44 das-edge-01 python3[1518]: 10:54:44.612 [LTE] Band b2: collected — RSRP=-93, RSRQ=-16, SINR=16.0
+Apr 27 10:54:44 das-edge-01 python3[1518]: 10:54:44.613 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:54:44 das-edge-01 python3[1518]: 10:54:44.663 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:54:44 das-edge-01 python3[1518]: 10:54:44.663 [LTE] Configuring band b4...
+Apr 27 10:54:44 das-edge-01 python3[1518]: 10:54:44.663 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:54:46 das-edge-01 python3[1518]: 10:54:46.713 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:54:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:54:48 das-edge-01 python[1073]: INFO:     10.231.237.31:49279 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:50 das-edge-01 python3[1518]: 10:54:50.364 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:54:53 das-edge-01 python[1073]: INFO:     10.231.237.31:49279 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:54:54 das-edge-01 python3[1518]: OK
+Apr 27 10:54:54 das-edge-01 python3[1518]: 
+Apr 27 10:54:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:54:57 das-edge-01 python[1073]: 10:54:57.077 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 10:54:57 das-edge-01 python[1073]: INFO:     10.231.237.31:49279 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 10:54:57 das-edge-01 python[1073]: INFO:     10.231.237.31:49279 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:54:57 das-edge-01 python[1073]: INFO:     10.231.237.31:49279 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:54:57 das-edge-01 python[1073]: INFO:     10.231.237.31:62353 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:57 das-edge-01 python3[1518]: 10:54:57.720 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:54:57 das-edge-01 python3[1518]: 10:54:57.771 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:54:57 das-edge-01 python3[1518]: 10:54:57.771 [LTE] Band b4: collected — RSRP=-103, RSRQ=-16, SINR=2.0
+Apr 27 10:54:57 das-edge-01 python3[1518]: 10:54:57.771 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:54:57 das-edge-01 python3[1518]: 10:54:57.821 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:54:57 das-edge-01 python3[1518]: 10:54:57.821 [LTE] Configuring band b5...
+Apr 27 10:54:57 das-edge-01 python3[1518]: 10:54:57.821 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:54:58 das-edge-01 python[1073]: INFO:     10.231.237.31:62353 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:54:59 das-edge-01 python3[1518]: 10:54:59.871 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:55:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:55:03 das-edge-01 python[1073]: INFO:     10.231.237.31:62353 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:03 das-edge-01 python3[1518]: 10:55:03.423 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:55:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:55:07 das-edge-01 python3[1518]: OK
+Apr 27 10:55:07 das-edge-01 python3[1518]: 
+Apr 27 10:55:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:55:08 das-edge-01 python[1073]: INFO:     10.231.237.31:64975 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:10 das-edge-01 python3[1518]: 10:55:10.779 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:55:10 das-edge-01 python3[1518]: 10:55:10.829 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:55:10 das-edge-01 python3[1518]: 10:55:10.829 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 10:55:10 das-edge-01 python3[1518]: 10:55:10.829 [MAIN] Session 3 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:55:10 das-edge-01 python3[1518]: 10:55:10.829 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:55:13 das-edge-01 python[1073]: INFO:     10.231.237.31:64975 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:19 das-edge-01 python[1073]: INFO:     10.231.237.31:52011 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:24 das-edge-01 python[1073]: INFO:     10.231.237.31:52011 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:29 das-edge-01 python[1073]: INFO:     10.231.237.31:52719 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:34 das-edge-01 python[1073]: INFO:     10.231.237.31:52719 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:39 das-edge-01 python[1073]: INFO:     10.231.237.31:52719 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:44 das-edge-01 python[1073]: INFO:     10.231.237.31:52719 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:49 das-edge-01 python[1073]: INFO:     10.231.237.31:54265 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:54 das-edge-01 python[1073]: INFO:     10.231.237.31:54265 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:55:59 das-edge-01 python[1073]: INFO:     10.231.237.31:54265 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.507 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.508 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.508 [MAIN] Starting session 4 of 5
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.508 [MAIN] Mode C — checking for SIM insertion before session 4...
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.508 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.558 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.558 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:56:01.558927
+Apr 27 10:56:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.559 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.609 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.609 [LTE] Configuring band b2...
+Apr 27 10:56:01 das-edge-01 python3[1518]: 10:56:01.609 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:56:03 das-edge-01 python3[1518]: 10:56:03.659 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:56:04 das-edge-01 python[1073]: INFO:     10.231.237.31:54265 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:56:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:56:07 das-edge-01 python3[1518]: 10:56:07.110 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:56:09 das-edge-01 python[1073]: INFO:     10.231.237.31:58772 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:56:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:56:11 das-edge-01 python3[1518]: OK
+Apr 27 10:56:11 das-edge-01 python3[1518]: 
+Apr 27 10:56:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:56:14 das-edge-01 python3[1518]: 10:56:14.467 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:56:14 das-edge-01 python3[1518]: 10:56:14.517 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:56:14 das-edge-01 python3[1518]: 10:56:14.517 [LTE] Band b2: collected — RSRP=-93, RSRQ=-15, SINR=16.0
+Apr 27 10:56:14 das-edge-01 python3[1518]: 10:56:14.517 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:56:14 das-edge-01 python3[1518]: 10:56:14.567 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:56:14 das-edge-01 python3[1518]: 10:56:14.567 [LTE] Configuring band b4...
+Apr 27 10:56:14 das-edge-01 python3[1518]: 10:56:14.567 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:56:16 das-edge-01 python3[1518]: 10:56:16.618 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:56:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:56:20 das-edge-01 python3[1518]: 10:56:20.269 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:56:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:56:24 das-edge-01 python3[1518]: OK
+Apr 27 10:56:24 das-edge-01 python3[1518]: 
+Apr 27 10:56:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:56:27 das-edge-01 python3[1518]: 10:56:27.626 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:56:27 das-edge-01 python3[1518]: 10:56:27.676 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:56:27 das-edge-01 python3[1518]: 10:56:27.676 [LTE] Band b4: collected — RSRP=-104, RSRQ=-18, SINR=-2.0
+Apr 27 10:56:27 das-edge-01 python3[1518]: 10:56:27.676 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:56:27 das-edge-01 python3[1518]: 10:56:27.727 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:56:27 das-edge-01 python3[1518]: 10:56:27.727 [LTE] Configuring band b5...
+Apr 27 10:56:27 das-edge-01 python3[1518]: 10:56:27.727 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:56:29 das-edge-01 python3[1518]: 10:56:29.777 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:56:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:56:33 das-edge-01 python3[1518]: 10:56:33.378 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:56:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:56:37 das-edge-01 python3[1518]: OK
+Apr 27 10:56:37 das-edge-01 python3[1518]: 
+Apr 27 10:56:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:56:38 das-edge-01 python[1073]: INFO:     10.231.237.31:52932 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:56:40 das-edge-01 python3[1518]: 10:56:40.735 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:56:40 das-edge-01 python3[1518]: 10:56:40.785 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:56:40 das-edge-01 python3[1518]: 10:56:40.785 [LTE] Band b5: collected — RSRP=-108, RSRQ=-20, SINR=-7.999999999999998
+Apr 27 10:56:40 das-edge-01 python3[1518]: 10:56:40.785 [MAIN] Session 4 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:56:40 das-edge-01 python3[1518]: 10:56:40.785 [MAIN] Sleeping 50.7s until next session...
+Apr 27 10:56:43 das-edge-01 python[1073]: INFO:     10.231.237.31:53554 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:56:49 das-edge-01 python[1073]: INFO:     10.231.237.31:62336 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:56:54 das-edge-01 python[1073]: INFO:     10.231.237.31:60236 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:56:59 das-edge-01 python[1073]: INFO:     10.231.237.31:60236 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:04 das-edge-01 python[1073]: INFO:     10.231.237.31:60236 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:09 das-edge-01 python[1073]: INFO:     10.231.237.31:49959 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:14 das-edge-01 python[1073]: INFO:     10.231.237.31:49959 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:19 das-edge-01 python[1073]: INFO:     10.231.237.31:58335 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:24 das-edge-01 python[1073]: INFO:     10.231.237.31:58335 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:29 das-edge-01 python[1073]: INFO:     10.231.237.31:58335 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.511 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.512 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.512 [MAIN] Starting session 5 of 5
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.512 [MAIN] Mode C — checking for SIM insertion before session 5...
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.512 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.562 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.562 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:57:31.562851
+Apr 27 10:57:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.562 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.613 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.613 [LTE] Configuring band b2...
+Apr 27 10:57:31 das-edge-01 python3[1518]: 10:57:31.613 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:57:33 das-edge-01 python3[1518]: 10:57:33.663 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:57:34 das-edge-01 python[1073]: INFO:     10.231.237.31:62081 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:57:37 das-edge-01 python3[1518]: 10:57:37.314 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:57:39 das-edge-01 python[1073]: INFO:     10.231.237.31:62081 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:57:41 das-edge-01 python3[1518]: OK
+Apr 27 10:57:41 das-edge-01 python3[1518]: 
+Apr 27 10:57:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:57:44 das-edge-01 python[1073]: INFO:     10.231.237.31:62755 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:57:44 das-edge-01 python3[1518]: 10:57:44.671 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:57:44 das-edge-01 python3[1518]: 10:57:44.721 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:57:44 das-edge-01 python3[1518]: 10:57:44.722 [LTE] Band b2: collected — RSRP=-94, RSRQ=-13, SINR=14.0
+Apr 27 10:57:44 das-edge-01 python3[1518]: 10:57:44.722 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:57:44 das-edge-01 python3[1518]: 10:57:44.772 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:57:44 das-edge-01 python3[1518]: 10:57:44.772 [LTE] Configuring band b4...
+Apr 27 10:57:44 das-edge-01 python3[1518]: 10:57:44.772 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:57:46 das-edge-01 python3[1518]: 10:57:46.822 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:57:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:57:50 das-edge-01 python3[1518]: 10:57:50.424 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:57:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:57:54 das-edge-01 python3[1518]: OK
+Apr 27 10:57:54 das-edge-01 python3[1518]: 
+Apr 27 10:57:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:57:57 das-edge-01 python3[1518]: 10:57:57.785 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:57:57 das-edge-01 python3[1518]: 10:57:57.835 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:57:57 das-edge-01 python3[1518]: 10:57:57.835 [LTE] Band b4: collected — RSRP=-105, RSRQ=-15, SINR=0.0
+Apr 27 10:57:57 das-edge-01 python3[1518]: 10:57:57.835 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:57:57 das-edge-01 python3[1518]: 10:57:57.885 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:57:57 das-edge-01 python3[1518]: 10:57:57.885 [LTE] Configuring band b5...
+Apr 27 10:57:57 das-edge-01 python3[1518]: 10:57:57.885 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:57:59 das-edge-01 python3[1518]: 10:57:59.936 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:58:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:58:03 das-edge-01 python3[1518]: 10:58:03.437 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:58:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:58:07 das-edge-01 python3[1518]: OK
+Apr 27 10:58:07 das-edge-01 python3[1518]: 
+Apr 27 10:58:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.794 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844 [LTE] Band b5: collected — RSRP=-109, RSRQ=-20, SINR=-5.999999999999998
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844 [MAIN] Session 5 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844 [MAIN] 5 sessions collected — running time averaging and alarms...
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844 ── Input Sessions ───────────────────────────────────────
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844   Session 1 | Start: 2026-04-27 10:51:31.546470
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:51:44.554830 | RSRP: -93 | RSRQ: -16 | RSSI: -58 | SINR: 16.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:51:57.863116 | RSRP: -105 | RSRQ: -16 | RSSI: -72 | SINR: 0.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:52:10.922278 | RSRP: -108 | RSRQ: -20 | RSSI: -70 | SINR: -5.999999999999998
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844   Session 2 | Start: 2026-04-27 10:53:01.550506
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:53:14.559375 | RSRP: -94 | RSRQ: -14 | RSSI: -61 | SINR: 16.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:53:27.717781 | RSRP: -104 | RSRQ: -17 | RSSI: -70 | SINR: 0.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:53:40.776424 | RSRP: -107 | RSRQ: -19 | RSSI: -70 | SINR: -5.999999999999998
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.844   Session 3 | Start: 2026-04-27 10:54:31.554985
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:54:44.612941 | RSRP: -93 | RSRQ: -16 | RSSI: -58 | SINR: 16.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:54:57.771324 | RSRP: -103 | RSRQ: -16 | RSSI: -70 | SINR: 2.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:55:10.829789 | RSRP: -107 | RSRQ: -19 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845   Session 4 | Start: 2026-04-27 10:56:01.558927
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:56:14.517536 | RSRP: -93 | RSRQ: -15 | RSSI: -59 | SINR: 16.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:56:27.676609 | RSRP: -104 | RSRQ: -18 | RSSI: -69 | SINR: -2.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:56:40.785491 | RSRP: -108 | RSRQ: -20 | RSSI: -71 | SINR: -7.999999999999998
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845   Session 5 | Start: 2026-04-27 10:57:31.562851
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:57:44.721999 | RSRP: -94 | RSRQ: -13 | RSSI: -62 | SINR: 14.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:57:57.835503 | RSRP: -105 | RSRQ: -15 | RSSI: -72 | SINR: 0.0
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:58:10.844673 | RSRP: -109 | RSRQ: -20 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845 ────────────────────────────────────────────────────
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.845 [THRESHOLD] Band 2 | RSRQ: avg = -14.8, below threshold (-14.0)
+Apr 27 10:58:10 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 2 | RSRQ | avg = -14.8, below threshold (-14.0)
+Apr 27 10:58:10 das-edge-01 python3[1518]: 10:58:10.970 [THRESHOLD] Band 4 | RSRQ: avg = -16.4, below threshold (-14.0)
+Apr 27 10:58:11 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 4 | RSRQ | avg = -16.4, below threshold (-14.0)
+Apr 27 10:58:11 das-edge-01 python3[1518]: 10:58:11.097 [THRESHOLD] Band 5 | RSRQ: avg = -19.6, below threshold (-14.0)
+Apr 27 10:58:11 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | RSRQ | avg = -19.6, below threshold (-14.0)
+Apr 27 10:58:11 das-edge-01 python3[1518]: 10:58:11.225 [THRESHOLD] Band 5 | SINR: avg = -6.4, below threshold (0.0)
+Apr 27 10:58:11 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | SINR | avg = -6.4, below threshold (0.0)
+Apr 27 10:58:11 das-edge-01 python3[1518]: 10:58:11.354 [FILE] GUI JSON updated at 2026-04-27 10:57:31
+Apr 27 10:58:11 das-edge-01 python3[1518]: [FILE] Entry appended to /home/das/DAS-Communication-System/device/data/kpi_data/20260427_kpi.json (87 entries today)
+Apr 27 10:58:11 das-edge-01 python3[1518]: 10:58:11.360 [MAIN] Window processed — resetting for next collection window.
+Apr 27 10:58:11 das-edge-01 python3[1518]: 10:58:11.361 [MAIN] Sleeping 50.2s until next session...
+Apr 27 10:58:38 das-edge-01 python[1073]: INFO:     10.231.237.31:57088 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.514 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.515 [FILE] VPN status updated to: ACTIVE
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.515 [MAIN] Starting session 1 of 5
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.515 [MAIN] Mode C — checking for SIM insertion before session 1...
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.515 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.565 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.565 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 10:59:01.565363
+Apr 27 10:59:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.565 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.615 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.615 [LTE] Configuring band b2...
+Apr 27 10:59:01 das-edge-01 python3[1518]: 10:59:01.615 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 10:59:03 das-edge-01 python3[1518]: 10:59:03.665 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:59:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:59:07 das-edge-01 python3[1518]: 10:59:07.317 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:59:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:59:11 das-edge-01 python3[1518]: OK
+Apr 27 10:59:11 das-edge-01 python3[1518]: 
+Apr 27 10:59:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:59:14 das-edge-01 python3[1518]: 10:59:14.678 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:59:14 das-edge-01 python3[1518]: 10:59:14.728 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:59:14 das-edge-01 python3[1518]: 10:59:14.728 [LTE] Band b2: collected — RSRP=-93, RSRQ=-15, SINR=14.0
+Apr 27 10:59:14 das-edge-01 python3[1518]: 10:59:14.728 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:59:14 das-edge-01 python3[1518]: 10:59:14.778 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 10:59:14 das-edge-01 python3[1518]: 10:59:14.778 [LTE] Configuring band b4...
+Apr 27 10:59:14 das-edge-01 python3[1518]: 10:59:14.778 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 10:59:16 das-edge-01 python3[1518]: 10:59:16.829 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:59:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:59:20 das-edge-01 python3[1518]: 10:59:20.480 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:59:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:59:24 das-edge-01 python3[1518]: OK
+Apr 27 10:59:24 das-edge-01 python3[1518]: 
+Apr 27 10:59:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:59:27 das-edge-01 python3[1518]: 10:59:27.845 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:59:27 das-edge-01 python3[1518]: 10:59:27.895 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:59:27 das-edge-01 python3[1518]: 10:59:27.895 [LTE] Band b4: collected — RSRP=-104, RSRQ=-18, SINR=0.0
+Apr 27 10:59:27 das-edge-01 python3[1518]: 10:59:27.895 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 10:59:27 das-edge-01 python3[1518]: 10:59:27.945 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 10:59:27 das-edge-01 python3[1518]: 10:59:27.945 [LTE] Configuring band b5...
+Apr 27 10:59:27 das-edge-01 python3[1518]: 10:59:27.945 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 10:59:29 das-edge-01 python3[1518]: 10:59:29.996 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 10:59:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 10:59:33 das-edge-01 python3[1518]: 10:59:33.497 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 10:59:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 10:59:37 das-edge-01 python3[1518]: OK
+Apr 27 10:59:37 das-edge-01 python3[1518]: 
+Apr 27 10:59:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 10:59:38 das-edge-01 python[1073]: INFO:     10.231.237.31:60511 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:59:40 das-edge-01 python3[1518]: 10:59:40.853 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 10:59:40 das-edge-01 python3[1518]: 10:59:40.904 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 10:59:40 das-edge-01 python3[1518]: 10:59:40.904 [LTE] Band b5: collected — RSRP=-109, RSRQ=-20, SINR=-7.999999999999998
+Apr 27 10:59:40 das-edge-01 python3[1518]: 10:59:40.904 [MAIN] Session 1 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 10:59:40 das-edge-01 python3[1518]: 10:59:40.904 [MAIN] Sleeping 50.6s until next session...
+Apr 27 10:59:46 das-edge-01 python[1073]: INFO:     10.231.237.31:53764 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:59:47 das-edge-01 python[1073]: INFO:     10.231.237.31:53764 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:59:47 das-edge-01 python[1073]: INFO:     10.231.237.31:53764 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:59:47 das-edge-01 python[1073]: INFO:     10.231.237.31:64825 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:59:48 das-edge-01 python[1073]: INFO:     10.231.237.31:64825 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:59:53 das-edge-01 python[1073]: INFO:     10.231.237.31:56957 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:59:56 das-edge-01 python[1073]: 10:59:56.496 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 10:59:56 das-edge-01 python[1073]: INFO:     10.231.237.31:56957 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 10:59:56 das-edge-01 python[1073]: INFO:     10.231.237.31:56957 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 10:59:56 das-edge-01 python[1073]: INFO:     10.231.237.31:56957 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 10:59:56 das-edge-01 python[1073]: INFO:     10.231.237.31:60386 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 10:59:58 das-edge-01 python[1073]: INFO:     10.231.237.31:60386 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:04 das-edge-01 python[1073]: INFO:     10.231.237.31:59915 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:08 das-edge-01 python[1073]: INFO:     10.231.237.31:59915 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:13 das-edge-01 python[1073]: INFO:     10.231.237.31:59915 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:19 das-edge-01 python[1073]: INFO:     10.231.237.31:62686 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:23 das-edge-01 python[1073]: INFO:     10.231.237.31:62686 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:29 das-edge-01 python[1073]: INFO:     10.231.237.31:62686 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.525 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.526 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.526 [MAIN] Starting session 2 of 5
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.526 [MAIN] Mode C — checking for SIM insertion before session 2...
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.526 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.576 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.576 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:00:31.576858
+Apr 27 11:00:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.576 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.627 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.627 [LTE] Configuring band b2...
+Apr 27 11:00:31 das-edge-01 python3[1518]: 11:00:31.627 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:00:33 das-edge-01 python3[1518]: 11:00:33.677 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:00:34 das-edge-01 python[1073]: INFO:     10.231.237.31:51704 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:00:37 das-edge-01 python3[1518]: 11:00:37.178 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:00:39 das-edge-01 python[1073]: INFO:     10.231.237.31:51704 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:00:41 das-edge-01 python3[1518]: OK
+Apr 27 11:00:41 das-edge-01 python3[1518]: 
+Apr 27 11:00:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:00:44 das-edge-01 python[1073]: INFO:     10.231.237.31:51704 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:44 das-edge-01 python3[1518]: 11:00:44.537 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:00:44 das-edge-01 python3[1518]: 11:00:44.587 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:00:44 das-edge-01 python3[1518]: 11:00:44.587 [LTE] Band b2: collected — RSRP=-93, RSRQ=-15, SINR=16.0
+Apr 27 11:00:44 das-edge-01 python3[1518]: 11:00:44.587 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:00:44 das-edge-01 python3[1518]: 11:00:44.638 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:00:44 das-edge-01 python3[1518]: 11:00:44.638 [LTE] Configuring band b4...
+Apr 27 11:00:44 das-edge-01 python3[1518]: 11:00:44.638 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:00:46 das-edge-01 python3[1518]: 11:00:46.688 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:00:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:00:49 das-edge-01 python[1073]: INFO:     10.231.237.31:51704 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:50 das-edge-01 python3[1518]: 11:00:50.339 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:00:54 das-edge-01 python[1073]: INFO:     10.231.237.31:60291 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:00:54 das-edge-01 python3[1518]: OK
+Apr 27 11:00:54 das-edge-01 python3[1518]: 
+Apr 27 11:00:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:00:57 das-edge-01 python3[1518]: 11:00:57.695 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:00:57 das-edge-01 python3[1518]: 11:00:57.745 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:00:57 das-edge-01 python3[1518]: 11:00:57.745 [LTE] Band b4: collected — RSRP=-105, RSRQ=-18, SINR=-2.0
+Apr 27 11:00:57 das-edge-01 python3[1518]: 11:00:57.745 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:00:57 das-edge-01 python3[1518]: 11:00:57.796 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:00:57 das-edge-01 python3[1518]: 11:00:57.796 [LTE] Configuring band b5...
+Apr 27 11:00:57 das-edge-01 python3[1518]: 11:00:57.796 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:00:58 das-edge-01 python[1073]: INFO:     10.231.237.31:60291 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:00:59 das-edge-01 python3[1518]: 11:00:59.846 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:01:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:01:03 das-edge-01 python3[1518]: 11:01:03.447 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:01:04 das-edge-01 python[1073]: INFO:     10.231.237.31:60291 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:01:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:01:07 das-edge-01 python3[1518]: OK
+Apr 27 11:01:07 das-edge-01 python3[1518]: 
+Apr 27 11:01:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:01:08 das-edge-01 python[1073]: INFO:     10.231.237.31:60291 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:01:10 das-edge-01 python3[1518]: 11:01:10.803 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:01:10 das-edge-01 python3[1518]: 11:01:10.854 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:01:10 das-edge-01 python3[1518]: 11:01:10.854 [LTE] Band b5: collected — RSRP=-108, RSRQ=-19, SINR=-4.0
+Apr 27 11:01:10 das-edge-01 python3[1518]: 11:01:10.854 [MAIN] Session 2 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:01:10 das-edge-01 python3[1518]: 11:01:10.854 [MAIN] Sleeping 50.7s until next session...
+Apr 27 11:01:14 das-edge-01 python[1073]: INFO:     10.231.237.31:51190 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:01:38 das-edge-01 python[1073]: INFO:     10.231.237.31:56980 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.529 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.530 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.530 [MAIN] Starting session 3 of 5
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.530 [MAIN] Mode C — checking for SIM insertion before session 3...
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.530 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.580 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.580 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:02:01.580721
+Apr 27 11:02:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.580 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.630 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.630 [LTE] Configuring band b2...
+Apr 27 11:02:01 das-edge-01 python3[1518]: 11:02:01.631 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:02:03 das-edge-01 python3[1518]: 11:02:03.681 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:02:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:02:07 das-edge-01 python3[1518]: 11:02:07.282 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:02:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:02:11 das-edge-01 python3[1518]: OK
+Apr 27 11:02:11 das-edge-01 python3[1518]: 
+Apr 27 11:02:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:02:14 das-edge-01 python3[1518]: 11:02:14.638 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:02:14 das-edge-01 python3[1518]: 11:02:14.688 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:02:14 das-edge-01 python3[1518]: 11:02:14.689 [LTE] Band b2: collected — RSRP=-93, RSRQ=-15, SINR=14.0
+Apr 27 11:02:14 das-edge-01 python3[1518]: 11:02:14.689 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:02:14 das-edge-01 python3[1518]: 11:02:14.739 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:02:14 das-edge-01 python3[1518]: 11:02:14.739 [LTE] Configuring band b4...
+Apr 27 11:02:14 das-edge-01 python3[1518]: 11:02:14.739 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:02:16 das-edge-01 python3[1518]: 11:02:16.789 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:02:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:02:20 das-edge-01 python3[1518]: 11:02:20.390 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:02:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:02:24 das-edge-01 python3[1518]: OK
+Apr 27 11:02:24 das-edge-01 python3[1518]: 
+Apr 27 11:02:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:02:27 das-edge-01 python3[1518]: 11:02:27.746 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:02:27 das-edge-01 python3[1518]: 11:02:27.797 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:02:27 das-edge-01 python3[1518]: 11:02:27.797 [LTE] Band b4: collected — RSRP=-105, RSRQ=-16, SINR=0.0
+Apr 27 11:02:27 das-edge-01 python3[1518]: 11:02:27.797 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:02:27 das-edge-01 python3[1518]: 11:02:27.847 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:02:27 das-edge-01 python3[1518]: 11:02:27.847 [LTE] Configuring band b5...
+Apr 27 11:02:27 das-edge-01 python3[1518]: 11:02:27.847 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:02:29 das-edge-01 python3[1518]: 11:02:29.897 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:02:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:02:33 das-edge-01 python3[1518]: 11:02:33.498 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:02:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:02:37 das-edge-01 python3[1518]: OK
+Apr 27 11:02:37 das-edge-01 python3[1518]: 
+Apr 27 11:02:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:02:38 das-edge-01 python[1073]: INFO:     10.231.237.31:62746 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:02:40 das-edge-01 python3[1518]: 11:02:40.855 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:02:40 das-edge-01 python3[1518]: 11:02:40.905 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:02:40 das-edge-01 python3[1518]: 11:02:40.905 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 11:02:40 das-edge-01 python3[1518]: 11:02:40.905 [MAIN] Session 3 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:02:40 das-edge-01 python3[1518]: 11:02:40.905 [MAIN] Sleeping 50.6s until next session...
+Apr 27 11:03:01 das-edge-01 python[1073]: INFO:     10.231.161.30:49775 - "GET / HTTP/1.1" 302 Found
+Apr 27 11:03:01 das-edge-01 python[1073]: INFO:     10.231.161.30:49775 - "GET /login HTTP/1.1" 200 OK
+Apr 27 11:03:04 das-edge-01 python[1073]: INFO:     10.231.237.31:63302 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:08 das-edge-01 python[1073]: INFO:     10.231.237.31:63302 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:11 das-edge-01 python[1073]: INFO:     10.231.161.30:58685 - "POST /login HTTP/1.1" 302 Found
+Apr 27 11:03:11 das-edge-01 python[1073]: INFO:     10.231.161.30:58685 - "GET / HTTP/1.1" 200 OK
+Apr 27 11:03:11 das-edge-01 python[1073]: INFO:     10.231.161.30:58685 - "GET /static/css/adminlte.min.css HTTP/1.1" 304 Not Modified
+Apr 27 11:03:11 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "GET /static/js/adminlte.min.js HTTP/1.1" 304 Not Modified
+Apr 27 11:03:11 das-edge-01 python[1073]: INFO:     10.231.161.30:58685 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:11 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:13 das-edge-01 python[1073]: INFO:     10.231.237.31:64708 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:14 das-edge-01 python[1073]: INFO:     10.231.161.30:58685 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:03:14 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:14 das-edge-01 python[1073]: INFO:     10.231.161.30:58685 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:16 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:17 das-edge-01 python[1073]: 11:03:17.895 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 11:03:17 das-edge-01 python[1073]: INFO:     10.231.237.31:64708 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:17 das-edge-01 python[1073]: INFO:     10.231.237.31:64708 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:03:17 das-edge-01 python[1073]: INFO:     10.231.237.31:64708 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:17 das-edge-01 python[1073]: INFO:     10.231.237.31:55389 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:18 das-edge-01 python[1073]: INFO:     10.231.237.31:55389 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:21 das-edge-01 python[1073]: 11:03:21.069 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 11:03:21 das-edge-01 python[1073]: INFO:     10.231.237.31:55389 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:21 das-edge-01 python[1073]: INFO:     10.231.237.31:55389 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:03:21 das-edge-01 python[1073]: INFO:     10.231.237.31:64708 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:21 das-edge-01 python[1073]: INFO:     10.231.237.31:55389 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:21 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:22 das-edge-01 python[1073]: 11:03:22.936 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 11:03:22 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:22 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:03:22 das-edge-01 python[1073]: INFO:     10.231.161.30:63993 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:22 das-edge-01 python[1073]: INFO:     10.231.161.30:64340 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:23 das-edge-01 python[1073]: INFO:     10.231.237.31:55389 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:26 das-edge-01 python[1073]: INFO:     10.231.161.30:64340 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:26 das-edge-01 python[1073]: INFO:     10.231.161.30:64340 - "GET /logout HTTP/1.1" 302 Found
+Apr 27 11:03:26 das-edge-01 python[1073]: INFO:     10.231.161.30:64340 - "GET /login HTTP/1.1" 200 OK
+Apr 27 11:03:28 das-edge-01 python[1073]: INFO:     10.231.237.31:55389 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.533 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.534 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.534 [MAIN] Starting session 4 of 5
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.534 [MAIN] Mode C — checking for SIM insertion before session 4...
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.534 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.584 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.584 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:03:31.584669
+Apr 27 11:03:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.584 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.634 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.634 [LTE] Configuring band b2...
+Apr 27 11:03:31 das-edge-01 python3[1518]: 11:03:31.635 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:03:33 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "POST /login HTTP/1.1" 302 Found
+Apr 27 11:03:33 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET / HTTP/1.1" 200 OK
+Apr 27 11:03:33 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:33 das-edge-01 python[1073]: INFO:     10.231.161.30:62222 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:33 das-edge-01 python[1073]: INFO:     10.231.237.31:52788 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:33 das-edge-01 python3[1518]: 11:03:33.685 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:03:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:03:35 das-edge-01 python[1073]: INFO:     10.231.161.30:62222 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:03:35 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:35 das-edge-01 python[1073]: INFO:     10.231.161.30:62222 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:37 das-edge-01 python3[1518]: 11:03:37.336 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:03:38 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:03:41 das-edge-01 python3[1518]: OK
+Apr 27 11:03:41 das-edge-01 python3[1518]: 
+Apr 27 11:03:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:03:43 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:44 das-edge-01 python3[1518]: 11:03:44.693 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:03:44 das-edge-01 python3[1518]: 11:03:44.743 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:03:44 das-edge-01 python3[1518]: 11:03:44.743 [LTE] Band b2: collected — RSRP=-94, RSRQ=-15, SINR=14.0
+Apr 27 11:03:44 das-edge-01 python3[1518]: 11:03:44.743 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:03:44 das-edge-01 python3[1518]: 11:03:44.794 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:03:44 das-edge-01 python3[1518]: 11:03:44.794 [LTE] Configuring band b4...
+Apr 27 11:03:44 das-edge-01 python3[1518]: 11:03:44.794 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:03:46 das-edge-01 python3[1518]: 11:03:46.844 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:03:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:03:48 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:50 das-edge-01 python3[1518]: 11:03:50.445 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:03:52 das-edge-01 python[1073]: 11:03:52.249 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 11:03:52 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:52 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:03:52 das-edge-01 python[1073]: INFO:     10.231.161.30:52132 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:03:52 das-edge-01 python[1073]: INFO:     10.231.161.30:57527 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:53 das-edge-01 python[1073]: INFO:     10.231.161.30:57527 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:03:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:03:54 das-edge-01 python3[1518]: OK
+Apr 27 11:03:54 das-edge-01 python3[1518]: 
+Apr 27 11:03:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:03:57 das-edge-01 python[1073]: INFO:     10.231.161.30:57527 - "GET /logout HTTP/1.1" 302 Found
+Apr 27 11:03:57 das-edge-01 python[1073]: INFO:     10.231.161.30:57527 - "GET /login HTTP/1.1" 200 OK
+Apr 27 11:03:57 das-edge-01 python3[1518]: 11:03:57.803 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:03:57 das-edge-01 python3[1518]: 11:03:57.853 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:03:57 das-edge-01 python3[1518]: 11:03:57.853 [LTE] Band b4: collected — RSRP=-102, RSRQ=-16, SINR=0.0
+Apr 27 11:03:57 das-edge-01 python3[1518]: 11:03:57.853 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:03:57 das-edge-01 python3[1518]: 11:03:57.903 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:03:57 das-edge-01 python3[1518]: 11:03:57.903 [LTE] Configuring band b5...
+Apr 27 11:03:57 das-edge-01 python3[1518]: 11:03:57.904 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:03:59 das-edge-01 python3[1518]: 11:03:59.954 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:04:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:04:02 das-edge-01 python[1073]: INFO:     10.231.161.30:57527 - "POST /login HTTP/1.1" 200 OK
+Apr 27 11:04:03 das-edge-01 python3[1518]: 11:04:03.655 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:04:03 das-edge-01 python[1073]: INFO:     10.231.237.31:60228 - "GET / HTTP/1.1" 200 OK
+Apr 27 11:04:03 das-edge-01 python[1073]: INFO:     10.231.237.31:60618 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:03 das-edge-01 python[1073]: INFO:     10.231.237.31:60228 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:04:07 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "POST /login HTTP/1.1" 302 Found
+Apr 27 11:04:07 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET / HTTP/1.1" 200 OK
+Apr 27 11:04:07 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:04:07 das-edge-01 python[1073]: INFO:     10.231.161.30:61309 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:08 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:04:08 das-edge-01 python3[1518]: OK
+Apr 27 11:04:08 das-edge-01 python3[1518]: 
+Apr 27 11:04:08 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:04:08 das-edge-01 python[1073]: INFO:     10.231.237.31:55748 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:10 das-edge-01 python[1073]: INFO:     10.231.237.31:55748 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:04:10 das-edge-01 python[1073]: INFO:     10.231.237.31:55748 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:04:10 das-edge-01 python[1073]: INFO:     10.231.237.31:53023 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:11 das-edge-01 python3[1518]: 11:04:11.011 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:04:11 das-edge-01 python3[1518]: 11:04:11.062 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:04:11 das-edge-01 python3[1518]: 11:04:11.062 [LTE] Band b5: collected — RSRP=-109, RSRQ=-20, SINR=-7.999999999999998
+Apr 27 11:04:11 das-edge-01 python3[1518]: 11:04:11.062 [MAIN] Session 4 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:04:11 das-edge-01 python3[1518]: 11:04:11.062 [MAIN] Sleeping 50.5s until next session...
+Apr 27 11:04:12 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:13 das-edge-01 python[1073]: INFO:     10.231.237.31:53023 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:17 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:18 das-edge-01 python[1073]: INFO:     10.231.237.31:56968 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:22 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:23 das-edge-01 python[1073]: INFO:     10.231.237.31:56968 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:27 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:28 das-edge-01 python[1073]: INFO:     10.231.237.31:56968 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:31 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:04:31 das-edge-01 python[1073]: INFO:     10.231.161.30:52146 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:04:31 das-edge-01 python[1073]: INFO:     10.231.161.30:57357 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:32 das-edge-01 python[1073]: INFO:     10.231.161.30:57357 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:33 das-edge-01 python[1073]: INFO:     10.231.237.31:56968 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:34 das-edge-01 python[1073]: 11:04:34.747 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 11:04:34 das-edge-01 python[1073]: INFO:     10.231.237.31:56968 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 11:04:34 das-edge-01 python[1073]: INFO:     10.231.237.31:56968 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:04:34 das-edge-01 python[1073]: INFO:     10.231.237.31:56968 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:04:34 das-edge-01 python[1073]: INFO:     10.231.237.31:60827 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:37 das-edge-01 python[1073]: INFO:     10.231.161.30:57357 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:43 das-edge-01 python[1073]: INFO:     10.231.161.30:62538 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:48 das-edge-01 python[1073]: INFO:     10.231.161.30:62538 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:53 das-edge-01 python[1073]: INFO:     10.231.161.30:62538 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:04:58 das-edge-01 python[1073]: INFO:     10.231.161.30:62538 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:00 das-edge-01 python[1073]: INFO:     10.231.161.30:62538 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:05:00 das-edge-01 python[1073]: INFO:     10.231.161.30:62538 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:05:00 das-edge-01 python[1073]: INFO:     10.231.161.30:55070 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.537 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.538 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.538 [MAIN] Starting session 5 of 5
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.538 [MAIN] Mode C — checking for SIM insertion before session 5...
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.538 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.588 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.588 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:05:01.588611
+Apr 27 11:05:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.588 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.638 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.638 [LTE] Configuring band b2...
+Apr 27 11:05:01 das-edge-01 python3[1518]: 11:05:01.638 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:05:02 das-edge-01 python[1073]: INFO:     10.231.161.30:55070 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:03 das-edge-01 python3[1518]: 11:05:03.689 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:05:03 das-edge-01 python[1073]: INFO:     10.231.161.30:55070 - "GET /api/download-logs HTTP/1.1" 200 OK
+Apr 27 11:05:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:05:07 das-edge-01 python3[1518]: 11:05:07.340 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:05:07 das-edge-01 python[1073]: INFO:     10.231.161.30:55070 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:05:11 das-edge-01 python3[1518]: OK
+Apr 27 11:05:11 das-edge-01 python3[1518]: 
+Apr 27 11:05:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:05:12 das-edge-01 python[1073]: INFO:     10.231.161.30:55070 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:14 das-edge-01 python3[1518]: 11:05:14.696 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:05:14 das-edge-01 python3[1518]: 11:05:14.747 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:05:14 das-edge-01 python3[1518]: 11:05:14.747 [LTE] Band b2: collected — RSRP=-93, RSRQ=-14, SINR=14.0
+Apr 27 11:05:14 das-edge-01 python3[1518]: 11:05:14.747 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:05:14 das-edge-01 python3[1518]: 11:05:14.797 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:05:14 das-edge-01 python3[1518]: 11:05:14.797 [LTE] Configuring band b4...
+Apr 27 11:05:14 das-edge-01 python3[1518]: 11:05:14.797 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:05:16 das-edge-01 python[1073]: INFO:     10.231.237.31:60904 - "GET / HTTP/1.1" 200 OK
+Apr 27 11:05:16 das-edge-01 python[1073]: INFO:     10.231.237.31:59812 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:16 das-edge-01 python[1073]: INFO:     10.231.237.31:60904 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:05:16 das-edge-01 python3[1518]: 11:05:16.847 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:05:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:05:17 das-edge-01 python[1073]: INFO:     10.231.161.30:56447 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:20 das-edge-01 python[1073]: INFO:     10.231.237.31:60904 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:05:20 das-edge-01 python[1073]: INFO:     10.231.237.31:60904 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:05:20 das-edge-01 python[1073]: INFO:     10.231.237.31:59812 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:20 das-edge-01 python3[1518]: 11:05:20.398 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:05:21 das-edge-01 python[1073]: INFO:     10.231.237.31:59812 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:22 das-edge-01 python[1073]: INFO:     10.231.161.30:56447 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:05:24 das-edge-01 python3[1518]: OK
+Apr 27 11:05:24 das-edge-01 python3[1518]: 
+Apr 27 11:05:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:05:26 das-edge-01 python[1073]: INFO:     10.231.237.31:57505 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:26 das-edge-01 python[1073]: 11:05:26.817 Config saved to: /home/das/DAS-Communication-System/device/GUI/config.json
+Apr 27 11:05:26 das-edge-01 python[1073]: INFO:     10.231.237.31:57505 - "POST /api/config HTTP/1.1" 200 OK
+Apr 27 11:05:26 das-edge-01 python[1073]: INFO:     10.231.237.31:57505 - "GET /api/diagnostics HTTP/1.1" 404 Not Found
+Apr 27 11:05:26 das-edge-01 python[1073]: INFO:     10.231.237.31:57505 - "GET /api/config HTTP/1.1" 200 OK
+Apr 27 11:05:26 das-edge-01 python[1073]: INFO:     10.231.237.31:57843 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:27 das-edge-01 python[1073]: INFO:     10.231.161.30:56447 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:27 das-edge-01 python3[1518]: 11:05:27.755 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:05:27 das-edge-01 python3[1518]: 11:05:27.805 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:05:27 das-edge-01 python3[1518]: 11:05:27.805 [LTE] Band b4: collected — RSRP=-104, RSRQ=-16, SINR=0.0
+Apr 27 11:05:27 das-edge-01 python3[1518]: 11:05:27.806 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:05:27 das-edge-01 python3[1518]: 11:05:27.856 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:05:27 das-edge-01 python3[1518]: 11:05:27.856 [LTE] Configuring band b5...
+Apr 27 11:05:27 das-edge-01 python3[1518]: 11:05:27.856 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:05:29 das-edge-01 python3[1518]: 11:05:29.906 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:05:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:05:31 das-edge-01 python[1073]: INFO:     10.231.237.31:57843 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:32 das-edge-01 python[1073]: INFO:     10.231.161.30:51978 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:33 das-edge-01 python3[1518]: 11:05:33.607 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:05:36 das-edge-01 python[1073]: INFO:     10.231.237.31:57843 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:37 das-edge-01 python[1073]: INFO:     10.231.161.30:51978 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:05:37 das-edge-01 python3[1518]: OK
+Apr 27 11:05:37 das-edge-01 python3[1518]: 
+Apr 27 11:05:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:05:40 das-edge-01 python3[1518]: 11:05:40.964 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.014 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015 [LTE] Band b5: collected — RSRP=-108, RSRQ=-19, SINR=-7.999999999999998
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015 [MAIN] Session 5 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015 [MAIN] 5 sessions collected — running time averaging and alarms...
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015 ── Input Sessions ───────────────────────────────────────
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015   Session 1 | Start: 2026-04-27 10:59:01.565363
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 10:59:14.728554 | RSRP: -93 | RSRQ: -15 | RSSI: -59 | SINR: 14.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 10:59:27.895376 | RSRP: -104 | RSRQ: -18 | RSSI: -69 | SINR: 0.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 10:59:40.904053 | RSRP: -109 | RSRQ: -20 | RSSI: -71 | SINR: -7.999999999999998
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015   Session 2 | Start: 2026-04-27 11:00:31.576858
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 11:00:44.587900 | RSRP: -93 | RSRQ: -15 | RSSI: -59 | SINR: 16.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 11:00:57.745873 | RSRP: -105 | RSRQ: -18 | RSSI: -69 | SINR: -2.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 11:01:10.854112 | RSRP: -108 | RSRQ: -19 | RSSI: -71 | SINR: -4.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015   Session 3 | Start: 2026-04-27 11:02:01.580721
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 11:02:14.688992 | RSRP: -93 | RSRQ: -15 | RSSI: -59 | SINR: 14.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 11:02:27.797112 | RSRP: -105 | RSRQ: -16 | RSSI: -71 | SINR: 0.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 11:02:40.905426 | RSRP: -107 | RSRQ: -19 | RSSI: -71 | SINR: -5.999999999999998
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015   Session 4 | Start: 2026-04-27 11:03:31.584669
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 11:03:44.743861 | RSRP: -94 | RSRQ: -15 | RSSI: -60 | SINR: 14.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 11:03:57.853350 | RSRP: -102 | RSRQ: -16 | RSSI: -69 | SINR: 0.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 11:04:11.062211 | RSRP: -109 | RSRQ: -20 | RSSI: -71 | SINR: -7.999999999999998
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015   Session 5 | Start: 2026-04-27 11:05:01.588611
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 2 | RAT: LTE | Timestamp: 2026-04-27 11:05:14.747207 | RSRP: -93 | RSRQ: -14 | RSSI: -60 | SINR: 14.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 4 | RAT: LTE | Timestamp: 2026-04-27 11:05:27.805932 | RSRP: -104 | RSRQ: -16 | RSSI: -71 | SINR: 0.0
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015     Band: 5 | RAT: LTE | Timestamp: 2026-04-27 11:05:41.015023 | RSRP: -108 | RSRQ: -19 | RSSI: -72 | SINR: -7.999999999999998
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015 ────────────────────────────────────────────────────
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.015 [THRESHOLD] Band 2 | RSRQ: avg = -14.8, below threshold (-14.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 2 | RSRQ | avg = -14.8, below threshold (-14.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.175 [THRESHOLD] Band 4 | RSRQ: avg = -16.8, below threshold (-14.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 4 | RSRQ | avg = -16.8, below threshold (-14.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.301 [THRESHOLD] Band 4 | SINR: avg = -0.4, below threshold (0.0)
+Apr 27 11:05:41 das-edge-01 python[1073]: INFO:     10.231.237.31:57843 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 4 | SINR | avg = -0.4, below threshold (0.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.429 [THRESHOLD] Band 5 | RSRQ: avg = -19.4, below threshold (-14.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | RSRQ | avg = -19.4, below threshold (-14.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.553 [THRESHOLD] Band 5 | SINR: avg = -6.8, below threshold (0.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: [SNMP SENT]  THRESHOLD | Band 5 | SINR | avg = -6.8, below threshold (0.0)
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.809 [FILE] GUI JSON updated at 2026-04-27 11:05:01
+Apr 27 11:05:41 das-edge-01 python3[1518]: [FILE] Entry appended to /home/das/DAS-Communication-System/device/data/kpi_data/20260427_kpi.json (88 entries today)
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.817 [MAIN] Window processed — resetting for next collection window.
+Apr 27 11:05:41 das-edge-01 python3[1518]: 11:05:41.817 [MAIN] Sleeping 49.7s until next session...
+Apr 27 11:05:42 das-edge-01 python[1073]: INFO:     10.231.161.30:51978 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:46 das-edge-01 python[1073]: INFO:     10.231.237.31:58029 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:47 das-edge-01 python[1073]: INFO:     10.231.161.30:51978 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:51 das-edge-01 python[1073]: INFO:     10.231.237.31:58029 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:53 das-edge-01 python[1073]: INFO:     10.231.161.30:58499 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:57 das-edge-01 python[1073]: INFO:     10.231.237.31:63849 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:05:58 das-edge-01 python[1073]: INFO:     10.231.161.30:58499 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:01 das-edge-01 python[1073]: INFO:     10.231.237.31:63849 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:03 das-edge-01 python[1073]: INFO:     10.231.161.30:58499 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:06 das-edge-01 python[1073]: INFO:     10.231.237.31:63849 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:08 das-edge-01 python[1073]: INFO:     10.231.161.30:58499 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:11 das-edge-01 python[1073]: INFO:     10.231.237.31:63849 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:13 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:16 das-edge-01 python[1073]: INFO:     10.231.237.31:55766 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:18 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:21 das-edge-01 python[1073]: INFO:     10.231.237.31:55766 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:23 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:26 das-edge-01 python[1073]: INFO:     10.231.237.31:55766 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:28 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.540 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.541 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.541 [MAIN] Starting session 1 of 5
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.541 [MAIN] Mode C — checking for SIM insertion before session 1...
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.541 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.591 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.591 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:06:31.591509
+Apr 27 11:06:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.591 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.641 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.641 [LTE] Configuring band b2...
+Apr 27 11:06:31 das-edge-01 python3[1518]: 11:06:31.641 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:06:31 das-edge-01 python[1073]: INFO:     10.231.237.31:60827 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:33 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:33 das-edge-01 python3[1518]: 11:06:33.692 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:06:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:06:37 das-edge-01 python[1073]: INFO:     10.231.237.31:52921 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:37 das-edge-01 python3[1518]: 11:06:37.293 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:06:38 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:06:41 das-edge-01 python3[1518]: OK
+Apr 27 11:06:41 das-edge-01 python3[1518]: 
+Apr 27 11:06:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:06:41 das-edge-01 python[1073]: INFO:     10.231.237.31:52921 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:43 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:44 das-edge-01 python3[1518]: 11:06:44.649 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:06:44 das-edge-01 python3[1518]: 11:06:44.699 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:06:44 das-edge-01 python3[1518]: 11:06:44.699 [LTE] Band b2: collected — RSRP=-93, RSRQ=-16, SINR=14.0
+Apr 27 11:06:44 das-edge-01 python3[1518]: 11:06:44.699 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:06:44 das-edge-01 python3[1518]: 11:06:44.750 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:06:44 das-edge-01 python3[1518]: 11:06:44.750 [LTE] Configuring band b4...
+Apr 27 11:06:44 das-edge-01 python3[1518]: 11:06:44.750 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:06:46 das-edge-01 python3[1518]: 11:06:46.800 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:06:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:06:48 das-edge-01 python[1073]: INFO:     10.231.161.30:54074 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:50 das-edge-01 python3[1518]: 11:06:50.301 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:06:53 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:06:54 das-edge-01 python3[1518]: OK
+Apr 27 11:06:54 das-edge-01 python3[1518]: 
+Apr 27 11:06:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:06:57 das-edge-01 python3[1518]: 11:06:57.657 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:06:57 das-edge-01 python3[1518]: 11:06:57.707 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:06:57 das-edge-01 python3[1518]: 11:06:57.707 [LTE] Band b4: collected — RSRP=-104, RSRQ=-16, SINR=-2.0
+Apr 27 11:06:57 das-edge-01 python3[1518]: 11:06:57.707 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:06:57 das-edge-01 python3[1518]: 11:06:57.758 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:06:57 das-edge-01 python3[1518]: 11:06:57.758 [LTE] Configuring band b5...
+Apr 27 11:06:57 das-edge-01 python3[1518]: 11:06:57.758 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:06:58 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:06:59 das-edge-01 python3[1518]: 11:06:59.808 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:07:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:07:03 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:03 das-edge-01 python3[1518]: 11:07:03.459 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:07:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:07:07 das-edge-01 python3[1518]: OK
+Apr 27 11:07:07 das-edge-01 python3[1518]: 
+Apr 27 11:07:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:07:08 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:10 das-edge-01 python3[1518]: 11:07:10.816 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:07:10 das-edge-01 python3[1518]: 11:07:10.866 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:07:10 das-edge-01 python3[1518]: 11:07:10.866 [LTE] Band b5: collected — RSRP=-108, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 11:07:10 das-edge-01 python3[1518]: 11:07:10.866 [MAIN] Session 1 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:07:10 das-edge-01 python3[1518]: 11:07:10.866 [MAIN] Sleeping 50.7s until next session...
+Apr 27 11:07:13 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:18 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:23 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:24 das-edge-01 python[1073]: INFO:     10.231.237.31:51152 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:26 das-edge-01 python[1073]: INFO:     10.231.237.31:51152 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:28 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:31 das-edge-01 python[1073]: INFO:     10.231.237.31:51152 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:33 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:37 das-edge-01 python[1073]: INFO:     10.231.237.31:62538 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:38 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:41 das-edge-01 python[1073]: INFO:     10.231.237.31:62538 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:43 das-edge-01 python[1073]: INFO:     10.231.161.30:58729 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:46 das-edge-01 python[1073]: INFO:     10.231.237.31:62538 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:51 das-edge-01 python[1073]: INFO:     10.231.237.31:61727 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:07:56 das-edge-01 python[1073]: INFO:     10.231.237.31:61727 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.544 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.545 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.545 [MAIN] Starting session 2 of 5
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.545 [MAIN] Mode C — checking for SIM insertion before session 2...
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.545 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.595 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.595 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:08:01.595602
+Apr 27 11:08:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.595 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.645 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.645 [LTE] Configuring band b2...
+Apr 27 11:08:01 das-edge-01 python3[1518]: 11:08:01.645 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:08:01 das-edge-01 python[1073]: INFO:     10.231.237.31:61727 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:03 das-edge-01 python3[1518]: 11:08:03.696 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:08:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:08:06 das-edge-01 python[1073]: INFO:     10.231.237.31:61727 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:07 das-edge-01 python3[1518]: 11:08:07.147 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:08:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:08:11 das-edge-01 python3[1518]: OK
+Apr 27 11:08:11 das-edge-01 python3[1518]: 
+Apr 27 11:08:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:08:11 das-edge-01 python[1073]: INFO:     10.231.161.30:55154 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:11 das-edge-01 python[1073]: INFO:     10.231.237.31:61727 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:12 das-edge-01 python[1073]: INFO:     10.231.161.30:55154 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:14 das-edge-01 python3[1518]: 11:08:14.503 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:08:14 das-edge-01 python3[1518]: 11:08:14.553 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:08:14 das-edge-01 python3[1518]: 11:08:14.553 [LTE] Band b2: collected — RSRP=-94, RSRQ=-15, SINR=16.0
+Apr 27 11:08:14 das-edge-01 python3[1518]: 11:08:14.553 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:08:14 das-edge-01 python3[1518]: 11:08:14.603 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:08:14 das-edge-01 python3[1518]: 11:08:14.603 [LTE] Configuring band b4...
+Apr 27 11:08:14 das-edge-01 python3[1518]: 11:08:14.603 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:08:16 das-edge-01 python3[1518]: 11:08:16.654 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:08:16 das-edge-01 python[1073]: INFO:     10.231.237.31:61727 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:08:17 das-edge-01 python[1073]: INFO:     10.231.161.30:55154 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:20 das-edge-01 python3[1518]: 11:08:20.255 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:08:21 das-edge-01 python[1073]: INFO:     10.231.237.31:63961 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:22 das-edge-01 python[1073]: INFO:     10.231.161.30:55154 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:08:24 das-edge-01 python3[1518]: OK
+Apr 27 11:08:24 das-edge-01 python3[1518]: 
+Apr 27 11:08:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:08:27 das-edge-01 python[1073]: INFO:     10.231.161.30:55154 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:27 das-edge-01 python3[1518]: 11:08:27.611 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:08:27 das-edge-01 python3[1518]: 11:08:27.662 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:08:27 das-edge-01 python3[1518]: 11:08:27.662 [LTE] Band b4: collected — RSRP=-104, RSRQ=-16, SINR=0.0
+Apr 27 11:08:27 das-edge-01 python3[1518]: 11:08:27.662 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:08:27 das-edge-01 python3[1518]: 11:08:27.712 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:08:27 das-edge-01 python3[1518]: 11:08:27.712 [LTE] Configuring band b5...
+Apr 27 11:08:27 das-edge-01 python3[1518]: 11:08:27.712 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:08:29 das-edge-01 python3[1518]: 11:08:29.762 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:08:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:08:32 das-edge-01 python[1073]: INFO:     10.231.161.30:55154 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:33 das-edge-01 python3[1518]: 11:08:33.313 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:08:37 das-edge-01 python[1073]: INFO:     10.231.161.30:55154 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:08:37 das-edge-01 python3[1518]: OK
+Apr 27 11:08:37 das-edge-01 python3[1518]: 
+Apr 27 11:08:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:08:37 das-edge-01 python[1073]: INFO:     10.231.237.31:49777 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:40 das-edge-01 python3[1518]: 11:08:40.670 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:08:40 das-edge-01 python3[1518]: 11:08:40.720 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:08:40 das-edge-01 python3[1518]: 11:08:40.720 [LTE] Band b5: collected — RSRP=-110, RSRQ=-20, SINR=-5.999999999999998
+Apr 27 11:08:40 das-edge-01 python3[1518]: 11:08:40.720 [MAIN] Session 2 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:08:40 das-edge-01 python3[1518]: 11:08:40.720 [MAIN] Sleeping 50.8s until next session...
+Apr 27 11:08:42 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:47 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:52 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:08:57 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:02 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:07 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:12 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:17 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:22 das-edge-01 python[1073]: INFO:     10.231.161.30:54744 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:28 das-edge-01 python[1073]: INFO:     10.231.161.30:61156 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.548 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.549 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.549 [MAIN] Starting session 3 of 5
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.549 [MAIN] Mode C — checking for SIM insertion before session 3...
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.549 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.599 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.599 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:09:31.599662
+Apr 27 11:09:31 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.599 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.649 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.649 [LTE] Configuring band b2...
+Apr 27 11:09:31 das-edge-01 python3[1518]: 11:09:31.650 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:09:33 das-edge-01 python[1073]: INFO:     10.231.161.30:61156 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:33 das-edge-01 python3[1518]: 11:09:33.700 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:09:34 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:09:37 das-edge-01 python3[1518]: 11:09:37.251 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:09:37 das-edge-01 python[1073]: INFO:     10.231.237.31:62192 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:38 das-edge-01 python[1073]: INFO:     10.231.161.30:61156 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:41 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:09:41 das-edge-01 python3[1518]: OK
+Apr 27 11:09:41 das-edge-01 python3[1518]: 
+Apr 27 11:09:41 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:09:43 das-edge-01 python[1073]: INFO:     10.231.161.30:61156 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:44 das-edge-01 python3[1518]: 11:09:44.608 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:09:44 das-edge-01 python3[1518]: 11:09:44.659 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:09:44 das-edge-01 python3[1518]: 11:09:44.659 [LTE] Band b2: collected — RSRP=-93, RSRQ=-14, SINR=14.0
+Apr 27 11:09:44 das-edge-01 python3[1518]: 11:09:44.659 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:09:44 das-edge-01 python3[1518]: 11:09:44.709 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:09:44 das-edge-01 python3[1518]: 11:09:44.709 [LTE] Configuring band b4...
+Apr 27 11:09:44 das-edge-01 python3[1518]: 11:09:44.709 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:09:46 das-edge-01 python3[1518]: 11:09:46.760 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:09:47 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:09:48 das-edge-01 python[1073]: INFO:     10.231.161.30:61156 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:50 das-edge-01 python3[1518]: 11:09:50.261 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:09:53 das-edge-01 python[1073]: INFO:     10.231.161.30:55297 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:54 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:09:54 das-edge-01 python3[1518]: OK
+Apr 27 11:09:54 das-edge-01 python3[1518]: 
+Apr 27 11:09:54 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:09:57 das-edge-01 python3[1518]: 11:09:57.618 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:09:57 das-edge-01 python3[1518]: 11:09:57.668 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:09:57 das-edge-01 python3[1518]: 11:09:57.668 [LTE] Band b4: collected — RSRP=-104, RSRQ=-16, SINR=0.0
+Apr 27 11:09:57 das-edge-01 python3[1518]: 11:09:57.668 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:09:57 das-edge-01 python3[1518]: 11:09:57.718 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:09:57 das-edge-01 python3[1518]: 11:09:57.719 [LTE] Configuring band b5...
+Apr 27 11:09:57 das-edge-01 python3[1518]: 11:09:57.719 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:09:58 das-edge-01 python[1073]: INFO:     10.231.161.30:55297 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:09:59 das-edge-01 python3[1518]: 11:09:59.769 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:10:00 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:10:03 das-edge-01 python[1073]: INFO:     10.231.161.30:55297 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:10:03 das-edge-01 python3[1518]: 11:10:03.370 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:10:07 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:10:07 das-edge-01 python3[1518]: OK
+Apr 27 11:10:07 das-edge-01 python3[1518]: 
+Apr 27 11:10:07 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:10:08 das-edge-01 python[1073]: INFO:     10.231.161.30:55297 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:10:10 das-edge-01 python3[1518]: 11:10:10.728 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:10:10 das-edge-01 python3[1518]: 11:10:10.778 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:10:10 das-edge-01 python3[1518]: 11:10:10.778 [LTE] Band b5: collected — RSRP=-108, RSRQ=-19, SINR=-5.999999999999998
+Apr 27 11:10:10 das-edge-01 python3[1518]: 11:10:10.778 [MAIN] Session 3 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:10:10 das-edge-01 python3[1518]: 11:10:10.778 [MAIN] Sleeping 50.8s until next session...
+Apr 27 11:10:13 das-edge-01 python[1073]: INFO:     10.231.161.30:55297 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:10:18 das-edge-01 python[1073]: INFO:     10.231.161.30:55297 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:10:23 das-edge-01 python[1073]: INFO:     10.231.161.30:49190 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:10:37 das-edge-01 python[1073]: INFO:     10.231.237.31:59010 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:10:40 das-edge-01 python[1073]: INFO:     10.231.161.30:53368 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.552 [VPN] VPN check: ACTIVE (returncode: 0)
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.553 [FILE] VPN status updated to: ACTIVE
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.553 [MAIN] Starting session 4 of 5
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.553 [MAIN] Mode C — checking for SIM insertion before session 4...
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.553 --- Sending: AT+QSIMSTAT? (Waiting up to 5s) ---
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.603 [SIM] AT+QSIMSTAT? → inserted=0 (no SIM)
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.603 [SESSION] Mode C (LTE Only, No SIM) — starting collection at 2026-04-27 11:11:01.603708
+Apr 27 11:11:01 das-edge-01 python3[1518]: [SESSION][C] No SIM detected — skipping AT+COPS=2. LTE bands will scan in LIMSRV state and return real RF measurements.
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.603 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.653 [LTE] Band b2: modem already in full functionality — pre-flight skipped.
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.653 [LTE] Configuring band b2...
+Apr 27 11:11:01 das-edge-01 python3[1518]: 11:11:01.654 --- Sending: AT+QNWPREFCFG="lte_band",2 (Waiting up to 0.3s) ---
+Apr 27 11:11:03 das-edge-01 python3[1518]: 11:11:03.704 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:11:04 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:11:07 das-edge-01 python3[1518]: 11:11:07.255 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:11:11 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:11:11 das-edge-01 python3[1518]: OK
+Apr 27 11:11:11 das-edge-01 python3[1518]: 
+Apr 27 11:11:11 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:11:14 das-edge-01 python3[1518]: 11:11:14.611 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:11:14 das-edge-01 python3[1518]: 11:11:14.661 [PARSER] Band b2: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:11:14 das-edge-01 python3[1518]: 11:11:14.661 [LTE] Band b2: collected — RSRP=-94, RSRQ=-15, SINR=14.0
+Apr 27 11:11:14 das-edge-01 python3[1518]: 11:11:14.661 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:11:14 das-edge-01 python3[1518]: 11:11:14.711 [LTE] Band b4: modem already in full functionality — pre-flight skipped.
+Apr 27 11:11:14 das-edge-01 python3[1518]: 11:11:14.711 [LTE] Configuring band b4...
+Apr 27 11:11:14 das-edge-01 python3[1518]: 11:11:14.712 --- Sending: AT+QNWPREFCFG="lte_band",4 (Waiting up to 0.3s) ---
+Apr 27 11:11:16 das-edge-01 python3[1518]: 11:11:16.762 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:11:17 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:11:20 das-edge-01 python3[1518]: 11:11:20.463 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:11:24 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:11:24 das-edge-01 python3[1518]: OK
+Apr 27 11:11:24 das-edge-01 python3[1518]: 
+Apr 27 11:11:24 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:11:27 das-edge-01 python3[1518]: 11:11:27.819 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:11:27 das-edge-01 python3[1518]: 11:11:27.870 [PARSER] Band b4: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:11:27 das-edge-01 python3[1518]: 11:11:27.870 [LTE] Band b4: collected — RSRP=-105, RSRQ=-17, SINR=-2.0
+Apr 27 11:11:27 das-edge-01 python3[1518]: 11:11:27.870 --- Sending: AT+CFUN? (Waiting up to 5s) ---
+Apr 27 11:11:27 das-edge-01 python3[1518]: 11:11:27.920 [LTE] Band b5: modem already in full functionality — pre-flight skipped.
+Apr 27 11:11:27 das-edge-01 python3[1518]: 11:11:27.920 [LTE] Configuring band b5...
+Apr 27 11:11:27 das-edge-01 python3[1518]: 11:11:27.920 --- Sending: AT+QNWPREFCFG="lte_band",5 (Waiting up to 0.3s) ---
+Apr 27 11:11:29 das-edge-01 python3[1518]: 11:11:29.970 --- Sending: AT+CFUN=0 (Waiting up to 15s) ---
+Apr 27 11:11:30 das-edge-01 python3[1518]: AT+CFUN=0
+Apr 27 11:11:33 das-edge-01 python3[1518]: 11:11:33.472 --- Sending: AT+CFUN=1 (Waiting up to 15s) ---
+Apr 27 11:11:37 das-edge-01 python3[1518]: AT+CFUN=1
+Apr 27 11:11:37 das-edge-01 python3[1518]: OK
+Apr 27 11:11:37 das-edge-01 python3[1518]: 
+Apr 27 11:11:37 das-edge-01 python3[1518]: +CPIN: NOT INSERTED
+Apr 27 11:11:37 das-edge-01 python[1073]: INFO:     10.231.237.31:51254 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:11:40 das-edge-01 python[1073]: INFO:     10.231.161.30:49161 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:11:40 das-edge-01 python3[1518]: 11:11:40.828 --- Sending: AT+QENG="servingcell" (Waiting up to 0.3s) ---
+Apr 27 11:11:40 das-edge-01 python3[1518]: 11:11:40.878 [PARSER] Band b5: '-' value encountered — substituting sentinel 9999.
+Apr 27 11:11:40 das-edge-01 python3[1518]: 11:11:40.878 [LTE] Band b5: collected — RSRP=-107, RSRQ=-19, SINR=-4.0
+Apr 27 11:11:40 das-edge-01 python3[1518]: 11:11:40.878 [MAIN] Session 4 collected — 3 bands read, 0 AT command failure(s), 0 serial failure(s).
+Apr 27 11:11:40 das-edge-01 python3[1518]: 11:11:40.878 [MAIN] Sleeping 50.7s until next session...
+Apr 27 11:11:57 das-edge-01 python[1073]: INFO:     10.231.237.31:65007 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:12:01 das-edge-01 python[1073]: INFO:     10.231.237.31:65007 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:12:06 das-edge-01 python[1073]: INFO:     10.231.237.31:60812 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:12:11 das-edge-01 python[1073]: INFO:     10.231.237.31:60812 - "GET /api/status HTTP/1.1" 200 OK
+Apr 27 11:12:16 das-edge-01 python[1073]: INFO:     10.231.237.31:54203 - "GET /api/status HTTP/1.1" 200 OK

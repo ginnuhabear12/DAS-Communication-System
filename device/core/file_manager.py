@@ -24,24 +24,37 @@ import json
 import os
 import glob
 import time
-from datetime import date
+from datetime import date, datetime
 from models import AveragedLTEKPI, AveragedNR5GKPI
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Timestamp Helper
+# ═══════════════════════════════════════════════════════════════════════════════
+def _ts():
+    """Return current timestamp in HH:MM:SS.mmm format."""
+    return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
 # FIX: Protected snmpSend import — if pysnmp or snmpSend is unavailable,
 # fall back to a no-op stub so file_manager continues operating.
 try:
-    from snmpSend import send_runtime_alarm
+    from snmpSend import send_runtime_alarm, SNMP_READY  # ADDED SNMP_READY
 except Exception as _snmp_err:
-    print(f"[FILE] WARNING: snmpSend failed to import — {_snmp_err}. "
+    print(f"{_ts()} [FILE] WARNING: snmpSend failed to import — {_snmp_err}. "
           f"SNMP alerts will be disabled for file_manager this session.")
+    SNMP_READY = False  # ADDED — snmpSend itself unavailable
     def send_runtime_alarm(component: str, detail: str) -> None:
-        print(f"[FILE] SNMP unavailable — would have sent RUNTIME alarm: "
+        print(f"{_ts()} [FILE] SNMP unavailable — would have sent RUNTIME alarm: "
               f"{component} | {detail}")
 
 
 # ── File Paths ────────────────────────────────────────────────────────────────
 KPI_DIR      = "/home/das/DAS-Communication-System/device/data/kpi_data" 
+<<<<<<< HEAD
+GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/data/device_data.json"
+=======
 GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/data/device_data_test.json"
+CONFIG_PATH   = "/home/das/DAS-Communication-System/device/data/core/GUI/config.json"
+>>>>>>> fd2b2e42c86a9e05b3b0369a00d67ec8e170f336
 MAX_DAYS     = 7
 
 # ── Write retry configuration ─────────────────────────────────────────────────
@@ -72,7 +85,7 @@ def _send_trap(component: str, detail: str) -> None:
     try:
         send_runtime_alarm(component=component, detail=detail)
     except Exception as e:
-        print(f"[FILE] SNMP trap send failed for '{component}': {e}")
+        print(f"{_ts()} [FILE] SNMP trap send failed for '{component}': {e}")
 
 
 # ── Internal: Conversion helper ───────────────────────────────────────────────
@@ -134,7 +147,7 @@ def update_gui_json(averaged_results: list) -> None:
     global _gui_cache
 
     if not averaged_results:
-        print("[FILE] update_gui_json: no results to write — skipping.")
+        print(f"{_ts()} [FILE] update_gui_json: no results to write — skipping.")
         return
 
     # ── Hardcoded defaults — used only on first boot when no cache exists ─────
@@ -144,6 +157,7 @@ def update_gui_json(averaged_results: list) -> None:
         "vpn_status":    "ACTIVE",
         "snmp_status":   "RUNNING",
         "site_name":     "DAS",
+        "device_id":     "",
         "alert_message": "No active alarms",
         "bands":         [],
         "logs":          []
@@ -158,15 +172,15 @@ def update_gui_json(averaged_results: list) -> None:
 
     except OSError as e:
         # OSError can be transient (EIO hardware glitch) — retry once.
-        print(f"[FILE] GUI JSON read OSError: {e} — retrying in {_RETRY_SLEEP_SECONDS}s...")
+        print(f"{_ts()} [FILE] GUI JSON read OSError: {e} — retrying in {_RETRY_SLEEP_SECONDS}s...")
         time.sleep(_RETRY_SLEEP_SECONDS)
         try:
             with open(GUI_JSON_PATH, "r") as f:
                 data = json.load(f)
-            print("[FILE] GUI JSON read retry succeeded.")
+            print(f"{_ts()} [FILE] GUI JSON read retry succeeded.")
         except Exception as retry_e:
             # Retry also failed — use cache or defaults, send trap.
-            print(f"[FILE] GUI JSON read retry failed: {retry_e} — using cache or defaults.")
+            print(f"{_ts()} [FILE] GUI JSON read retry failed: {retry_e} — using cache or defaults.")
             _send_trap(
                 component = "GUI JSON read",
                 detail    = "OSError (EIO): hardware I/O error on GUI JSON read, retry failed. Operator action required if issue persists."
@@ -177,12 +191,12 @@ def update_gui_json(averaged_results: list) -> None:
         # File is corrupted — retrying reads the same corrupt content, pointless.
         # Use cache (holds last valid state) or defaults on first boot.
         # No trap sent — this is self-healing, rebuilt every 5 minutes with no data loss.
-        print(f"[FILE] GUI JSON corrupted (JSONDecodeError): {e} — using cache or defaults.")
+        print(f"{_ts()} [FILE] GUI JSON corrupted (JSONDecodeError): {e} — using cache or defaults.")
         data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
 
     except PermissionError as e:
         # Permission error — retrying won't fix it, operator must intervene.
-        print(f"[FILE] GUI JSON read PermissionError: {e} — using cache or defaults.")
+        print(f"{_ts()} [FILE] GUI JSON read PermissionError: {e} — using cache or defaults.")
         _send_trap(
             component = "GUI JSON read",
             detail    = "PermissionError: process cannot read GUI JSON file. Operator action required."
@@ -194,7 +208,7 @@ def update_gui_json(averaged_results: list) -> None:
         # from a partially written file with garbage bytes, but also guards
         # against any other unexpected read failure. Retrying would read the
         # same corrupt content, so fall back to cache or defaults directly.
-        print(f"[FILE] GUI JSON read unexpected error ({type(e).__name__}): {e} "
+        print(f"{_ts()} [FILE] GUI JSON read unexpected error ({type(e).__name__}): {e} "
               f"— using cache or defaults.")
         _send_trap(
             component = "GUI JSON read",
@@ -204,11 +218,17 @@ def update_gui_json(averaged_results: list) -> None:
         data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
 
     # ── Step 2: Update in-memory data ─────────────────────────────────────────
-    # bands and last_update are always replaced from averaged_results.
-    # All other fields (device_status, alert_message, etc.) are preserved
-    # from the read, from cache, or from defaults — whichever succeeded above.
     data["last_update"] = averaged_results[0].end_time.strftime("%Y-%m-%d %H:%M:%S")
     data["bands"]       = [_averaged_to_dict(avg) for avg in averaged_results]
+    data["snmp_status"] = "RUNNING" if SNMP_READY else "DOWN"  # ADDED
+   
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            cfg = json.load(f)
+        data["device_id"] = cfg.get("device_id", "")
+        data["site_name"] = cfg.get("site_name", data.get("site_name", "DAS"))
+    except Exception:
+        pass
 
     # ── Step 3: Update cache — always, every cycle, before write ──────────────
     # Cache is updated unconditionally from the in-memory data object.
@@ -221,17 +241,17 @@ def update_gui_json(averaged_results: list) -> None:
         try:
             with open(GUI_JSON_PATH, "w") as f:
                 json.dump(data, f, indent=4)
-            print(f"[FILE] GUI JSON updated at {data['last_update']}")
+            print(f"{_ts()} [FILE] GUI JSON updated at {data['last_update']}")
             return  # Success — exit function
 
         except Exception as write_e:
             if write_attempt < _WRITE_RETRY_COUNT:
-                print(f"[FILE] GUI JSON write failed: {write_e} — "
+                print(f"{_ts()} [FILE] GUI JSON write failed: {write_e} — "
                       f"retrying in {_RETRY_SLEEP_SECONDS}s...")
                 time.sleep(_RETRY_SLEEP_SECONDS)
             else:
                 # All write attempts failed — trap every cycle it persists.
-                print(f"[FILE] GUI JSON write failed after retry: {write_e}")
+                print(f"{_ts()} [FILE] GUI JSON write failed after retry: {write_e}")
                 _send_trap(
                     component = "GUI JSON write",
                     detail    = f"{type(write_e).__name__}: GUI JSON write failed after retry: {write_e}. "
@@ -263,7 +283,7 @@ def append_to_daily_file(averaged_results: list) -> None:
     global _daily_cache
 
     if not averaged_results:
-        print("[FILE] append_to_daily_file: no results to write — skipping.")
+        print(f"{_ts()} [FILE] append_to_daily_file: no results to write — skipping.")
         return
 
     today    = date.today().strftime("%Y%m%d")
@@ -276,7 +296,7 @@ def append_to_daily_file(averaged_results: list) -> None:
     try:
         os.makedirs(KPI_DIR, exist_ok=True)
     except Exception as e:
-        print(f"[FILE] os.makedirs failed: {e} — will update cache but cannot write.")
+        print(f"{_ts()} [FILE] os.makedirs failed: {e} — will update cache but cannot write.")
         makedirs_failed = True
 
     # ── Step 2: Read existing file or use cache/empty ─────────────────────────
@@ -296,17 +316,17 @@ def append_to_daily_file(averaged_results: list) -> None:
 
             except OSError as e:
                 # Transient hardware glitch — retry once.
-                print(f"[FILE] Daily file read OSError: {e} — "
+                print(f"{_ts()} [FILE] Daily file read OSError: {e} — "
                       f"retrying in {_RETRY_SLEEP_SECONDS}s...")
                 time.sleep(_RETRY_SLEEP_SECONDS)
                 try:
                     with open(filepath, "r") as f:
                         daily_data = json.load(f)
-                    print("[FILE] Daily file read retry succeeded.")
+                    print(f"{_ts()} [FILE] Daily file read retry succeeded.")
                 except Exception as retry_e:
                     # Retry failed — use cache to preserve previous entries,
                     # empty structure only if no cache exists yet.
-                    print(f"[FILE] Daily file read retry failed: {retry_e} — "
+                    print(f"{_ts()} [FILE] Daily file read retry failed: {retry_e} — "
                           f"using cache or empty structure.")
                     _send_trap(
                         component = "daily file read",
@@ -321,7 +341,7 @@ def append_to_daily_file(averaged_results: list) -> None:
                 # Cache holds everything up to the last successful write so
                 # data loss is minimal (at most one entry from the failed write
                 # that caused the corruption).
-                print(f"[FILE] Daily file corrupted (JSONDecodeError): {e} — "
+                print(f"{_ts()} [FILE] Daily file corrupted (JSONDecodeError): {e} — "
                       f"recovering from cache.")
                 _send_trap(
                     component = "daily file read",
@@ -334,7 +354,7 @@ def append_to_daily_file(averaged_results: list) -> None:
             except PermissionError as e:
                 # Permission error on read — still attempt write separately
                 # since read/write permissions are independent in Linux.
-                print(f"[FILE] Daily file read PermissionError: {e} — "
+                print(f"{_ts()} [FILE] Daily file read PermissionError: {e} — "
                       f"using cache, will still attempt write.")
                 _send_trap(
                     component = "daily file read",
@@ -349,7 +369,7 @@ def append_to_daily_file(averaged_results: list) -> None:
                 # from a partially written file with garbage bytes, but also guards
                 # against any other unexpected read failure. Retrying would read the
                 # same corrupt content, so fall back to cache or empty structure directly.
-                print(f"[FILE] Daily file read unexpected error ({type(e).__name__}): {e} "
+                print(f"{_ts()} [FILE] Daily file read unexpected error ({type(e).__name__}): {e} "
                       f"— using cache or empty structure.")
                 _send_trap(
                     component = "daily file read",
@@ -430,20 +450,104 @@ def append_to_daily_file(averaged_results: list) -> None:
         print(f"[FILE] Cleanup failed: {cleanup_e} — old files may accumulate.")
 
 
-if __name__ == "__main__":
-    print("script started")
-    class Dummy:
-        rat = "LTE"
-        band = 12
-        pci = 100
-        earfcn = 5035
-        avg_rssi = -70
-        avg_rsrp = -95
-        avg_rsrq = -10
-        avg_sinr = 5
-        avg_ss_rsrp = 7
-        start_time = end_time = __import__("datetime").datetime.now()
+# ══════════════════════════════════════════════════════════════════════════════
+# update_vpn_status
+# ══════════════════════════════════════════════════════════════════════════════
 
-    avg = Dummy()
-    update_gui_json([avg])
-    append_to_daily_file([avg])
+def update_vpn_status(vpn_status: str) -> None:
+    """
+    Updates only the vpn_status field in device_data_test.json without
+    modifying other fields. Uses the same robust read/write pattern as
+    update_gui_json with retry and fallback logic.
+
+    Flow:
+        1. Attempt read — with retry/fallback logic per error type
+        2. Update vpn_status field in-memory
+        3. Update _gui_cache from memory — always, every cycle
+        4. Attempt write — retry once on failure, trap every cycle it persists
+
+    Args:
+        vpn_status: Status string — "ACTIVE" or "DOWN"
+    """
+    global _gui_cache
+
+    _DEFAULT_GUI_STRUCTURE = {
+        "device_status": "ONLINE",
+        "modem_status":  "CONNECTED",
+        "vpn_status":    "ACTIVE",
+        "snmp_status":   "RUNNING",
+        "site_name":     "DAS",
+        "alert_message": "No active alarms",
+        "bands":         [],
+        "logs":          []
+    }
+
+    # ── Step 1: Read existing file ────────────────────────────────────────────
+    data = None
+
+    try:
+        with open(GUI_JSON_PATH, "r") as f:
+            data = json.load(f)
+
+    except OSError as e:
+        # OSError can be transient (EIO hardware glitch) — retry once.
+        print(f"{_ts()} [FILE] VPN status read OSError: {e} — retrying in {_RETRY_SLEEP_SECONDS}s...")
+        time.sleep(_RETRY_SLEEP_SECONDS)
+        try:
+            with open(GUI_JSON_PATH, "r") as f:
+                data = json.load(f)
+            print(f"{_ts()} [FILE] VPN status read retry succeeded.")
+        except Exception as retry_e:
+            print(f"{_ts()} [FILE] VPN status read retry failed: {retry_e} — using cache or defaults.")
+            _send_trap(
+                component = "VPN status read",
+                detail    = "OSError: hardware I/O error on VPN status read, retry failed."
+            )
+            data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    except json.JSONDecodeError as e:
+        print(f"{_ts()} [FILE] VPN status file corrupted (JSONDecodeError): {e} — using cache or defaults.")
+        data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    except PermissionError as e:
+        print(f"{_ts()} [FILE] VPN status read PermissionError: {e} — using cache or defaults.")
+        _send_trap(
+            component = "VPN status read",
+            detail    = "PermissionError: process cannot read VPN status file."
+        )
+        data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    except Exception as e:
+        print(f"{_ts()} [FILE] VPN status read unexpected error ({type(e).__name__}): {e} — using cache or defaults.")
+        _send_trap(
+            component = "VPN status read",
+            detail    = f"{type(e).__name__}: unexpected read failure on VPN status."
+        )
+        data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
+
+    # ── Step 2: Update in-memory data ─────────────────────────────────────────
+    data["vpn_status"] = vpn_status
+
+    # ── Step 3: Update cache — always, every cycle, before write ──────────────
+    _gui_cache = data
+
+    # ── Step 4: Write to file — with one retry ────────────────────────────────
+    for write_attempt in range(_WRITE_RETRY_COUNT + 1):
+        try:
+            with open(GUI_JSON_PATH, "w") as f:
+                json.dump(data, f, indent=4)
+            print(f"{_ts()} [FILE] VPN status updated to: {vpn_status}")
+            return  # Success — exit function
+
+        except Exception as write_e:
+            if write_attempt < _WRITE_RETRY_COUNT:
+                print(f"{_ts()} [FILE] VPN status write failed: {write_e} — "
+                      f"retrying in {_RETRY_SLEEP_SECONDS}s...")
+                time.sleep(_RETRY_SLEEP_SECONDS)
+            else:
+                print(f"{_ts()} [FILE] VPN status write failed after retry: {write_e}")
+                _send_trap(
+                    component = "VPN status write",
+                    detail    = f"{type(write_e).__name__}: VPN status write failed after retry: {write_e}."
+                )
+

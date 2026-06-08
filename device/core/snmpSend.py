@@ -41,24 +41,80 @@ from pysnmp.hlapi.asyncio import (
     OctetString,
     sendNotification,
 )
+import json
+import os
+from constants import CONFIG_PATH
+import time
+
+
+import time  # ADD to existing imports at top
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-NMS_IP    = "10.8.0.1"
+_FALLBACK_IP         = "10.8.0.1"
+_RETRY_SLEEP_SECONDS = 2
+
+SNMP_READY = True  # Set False on any config load failure — read by file_manager
+
+try:
+    with open(CONFIG_PATH, "r") as f:
+        _config = json.load(f)
+    NMS_IP = _config["snmp_host"]
+
+except OSError as e:
+    # Transient hardware glitch — retry once.
+    print(f"[SNMP WARNING] Config read OSError: {e} — retrying in {_RETRY_SLEEP_SECONDS}s...")
+    time.sleep(_RETRY_SLEEP_SECONDS)
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            _config = json.load(f)
+        NMS_IP = _config["snmp_host"]
+        print(f"[SNMP] Config read retry succeeded.")
+    except Exception as retry_e:
+        print(f"[SNMP WARNING] Config read retry failed: {retry_e} — using fallback NMS_IP {_FALLBACK_IP}")
+        NMS_IP     = _FALLBACK_IP
+        SNMP_READY = False
+
+except json.JSONDecodeError as e:
+    # Corrupt file — retrying reads the same corrupt content, pointless.
+    print(f"[SNMP WARNING] Config file malformed (JSONDecodeError): {e} — using fallback NMS_IP {_FALLBACK_IP}")
+    NMS_IP     = _FALLBACK_IP
+    SNMP_READY = False
+
+except KeyError:
+    # snmp_host key missing — operator misconfiguration.
+    print(f"[SNMP WARNING] 'snmp_host' missing from config — using fallback NMS_IP {_FALLBACK_IP}")
+    NMS_IP     = _FALLBACK_IP
+    SNMP_READY = False
+
+except PermissionError as e:
+    # Permission error — retrying won't fix it.
+    print(f"[SNMP WARNING] Config read PermissionError: {e} — using fallback NMS_IP {_FALLBACK_IP}")
+    NMS_IP     = _FALLBACK_IP
+    SNMP_READY = False
+
+except Exception as e:
+    print(f"[SNMP WARNING] Config read unexpected error ({type(e).__name__}): {e} — using fallback NMS_IP {_FALLBACK_IP}")
+    NMS_IP     = _FALLBACK_IP
+    SNMP_READY = False
+
 NMS_PORT  = 1162               # Change to 162 in production
 COMMUNITY = "public"
 
 # ── OID Definitions ───────────────────────────────────────────────────────────
-_ROOT = "1.3.6.1.4.1.12345"
+# Enterprise root: 1.3.6.1.4.1.12345
+# Replace 12345 with your assigned PEN for production.
 
-OID_TRAP_INVALID   = f"{_ROOT}.1.1"   # Trap type: invalid KPI samples
-OID_TRAP_THRESHOLD = f"{_ROOT}.1.2"   # Trap type: threshold breach
-OID_TRAP_RUNTIME   = f"{_ROOT}.1.3"   # Trap type: system/modem runtime failure
+# Trap type OIDs — identify which kind of alarm this trap represents
+OID_TRAP_INVALID   = "1.3.6.1.4.1.12345.1.1"   # trapInvalidKPI
+OID_TRAP_THRESHOLD = "1.3.6.1.4.1.12345.1.2"   # trapThresholdKPI
+OID_TRAP_RUNTIME   = "1.3.6.1.4.1.12345.1.3"   # trapRuntime
 
-OID_VAR_BAND      = f"{_ROOT}.2.1.0"  # Varbind: band number    (Integer32)  — KPI traps
-OID_VAR_KPI       = f"{_ROOT}.2.2.0"  # Varbind: KPI name       (OctetString) — KPI traps
-OID_VAR_ALARM     = f"{_ROOT}.2.3.0"  # Varbind: alarm type     (OctetString) — KPI traps
-OID_VAR_DETAIL    = f"{_ROOT}.2.4.0"  # Varbind: detail message (OctetString) — all traps
-OID_VAR_COMPONENT = f"{_ROOT}.2.5.0"  # Varbind: what failed    (OctetString) — runtime traps
+# Varbind OIDs — the data fields carried inside each trap
+OID_VAR_BAND      = "1.3.6.1.4.1.12345.2.1.0"  # band number (Integer32)
+OID_VAR_KPI       = "1.3.6.1.4.1.12345.2.2.0"  # KPI name (OctetString)
+OID_VAR_ALARM     = "1.3.6.1.4.1.12345.2.3.0"  # alarm category (OctetString)
+OID_VAR_DETAIL    = "1.3.6.1.4.1.12345.2.4.0"  # human-readable detail (OctetString)
+OID_VAR_COMPONENT = "1.3.6.1.4.1.12345.2.5.0"  # failed component (OctetString)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

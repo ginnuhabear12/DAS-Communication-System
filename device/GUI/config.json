@@ -1,15 +1,14 @@
 {
-    "site_name": "",
-    "device_id": "",
-    "poll_interval": 30,
-    "snmp_host": "0.0.0.0",
+    "site_name": "design",
+    "device_id": "12",
     "monitored_bands": [
         "b2",
-        "b4",
-        "b5"
+        "b4"
     ],
-    "rssi_threshold_min": null,
-    "rsrp_threshold_min": null,
-    "rsrq_threshold_min": null,
-    "sinr_threshold_min": null
+    "snmp_host": "10.8.0.1",
+    "rssi_threshold_min": -90,
+    "rsrp_threshold_min": -110,
+    "rsrq_threshold_min": -14,
+    "sinr_threshold_min": 0,
+    "gui_username": "admin"
 }

@@ -46,16 +46,19 @@ def _ts():
 # Paths
 # ----------------------------
 BASE_DIR = Path(__file__).resolve().parent
-DEVICE_DATA_PATH = Path("/home/das/DAS-Communication-System/device/data/device_data_test.json")
+# Make paths repository-relative so the app runs on Windows and Linux
+ROOT_DIR = BASE_DIR.parent  # points to the `device/` directory
+DEVICE_DATA_PATH = ROOT_DIR / "data" / "device_data_test.json"
 
-CONFIG_DIR = Path("/home/das/DAS-Communication-System/device/GUI")
+CONFIG_DIR = BASE_DIR
 CONFIG_PATH = CONFIG_DIR / "config.json"
 
 OVPN_DIR = CONFIG_DIR / "vpn"
 OVPN_PATH = OVPN_DIR / "client.ovpn"
 
-KPI_DATA_DIR = Path("/home/das/DAS-Communication-System/device/data/kpi_data")
+KPI_DATA_DIR = ROOT_DIR / "data" / "kpi_data"
 
+# Ensure config + vpn dirs exist
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 OVPN_DIR.mkdir(parents=True, exist_ok=True)
 

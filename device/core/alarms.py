@@ -1,13 +1,21 @@
 """
-alarms.py — KPI Window Alarm Processing for DAS Communication System
----------------------------------------------------------------------
-Processes a window of 5 SamplingSession instances to evaluate KPI health.
+Module: alarms.py
+Purpose: KPI window alarm processing for the DAS Communication System.
+         Receives a window of 5 SamplingSession instances from full_script.py,
+         evaluates each band's KPI health, triggers SNMP alarms where needed,
+         and returns a list of AveragedKPI objects for storage by file_manager.py.
 
-Steps:
-    1. Loop through each band index across all 5 sessions
-    2. Check for invalid KPI values (last 3 > INVALID_SENTINEL) → SNMP invalid alarm
-    3. Average remaining valid values → check against thresholds → SNMP threshold alarm
-    4. Populate AveragedKPI objects with results
+Processing steps per band:
+    1. Collect the 5 readings for this band across all sessions (one per session)
+    2. Check for invalid KPI values — if the last 3 of 5 samples exceed
+       INVALID_SENTINEL, send an SNMP invalid alarm and store None for that KPI
+    3. Average the remaining valid samples and compare against thresholds —
+       if the average falls below the threshold, send an SNMP threshold alarm
+    4. Populate AveragedLTEKPI or AveragedNR5GKPI objects with the results
+       and return them to full_script.py for storage
+
+NOTE: Only the LTE path (Mode C, no SIM) has been tested against hardware.
+      The NR5G path in process_window() is implemented but untested.
 """
 
 from datetime import datetime
@@ -21,33 +29,69 @@ def _ts():
     """Return current timestamp in HH:MM:SS.mmm format."""
     return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
+# ══════════════════════════════════════════════════════════════════════════════
+# Constants
+# ══════════════════════════════════════════════════════════════════════════════
 
-# ── Thresholds ────────────────────────────────────────────────────────────────
-# KPI values below these limits trigger a threshold alarm.
-# Adjust per deployment requirements.
-
+# Sentinel threshold — KPI values above this are treated as invalid readings.
+# 9999 is the sentinel value inserted by instKPIcollection() when a band
+# returns no cell (SEARCH state) or a command fails. 500 is used here rather
+# than 9999 so that any value clearly outside the physical measurement range
+# is also caught, not just exact sentinel matches.
 INVALID_SENTINEL = 500  # Values above this are considered invalid
 
 
-# ── Helper: Check and process one KPI across 5 readings ───────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# KPI Evaluation Helper
+# ══════════════════════════════════════════════════════════════════════════════
 def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float | None:
     """
-    Evaluate one KPI across a 5-sample window.
+    Evaluate one KPI metric across a 5-sample window.
 
-    Checks if the last 3 values are all invalid (> INVALID_SENTINEL).
-    If so, sends an SNMP invalid alarm and returns None.
-    If not, averages the valid values, checks against threshold,
-    sends an SNMP threshold alarm if needed, and returns the average.
+    Called once per KPI per band by process_window(). Returns the averaged
+    value if the data is valid and within threshold, or None if the KPI was
+    determined to be invalid (too many sentinel values).
+
+    Invalid check logic:
+        If the last 3 of the 5 chronological samples all exceed INVALID_SENTINEL,
+        the KPI is declared invalid for this window. The last-3 rule (rather than
+        all-5) is intentional — a few stale readings at the start of a window
+        should not mask a genuinely degraded signal at the end of the window.
+
+    Averaging logic:
+        Only samples at or below INVALID_SENTINEL contribute to the average.
+        This allows partial windows (e.g. 3 valid out of 5) to still produce
+        a meaningful average as long as the last-3 invalid check did not fire.
+
+    Threshold check logic:
+        If the computed average falls below the threshold, an SNMP threshold
+        alarm is sent. A passing average produces no alarm — normal operation
+        is silent.
+
+    Return value semantics:
+        None → KPI was invalid. process_window() stores None directly in the
+               AveragedKPI object, which file_manager.py serializes as JSON null.
+               This is the intended representation for missing/invalid data.
+        float → Valid average. Stored in the AveragedKPI object for reporting.
 
     Args:
-        kpi_name:  Name of the KPI being checked (e.g. "rsrp", "ss_sinr").
-        values:    List of 5 float values in chronological order.
-        threshold: The minimum acceptable value for this KPI.
-        band:      Band number, used in alarm messages.
+        kpi_name:  Name of the KPI being evaluated (e.g. "rsrp", "ss_sinr").
+                   Used in log messages and SNMP alarm payloads.
+        values:    List of exactly 5 float values in chronological order,
+                   one per session. Sentinel values (9999) are included as-is —
+                   this function filters them internally.
+        threshold: Minimum acceptable averaged value for this KPI.
+                   Passed in from LTE_THRESHOLDS or NR5G_THRESHOLDS in process_window().
+        band:      Band number (integer). Used in log messages and alarm payloads.
 
     Returns:
-        The averaged float value, or None if the KPI was invalid.
+        float: The averaged value across valid samples.
+        None:  If the last 3 samples were all invalid, or if no valid samples exist.
     """
+
+    # The last 3 values are the most recent — if all three are invalid,
+    # the signal has been absent or broken for the tail end of the window,
+    # which is treated as a sustained failure regardless of earlier samples.
     last_3 = values[2], values[3], values[4]
 
     # ── Step 1: Invalid check ─────────────────────────────────────────────────
@@ -55,17 +99,13 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
         invalid_count = sum(1 for v in values if v > INVALID_SENTINEL)
         print(f"{_ts()} [INVALID]   Band {band} | {kpi_name.upper()}: "
             f"{invalid_count} of {len(values)} samples invalid (last 3 consecutive)")
-        # FIX (Issue 3): The original code was missing 'return None' here.
-        # Without it, execution fell through to the averaging step below
-        # regardless of whether this invalid check fired. If all 5 values
-        # were invalid (9999), valid_values would be an empty list and
-        # dividing by len([]) = 0 would cause a ZeroDivisionError that
-        # crashed process_window entirely, losing all remaining band results.
-        # Returning None here is correct and intentional — the caller
-        # (process_window) stores None directly into the averaged KPI object,
-        # which file_manager.py serializes as JSON null. This is the expected
-        # behavior for invalid KPI data and requires no extra handling at the
-        # call site.
+
+        # Return None immediately — do not fall through to averaging.
+        # If all 5 values are sentinel (9999), valid_values below would be
+        # an empty list, causing a ZeroDivisionError when computing the average.
+        # Even with fewer than 5 invalid values, falling through here when the
+        # last-3 check fired would produce a misleading average from stale data.
+        # None is stored directly in the AveragedKPI field → JSON null in storage.
         send_invalid_kpi_alarm(band=band, kpi=kpi_name.upper(), invalid_count=invalid_count)
         return None
 
@@ -86,6 +126,9 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
     avg = sum(valid_values) / len(valid_values)
 
     # ── Step 3: Threshold check ───────────────────────────────────────────────
+    # Compare the computed average against the deployment threshold.
+    # Only fires if the average is strictly below the threshold — at or above
+    # is normal operation and produces no alarm output.
     if avg < threshold:
         print(
             f"{_ts()} [THRESHOLD] Band {band} | {kpi_name.upper()}: "
@@ -95,14 +138,45 @@ def check_kpi(kpi_name: str, values: list, threshold: float, band: int) -> float
 
     return avg
 
-
+# ══════════════════════════════════════════════════════════════════════════════
+# Window Processing
+# ══════════════════════════════════════════════════════════════════════════════
 def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_THRESHOLDS: dict) -> list:
     """
-    Process a 5-session KPI window and trigger alarms where necessary.
+    Process a completed 5-session KPI window and return averaged results.
+
+    Called by full_script.py once 5 SamplingSession objects have been
+    accumulated. Iterates over every band position, evaluates each KPI
+    via check_kpi(), and returns a list of AveragedLTEKPI or AveragedNR5GKPI
+    objects — one per band — for file_manager.py to store.
+
+    Band ordering assumption:
+        All 5 sessions must contain readings in the same band order (NR5G
+        first if present, then LTE). This is guaranteed by instKPIcollection(),
+        which always appends bands in the same configured order and inserts
+        dummy KPI objects to preserve position when a band fails.
+        If band order were inconsistent across sessions, band_index would
+        silently match the wrong readings across sessions.
+
+    Threshold dicts format:
+        LTE_THRESHOLDS  = {"rsrp": float, "rsrq": float, "rssi": float, "sinr": float}
+        NR5G_THRESHOLDS = {"ss_rsrp": float, "ss_rsrq": float, "ss_sinr": float}
+        Keys must match the field names used in check_kpi() calls below.
+
+    NOTE: Only the LTE branch of this function has been tested against hardware.
+          The NR5G branch is implemented but untested — validate before deployment
+          with NR5G bands configured.
 
     Args:
-        sessions: A list of exactly 5 SamplingSession instances, each
-                  containing readings for all configured bands in order.
+        sessions:        List of exactly 5 SamplingSession instances in
+                         chronological order (oldest first).
+        LTE_THRESHOLDS:  Dict of minimum acceptable values for LTE KPIs.
+        NR5G_THRESHOLDS: Dict of minimum acceptable values for NR5G KPIs.
+
+    Returns:
+        list: AveragedLTEKPI or AveragedNR5GKPI objects, one per band,
+              in the same order as the readings within each session.
+              Returned to full_script.py for passing to file_manager.py.
     """
 
     # ── Print all input values ────────────────────────────────────────────────
@@ -127,9 +201,15 @@ def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_T
     print(f"{_ts()} ────────────────────────────────────────────────────")
     print()
 
-    # Number of bands is derived from the first session —
-    # all sessions are confirmed to have the same band order and count
+    # Derive the number of bands from the first session.
+    # All sessions are guaranteed to have the same band count and order
+    # by instKPIcollection() — dummy KPIs are inserted to preserve positions
+    # even when individual bands fail, so this count is always reliable.
     num_bands = len(sessions[0].readings)
+
+    # Accumulates one averaged result per band before returning.
+    # Built incrementally rather than assigned by index to avoid needing
+    # to pre-allocate a fixed-size list.
     averaged_results = []  # Collect each band's averaged result before file operations
 
     for band_index in range(num_bands):
@@ -145,9 +225,13 @@ def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_T
         first = band_readings[0]
         band  = first.band
 
-        # ── LTE ──────────────────────────────────────────────────────────────
+        # ── LTE Band Processing ───────────────────────────────────────────────
         if isinstance(first, LTEKPI):
 
+            # Initialize the averaged result object with metadata from the window.
+            # start_time and end_time bound the window for storage/reporting.
+            # KPI fields (avg_rsrp, etc.) default to None and are filled by
+            # check_kpi() below — None is preserved if the KPI was invalid.
             averaged = AveragedLTEKPI(
                 start_time = sessions[0].session_start,
                 end_time   = sessions[-1].session_start,
@@ -183,7 +267,9 @@ def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_T
                 band,
             )
 
-        # ── NR5G ─────────────────────────────────────────────────────────────
+        # ── NR5G Band Processing ──────────────────────────────────────────────
+        # NOTE: This branch is untested — NR5G collection (Mode A) has not been
+        # exercised against hardware. Validate before deploying with NR5G bands.
         elif isinstance(first, NR5GKPI):
 
             averaged = AveragedNR5GKPI(
@@ -214,10 +300,7 @@ def process_window(sessions: list[SamplingSession], LTE_THRESHOLDS: dict, NR5G_T
                 band,
             )
 
-        # averaged is now fully populated for this band —
-        # ready for storage when that logic is implemented
-        
-        # Append completed averaged object — prevents overwrite on next band iteration
+        # Append the fully populated averaged object for this band.
         averaged_results.append(averaged)
 
     # Return averaged results to the main script for file writing

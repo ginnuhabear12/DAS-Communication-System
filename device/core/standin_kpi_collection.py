@@ -1,9 +1,21 @@
 """
-Module: kpi_collection.py
+Module: standin_kpi_collection.py
 Purpose: Instantaneous KPI collection — queries the modem band by band and
          builds a SamplingSession containing one KPI reading per band.
-Dependencies: models/core.py, models/constants.py, models/rules.py, atCommandExample.py
-Author:
+         Called repeatedly by full_script.py to accumulate the 5 sessions
+         that process_window() needs before averaging can occur.
+
+         Three collection modes are supported depending on SIM presence
+         and configured band types:
+             Mode A — NR5G + LTE  (SIM present, NR5G bands configured)
+             Mode B — LTE Only    (SIM present, no NR5G bands)
+             Mode C — LTE Only, No SIM  ← only mode tested and validated
+
+         Modes A and B involve AT+COPS commands that have NOT been tested
+         against hardware. Mode C has been exercised in all deployed runs
+         and is the only mode confirmed to work correctly end-to-end.
+
+Dependencies: models.py, constants.py, modem.py, snmpSend.py
 """
 
 from datetime import datetime
@@ -24,13 +36,21 @@ def _ts():
     return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
 
-# ── LTE SINR Conversion ───────────────────────────────────────────────────────
-# The raw SINR integer from AT+QENG for LTE is NOT in dB.
-# Formula confirmed by Quectel support: Y = (1/5) × X × 10 − 20
+# ── LTE SINR Conversion Note ───────────────────────────────────────────────────────
+# The raw SINR integer returned by AT+QENG for LTE is NOT in dB.
+# It must be converted using the formula confirmed by Quectel support:
+#     converted_dB = (1/5) × raw × 10 − 20
+#     simplified:   converted_dB = (0.2 × raw × 10) − 20
+#
 # Example: raw value 16 → (0.2 × 16 × 10) − 20 = 12 dB
-# NR5G SINR is already returned in dB — no conversion needed.
+#
+# This conversion is applied in parse_serving_cell() wherever LTE SINR
+# is extracted — see the single-line and multi-line branches in Section C.
+# NR5G SS-SINR is already returned in dB by the modem — no conversion needed.
 
-
+# ══════════════════════════════════════════════════════════════════════════════
+# Response Parser
+# ══════════════════════════════════════════════════════════════════════════════
 def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
     """
     Parses the raw string returned by AT+QENG="servingcell".
@@ -62,18 +82,30 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
         [6]=earfcn [7]=freq_band_ind [8]=UL_bw [9]=DL_bw [10]=TAC
         [11]=RSRP [12]=RSRQ [13]=RSSI [14]=SINR
 
+    NOTE: Only the single-line LTE path has been tested against hardware.
+          The multi-line EN-DC path and NR5G-SA path are implemented but
+          untested — validate before relying on them in production.
+
     Args:
-        raw_response: Cleaned string from at_command_comms().
-        band:         Band string from configured bands e.g. 'b2', 'n2'.
+        raw_response: Cleaned response string from at_command_comms().
+                      Should not contain the trailing "OK" (already stripped
+                      by at_command_comms before returning).
+        band:         Band label string from the configured band list,
+                      e.g. 'b2' for LTE Band 2, 'n78' for NR5G Band 78.
+                      Used only for log messages — not parsed here.
     """
 
-    # SEARCH means the modem found no cell on this band — caller stores sentinel
+    # SEARCH means the modem found no cell on this band — this is normal when
+    # a DAS port is inactive or the band is not deployed at this site.
+    # Return None so the caller stores a dummy KPI sentinel rather than crashing.
     if "SEARCH" in raw_response:
         print(f"{_ts()} [PARSER] Band {band}: modem in SEARCH state — no cell found.")
         return None
 
     try:
         # ── Step 1: Collect all +QENG lines from the response ─────────────────
+        # The raw response may contain blank lines, echo of the command, or
+        # other AT output. We only want lines that start with '+QENG'.
         qeng_lines = [
             line.strip()
             for line in raw_response.strip().split('\n')
@@ -92,22 +124,24 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
         first_clean  = qeng_lines[0].replace('+QENG:', '').replace('"', '').strip()
         first_fields = [f.strip() for f in first_clean.split(',')]
 
+        # All RAT strings the modem may return — used to determine format
         KNOWN_RATS = ('LTE', 'NR5G-SA', 'NR5G-NSA', 'WCDMA', 'GSM')
 
         if len(first_fields) >= 3 and first_fields[2] in KNOWN_RATS:
             # ── Single-line format ────────────────────────────────────────────
-            # LTE-only or NR5G-SA mode — all fields on one line including the
-            # "servingcell" and state prefix. Use first line as the data line.
+            # The first line contains both the state prefix ("servingcell", state)
+            # AND the RAT and KPI fields. Use it directly as the data line.
             data_line   = qeng_lines[0]
             single_line = True
 
         elif len(qeng_lines) >= 2:
             # ── Multi-line format (EN-DC) ─────────────────────────────────────
-            # Modem is in LTE + NR5G-NSA mode. First line is the state header
-            # only. LTE KPI data is on the second +QENG line, which has no
-            # "servingcell" or state prefix — indices shift by -2 relative to
-            # single-line format. NR5G-NSA third line is ignored here since
-            # NR5G bands are collected separately via their own band loop.
+            # The first line is only "servingcell","state" with no KPI data.
+            # The actual LTE KPI fields are on the second +QENG line, which
+            # starts directly with the RAT — no "servingcell" or state prefix.
+            # This shifts all field indices down by 2 compared to single-line.
+            # The NR5G-NSA third line is intentionally ignored — NR5G bands
+            # are collected separately via their own band loop in instKPIcollection.
             data_line   = qeng_lines[1]
             single_line = False
 
@@ -116,12 +150,15 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
             return None
 
         # ── Step 3: Clean and split the selected data line ────────────────────
+        # Strip the "+QENG:" prefix and all double-quotes so we're left with
+        # a plain comma-separated field list ready for indexing.
         clean    = data_line.replace('+QENG:', '').replace('"', '').strip()
         raw_list = clean.split(',')
 
         # ── Step 4: Convert each field to int/float where possible ───────────
-        # '-' fields (unavailable values from modem) → sentinel 9999 so that
-        # alarms.py INVALID_SENTINEL check fires naturally for those fields.
+        # '-' is the modem's placeholder for unavailable/not-applicable fields.
+        # We substitute 9999 so that the INVALID_SENTINEL check in alarms.py
+        # fires naturally for those fields without needing special-case handling.
         parts = []
         for item in raw_list:
             item = item.strip()
@@ -130,12 +167,12 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
                 parts.append(9999)
                 continue
             try:
-                parts.append(int(item))
+                parts.append(int(item))       # Try int first (most KPI fields are integers)
             except ValueError:
                 try:
-                    parts.append(float(item))
+                    parts.append(float(item)) # Fall back to float for decimal values
                 except ValueError:
-                    parts.append(item)  # keep as string e.g. "LTE", "FDD"
+                    parts.append(item)        # Keep as string for RAT labels, duplex mode, etc.
 
         # ── Step 5: Extract KPI fields using format-specific indices ──────────
 
@@ -166,6 +203,7 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
             elif rat == "NR5G-SA":
                 # NR5G-SA is always single-line per Quectel manual
                 # SINR is already in dB for NR5G — no conversion needed
+                # NOTE: This path is untested against hardware.
                 return NR5GKPI(
                     timestamp = datetime.now(),
                     rat       = parts[2],
@@ -210,35 +248,47 @@ def parse_serving_cell(raw_response: str, band: str) -> LTEKPI | NR5GKPI | None:
                 return None
 
     except (IndexError, ValueError, TypeError) as e:
+        # Catches malformed responses where expected fields are missing or
+        # the type conversion above produced an unexpected result.
         print(f"{_ts()} [PARSER] Band {band}: failed to parse. Error: {e}")
         print(f"         Raw was: {raw_response[:200]}")
         return None
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Segment 3A — AT Command Retry Wrapper
+# AT Command Retry Wrappers
+# These functions wrap at_command_comms() with retry logic appropriate for
+# different failure contexts — transient band errors, critical startup commands,
+# and in-session COPS mode changes each have different tolerance for failure.
 # ══════════════════════════════════════════════════════════════════════════════
 
+# ── Standard Retry (3 attempts) ──────────────────────────────────
 def send_at_command_with_retry(command, timeout, max_retries=3):
     """
-    Sends an AT command and retries up to max_retries times if the
-    modem responds with ERROR.
+    Send an AT command and retry up to max_retries times on ERROR or TIMEOUT.
 
-    Rather than accepting a single ERROR and moving on, this gives
-    the modem up to 3 chances before raising an Exception.
-    The Exception is caught by the band loop so the session
-    continues even if one band fails.
+    Used for all non-critical AT commands within the band loops (band config,
+    CFUN cycling, QENG queries). Gives the modem up to 3 chances before
+    raising an Exception, which the band loop catches and converts to a
+    dummy KPI so the session can continue even if one band fails.
+
+    Serial port failures (SerialException) are re-raised immediately without
+    retrying — USB-level disconnects are tracked separately via
+    serial_failure_count in instKPIcollection() and evaluated by full_script.py
+    after each session. Retrying a dead serial port wastes time and masks the
+    underlying hardware problem.
 
     Args:
-        command:     The AT command string to send.
-        timeout:     Timeout in seconds passed to at_command_comms.
-        max_retries: Number of attempts before raising. Default is 3.
+        command:     AT command string to send (e.g. 'AT+QENG="servingcell"').
+        timeout:     Seconds to wait for a response, passed to at_command_comms.
+        max_retries: Maximum number of attempts before raising. Default 3.
 
     Returns:
-        The modem's response string if successful.
+        The modem's cleaned response string on success.
 
     Raises:
-        Exception: If all retry attempts return ERROR.
+        serial.SerialException: Immediately, without retrying, on USB failure.
+        Exception: After all retry attempts return ERROR or TIMEOUT.
     """
     for attempt in range(max_retries):
         try:
@@ -260,36 +310,41 @@ def send_at_command_with_retry(command, timeout, max_retries=3):
     raise Exception(f"[MODEM ALERT] Command failed after {max_retries} attempts: {command}")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Segment 3B — Infinite Retry for Critical AT Commands
-# ══════════════════════════════════════════════════════════════════════════════
+# ── Indefinite Retry for Critical Commands (startup only) ────────
+# These constants control the timing and escalation behavior of the two
+# indefinite-retry functions below (send_cops_command_until_success and
+# send_cfun_until_success). Adjust here only — both functions reference
+# these values so a single change applies everywhere.
 
-# Retry timing constants — adjust here only, referenced throughout both functions.
 _CRITICAL_RETRY_INITIAL_SLEEP   = 10   # seconds between retries before alert fires
 _CRITICAL_RETRY_ESCALATED_SLEEP = 30   # seconds between retries after alert fires
 _CRITICAL_ALERT_TIMEOUT         = 120  # seconds elapsed before sending runtime alarm
 _CRITICAL_RESTART_TIMEOUT       = 300  # seconds elapsed before triggering Pi restart (5 minutes)
 
-# ── In-session COPS retry constants ───────────────────────────────────────────
-# Used by send_cops_command_in_session during active KPI collection.
-# Unlike the startup path which retries indefinitely, collection COPS commands
-# use a hard attempt ceiling so a modem mode failure cannot stall the session.
-# 3 attempts × 10s between each = ~30s worst case before returning False.
+# ── In-Session COPS Retry Constants ──────────────────────────────
+# Used by send_cops_command_in_session() during active KPI collection.
+# A hard attempt ceiling is used here (unlike the indefinite startup retry)
+# so a failing COPS command cannot stall the collection session.
+# Worst case: 3 attempts × near-instant ERROR + 2 × 10s sleep ≈ 20–25 seconds.
 _IN_SESSION_COPS_MAX_ATTEMPTS = 3
 _IN_SESSION_COPS_RETRY_SLEEP  = 10   # seconds between in-session retry attempts
 
 def _trigger_modem_restart(reason: str) -> None:
     """
-    Sends an SNMP runtime trap describing the restart reason, waits briefly
-    to allow the trap to transmit, then issues a system reboot.
+    Send an SNMP trap describing the restart reason, then reboot the Pi.
 
-    Called when the modem has been unresponsive long enough that a Pi restart
-    is the only viable recovery path. Never returns — the reboot terminates
-    the process.
+    Called when the modem has been unresponsive long enough that a full
+    Pi reboot is the only viable recovery path. The reboot resets the USB
+    bus and cycles modem power, which resolves hangs that AT command retries
+    cannot fix. This function never returns — the reboot terminates the process.
+
+    The 2-second sleep before reboot gives the SNMP trap UDP packet time to
+    leave the network stack before the process is killed.
 
     Args:
         reason: Human-readable description of why the restart was triggered.
-                Included verbatim in the SNMP trap detail field.
+                Included verbatim in the SNMP trap detail field so the operator
+                can see the cause in the Infolink alarm log.
     """
     print(f"{_ts()} [RESTART] {reason}")
     print(f"{_ts()} [RESTART] Sending trap and rebooting Pi...")
@@ -306,30 +361,40 @@ def _trigger_modem_restart(reason: str) -> None:
 
 def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
     """
-    Sends a COPS AT command (AT+COPS=0 or AT+COPS=2) and retries indefinitely
-    until the modem accepts it. This function NEVER raises — the caller is
-    always guaranteed a successful response before execution continues.
+    Send a COPS AT command and retry indefinitely until the modem accepts it.
 
-    Retry behavior:
-        Phase 1 — First 120 seconds:
+    Reserved for startup use only (called from full_script.py before collection
+    begins). During active collection, use send_cops_command_in_session() instead,
+    which has a hard attempt ceiling to avoid stalling a session.
+
+    This function NEVER raises — the caller is always guaranteed a successful
+    response before execution continues.
+
+    NOTE: This function path (COPS commands at startup) has not been tested
+    against hardware. Only Mode C (no SIM, no COPS) has been validated.
+
+    Retry escalation:
+        Phase 1  — 0 to 120 seconds:
             Retries every 10 seconds, logging each failed attempt.
+        At 120 seconds:
+            Sends one SNMP runtime alarm to Infolink. Sent exactly once per
+            call — not repeated on subsequent retries.
+        Phase 2  — after 120 seconds:
+            Continues retrying every 30 seconds indefinitely.
+        At 300 seconds:
+            Calls _trigger_modem_restart() — sends a final trap and reboots
+            the Pi. The reboot is the only recovery option for a modem that
+            has been completely unresponsive for 5 minutes.
 
-        Alert threshold — at 120 seconds elapsed:
-            Sends one SNMP runtime alarm to Infolink via send_runtime_alarm()
-            identifying the command and how long it has been failing.
-            The alarm is sent exactly once per call — not repeated.
-
-        Phase 2 — After alert fires:
-            Continues retrying every 30 seconds indefinitely until the modem
-            responds. Sleep interval stays at 30 seconds for all remaining
-            attempts.
-
-    Both modem ERROR responses and exceptions from at_command_comms (e.g. a
-    serial port issue) are handled identically — logged and retried.
+    Both ERROR responses and exceptions from at_command_comms() are treated
+    identically — logged and retried.
 
     Args:
-        command: The COPS command string e.g. 'AT+COPS=0' or 'AT+COPS=2'.
-        timeout: Timeout in seconds passed to at_command_comms. Default 180s.
+        command: COPS command string — 'AT+COPS=0' or 'AT+COPS=2'.
+        timeout: Per-attempt timeout passed to at_command_comms. Default 180s.
+                 AT+COPS=0 can take a long time when it succeeds, hence the
+                 long timeout. A failing command typically returns ERROR almost
+                 immediately, so the timeout is not the bottleneck.
 
     Returns:
         The modem's response string once the command succeeds.
@@ -352,7 +417,8 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
                           f"({elapsed:.0f}s elapsed).")
                 return response
 
-            # Modem returned ERROR or timed out — fall through to retry logic below
+            # Modem returned ERROR or TIMEOUT — log reason and fall through to
+            # alert/restart checks and sleep before next attempt.
             reason = "returned ERROR" if response == "ERROR" else "timed out — no modem response"
             print(f"{_ts()} [COPS] Attempt {attempt} — {command} {reason}.")
 
@@ -369,6 +435,8 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
         elapsed = time.time() - start_time
 
         if not alert_sent and elapsed >= _CRITICAL_ALERT_TIMEOUT:
+            # Alert fires once — notifies operator the modem is not responding
+            # to a critical startup command and the script is stuck in retry.
             alert_detail = (
                 f"no modem response after {elapsed:.0f}s — "
                 f"script is retrying every {_CRITICAL_RETRY_ESCALATED_SLEEP}s"
@@ -382,6 +450,7 @@ def send_cops_command_until_success(command: str, timeout: int = 180) -> str:
             alert_sent = True
 
         if elapsed >= _CRITICAL_RESTART_TIMEOUT:
+            # 5 minutes with no modem response — reboot is the only recovery.
             _trigger_modem_restart(
                 f"{command} has not responded after {elapsed:.0f}s — "
                 f"modem is unresponsive. Restarting Pi to recover."
@@ -483,14 +552,17 @@ def send_cfun_until_success(command: str = "AT+CFUN=1", timeout: int = 15) -> st
         time.sleep(sleep_time)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Segment 3B-2 — In-Session COPS State Check
-# ══════════════════════════════════════════════════════════════════════════════
 
+# ── COPS State Query ─────────────────────────────────────────────
 def check_cops_mode() -> int | None:
     """
-    Queries AT+COPS? to determine the modem's current network selection mode.
+    Query AT+COPS? to determine the modem's current network selection mode.
 
+    Used at the start of each Mode A session to check whether the modem is
+    already in auto-registration mode (COPS=0) from the previous session's
+    post-session reset. If it is, the redundant AT+COPS=0 command is skipped,
+    saving several seconds per session.
+    
     The response format varies by registration state:
         Registered (auto):  +COPS: 0,2,"OperatorName",7
         Detached:           +COPS: 2
@@ -539,9 +611,7 @@ def check_cops_mode() -> int | None:
         return None
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Segment 3B-3 — In-Session COPS Command (Limited Retry)
-# ══════════════════════════════════════════════════════════════════════════════
+# ── In-Session COPS Command (Hard Attempt Ceiling) ───────────────
 
 def send_cops_command_in_session(command: str, timeout: int = 180) -> bool:
     """
@@ -600,7 +670,7 @@ def send_cops_command_in_session(command: str, timeout: int = 180) -> bool:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Segment 3D — SIM Card Detection
+# SIM Card Detection
 # ══════════════════════════════════════════════════════════════════════════════
 
 def detect_sim() -> bool:
@@ -670,92 +740,107 @@ def detect_sim() -> bool:
         return False
 
     except Exception as e:
+        # Any other failure — default to False to prevent COPS commands being
+        # sent without a confirmed SIM, which would trigger the indefinite retry.
         print(f"{_ts()} [SIM] detect_sim() failed: {e} — assuming no SIM to prevent COPS hang.")
         return False
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Segment 3C — Instantaneous KPI Collection
+# Instantaneous KPI Collection
 # ══════════════════════════════════════════════════════════════════════════════
 
 def instKPIcollection(nr5g_bands, lte_bands, sim_present: bool = True):
     """
-    Performs one full KPI collection pass across all configured bands
-    and returns the results packaged as a SamplingSession.
+    Perform one full KPI collection pass across all configured bands and
+    return the results packaged as a SamplingSession.
 
-    This function is called 5 times by the outer loop to build the
-    list of 5 SamplingSession objects the averaging script expects.
+    Called 5 times by the outer loop in full_script.py to build the list of
+    5 SamplingSession objects that process_window() needs before averaging.
 
-    Collection mode is determined automatically by SIM state and whether
-    nr5g_bands is populated:
+    ── Collection Modes ──────────────────────────────────────────────────────
+    Mode A — NR5G + LTE  (sim_present=True, nr5g_bands is not empty)
+        AT+COPS=0  →  NR5G band loop  →  AT+COPS=2  →  LTE band loop
+        →  AT+COPS=0 post-session reset for next session
 
-        Mode A — NR5G + LTE (sim_present=True, nr5g_bands is not empty):
-            AT+COPS=0  →  NR5G band loop  →  AT+COPS=2  →  LTE band loop
-            →  AT+COPS=0 reset for next session
+    Mode B — LTE Only, SIM present  (sim_present=True, nr5g_bands is empty)
+        AT+COPS=2  →  LTE band loop  →  done (no post-session reset needed)
 
-        Mode B — LTE Only, SIM present (sim_present=True, nr5g_bands is empty):
-            AT+COPS=2  →  LTE band loop  →  done (no reset needed)
+    Mode C — LTE Only, No SIM  (sim_present=False)  ← ONLY MODE TESTED
+        LTE band loop only — no COPS commands of any kind.
+        Without a SIM the modem stays in LIMSRV state (limited service —
+        camped on a cell but not registered). The modem returns real RF
+        measurements (RSRP, RSRQ, RSSI, SINR) in LIMSRV state without
+        needing registration. AT+COPS=2 and AT+COPS=0 both return ERROR
+        without a SIM and must never be called. NR5G is skipped entirely
+        regardless of configuration — NR5G NSA requires an LTE anchor
+        registration and NR5G SA requires full 5G registration; neither is
+        possible without a SIM.
 
-        Mode C — LTE Only, No SIM (sim_present=False):
-            LTE band loop only — no COPS commands of any kind.
-            Without a SIM the modem camps on LTE cells in LIMSRV state
-            (registered for emergency calls only) and returns real RF
-            measurements (RSRP, RSRQ, RSSI, SINR) without network
-            registration. AT+COPS=2 and AT+COPS=0 both return ERROR
-            without a SIM and must never be called. NR5G bands are
-            skipped entirely regardless of configuration — NR5G NSA
-            requires an LTE anchor registration, and NR5G SA requires
-            full 5G registration; neither is possible without a SIM.
+    ── Dummy KPI Sentinel Values ─────────────────────────────────────────────
+    When a band cannot be collected (SEARCH state, AT command failure, COPS
+    failure), a dummy KPI object is inserted with all numeric fields set to
+    9999. This preserves the positional structure that process_window() relies
+    on — skipping a band entirely would corrupt the per-band averaging logic.
+    The 9999 sentinel is detected by INVALID_SENTINEL checks in alarms.py.
 
-    In-session AT+COPS commands use send_cops_command_in_session which
-    retries up to _IN_SESSION_COPS_MAX_ATTEMPTS times then returns False,
-    allowing the session to continue with dummy values rather than stalling.
-    Startup COPS commands in full_script.py still use the indefinite retry. They are never called
-    in Mode C.
+    ── Failure Counters ──────────────────────────────────────────────────────
+    Two counters are returned alongside the SamplingSession:
+        command_failure_count: Bands lost to AT command failures (modem logic errors).
+        serial_failure_count:  Bands lost to SerialException (USB-level disconnect).
+    full_script.py evaluates these after each session to decide whether to send
+    a modem-down alarm or trigger a USB reset.
+
+    ── In-Session COPS Behavior ──────────────────────────────────────────────
+    AT+COPS commands within this function use send_cops_command_in_session()
+    (hard attempt ceiling, returns True/False) rather than the indefinite
+    send_cops_command_until_success() used at startup. This prevents a single
+    failing COPS command from stalling an entire collection session.
     AT+COPS=2 is sent exactly once per session in Modes A and B — never
     inside any band loop.
 
     Args:
-        nr5g_bands:  List of NR5G band strings e.g. ['n2', 'n66'].
+        nr5g_bands:  List of NR5G band label strings, e.g. ['n2', 'n66'].
                      Pass an empty list [] for LTE-only modes.
-                     Ignored entirely in Mode C (no SIM).
-        lte_bands:   List of LTE band strings  e.g. ['b2', 'b5', 'b12'].
-        sim_present: True if a SIM card is detected (default).
-                     False forces Mode C regardless of nr5g_bands — COPS
-                     commands are skipped and only LTE is collected.
+                     Ignored entirely in Mode C regardless of contents.
+        lte_bands:   List of LTE band label strings, e.g. ['b2', 'b5', 'b12'].
+        sim_present: True if a SIM card is detected (from detect_sim()).
+                     False forces Mode C — COPS commands are skipped entirely.
+                     Default True to preserve backward compatibility.
 
     Returns:
-        A SamplingSession containing one reading per band,
-        NR5G readings first (if any, Mode A only), LTE readings second.
+        Tuple of (SamplingSession, command_failure_count, serial_failure_count):
+            SamplingSession:       One reading per band (NR5G first if Mode A,
+                                   then LTE). Always structurally complete.
+            command_failure_count: int — bands lost to AT command/modem failures.
+            serial_failure_count:  int — bands lost to serial port failures.
     """
 
     session_start = datetime.now()
     readings      = []
-    command_failure_count = 0  # Tracks bands that failed via AT command exception
-                               # (not bands that found no cell — those are normal).
-                               # Returned to the main loop to detect modem-level
-                               # failure patterns across consecutive sessions.
-    # serial_failure_count — bands that failed because SerialException was raised,
-    # meaning the serial port itself was unreachable at the hardware level.
-    # Tracked separately from command failures so full_script.py can distinguish
-    # a USB disconnect from a modem logic failure and send the appropriate alarm.
+    
+         # Tracks bands that failed due to AT command or modem logic errors.
+    # Does NOT include bands that returned SEARCH — no cell found is normal,
+    # not a failure, and does not increment this counter.
+    command_failure_count = 0
+
+    # Tracks bands that failed because SerialException was raised, meaning
+    # the USB serial port itself was unreachable at the hardware level.
+    # Kept separate from command_failure_count so full_script.py can distinguish
+    # a USB disconnect (serial_failure_count > 0) from a modem logic failure
+    # (command_failure_count > 0) and send the appropriate alarm type.
     serial_failure_count = 0
 
-    # skip_lte_loop is set to True if AT+COPS=2 fails during Mode A or Mode B.
-    # Prevents the shared LTE loop from running when the detach command could not
-    # be confirmed — dummy LTE values are pre-inserted by the failing mode block
-    # so the session remains structurally complete.
+    # Set to True when AT+COPS=2 fails in Mode A or Mode B. Prevents the shared
+    # LTE loop from running since dummy LTE values are already inserted by the
+    # failing mode block and running the loop would overwrite them or operate in
+    # an unknown registration state.
     skip_lte_loop = False
 
     # ── Mode Detection ────────────────────────────────────────────────────────
-    # Mode A requires both NR5G bands configured AND a SIM present.
-    # Without a SIM, NR5G cannot be collected regardless of configuration,
-    # so mode_a is False even when nr5g_bands is populated. Mode C handles
-    # the no-SIM case as an entirely separate branch below.
-    # mode_a = True  → NR5G + LTE collection (SIM present, NR5G configured)
-    # mode_a = False → LTE only or no-SIM collection
-    # mode_c = True  → LTE only, no SIM (COPS skipped, LIMSRV state)
-    mode_a = bool(nr5g_bands) and sim_present
-    mode_c = not sim_present
+    # Mode A requires BOTH NR5G bands configured AND a SIM present.
+    # If no SIM, mode_c takes priority regardless of nr5g_bands content.
+    mode_a = bool(nr5g_bands) and sim_present  # True → NR5G + LTE collection
+    mode_c = not sim_present                   # True → LTE only, no COPS commands
 
     if mode_a:
         print(f"\n{_ts()} [SESSION] Mode A (NR5G + LTE)  — starting collection at {session_start}")
@@ -766,16 +851,18 @@ def instKPIcollection(nr5g_bands, lte_bands, sim_present: bool = True):
 
     # ══════════════════════════════════════════════════════════════════════════
     # Mode A — NR5G + LTE
+    # NOTE: This mode has not been tested against hardware.
     # ══════════════════════════════════════════════════════════════════════════
     if mode_a:
 
         # ── Step 1: Verify or establish auto-registration for NR5G ───────────────
-        # Check COPS mode before sending AT+COPS=0 — if the modem was left in
-        # auto mode by the previous session's post-session reset, the command is
-        # redundant and skipping it saves time.
-        # If the state check itself fails (None returned), mode is unknown and
-        # we attempt the command anyway — an unresponsive modem on AT+COPS? will
-        # likely also fail on AT+COPS=0, which the in-session function handles.
+        # ── Step 1: Verify or establish auto-registration for NR5G ────────────
+        # Check the current COPS mode before sending AT+COPS=0. If the modem
+        # was left in auto mode by the previous session's post-session reset,
+        # the command is redundant and skipping it saves time.
+        # If check_cops_mode() returns None (mode unknown), we send AT+COPS=0
+        # as a precaution — it's safer to send a redundant command than to
+        # start the NR5G loop in an unknown registration state.
         print(f"{_ts()} [SESSION][A] Checking modem COPS mode before NR5G loop...")
         current_mode = check_cops_mode()
 
@@ -919,10 +1006,10 @@ def instKPIcollection(nr5g_bands, lte_bands, sim_present: bool = True):
                 f"All NR5G bands ({', '.join(nr5g_bands)}) set to dummy values this session."
             )
 
-        # ── Step 3: Detach for LTE — attempted regardless of NR5G outcome ────────
-        # Even if COPS=0 failed and NR5G was skipped, COPS=2 is still attempted
-        # independently — a modem that couldn't enter auto mode may still be able
-        # to detach, allowing LTE collection to proceed normally.
+        # ── Step 2: Detach for LTE ────────────────────────────────────────────
+        # Attempted independently of the NR5G outcome — even if COPS=0 failed
+        # above, COPS=2 is still tried. A modem that couldn't enter auto mode
+        # may still be able to detach, allowing LTE collection to proceed.
         print(f"{_ts()} [SESSION][A] Sending AT+COPS=2 — detaching for LTE scanning...")
         cops2_ok = send_cops_command_in_session('AT+COPS=2', timeout=180)
 
@@ -957,23 +1044,31 @@ def instKPIcollection(nr5g_bands, lte_bands, sim_present: bool = True):
             )
 
     # ══════════════════════════════════════════════════════════════════════════
-    # Mode C — LTE Only, No SIM
+    # Mode C — LTE Only, No SIM  ← ONLY MODE TESTED AND VALIDATED
     # ══════════════════════════════════════════════════════════════════════════
-    # Without a SIM the modem is in LIMSRV state — camped on LTE cells but
-    # not registered. AT+COPS=2 and AT+COPS=0 both return ERROR without a
-    # SIM and would cause send_cops_command_until_success to hang indefinitely.
-    # Neither is sent here. The LTE band loop below runs identically to
-    # Modes A and B — CFUN cycling, QENG queries, and band verification all
-    # function normally in LIMSRV state. The 10-second inter-loop sleep used
-    # in Modes A and B after AT+COPS=2 is also skipped — that sleep exists
-    # to allow the network detach to settle, which does not apply here since
-    # no detach command is issued and the modem is already in limited service.
+    # Without a SIM the modem operates in LIMSRV state — camped on LTE cells
+    # for emergency service but not network-registered. In LIMSRV state the
+    # modem returns real RF measurements (RSRP, RSRQ, RSSI, SINR) via QENG,
+    # which is sufficient for passive DAS signal monitoring.
+    #
+    # AT+COPS=2 and AT+COPS=0 MUST NOT be sent without a SIM — both return
+    # ERROR immediately and would trigger send_cops_command_until_success()'s
+    # indefinite retry loop, stalling the session permanently.
+    #
+    # NR5G is skipped entirely in Mode C regardless of nr5g_bands configuration.
+    # NR5G NSA requires an LTE anchor registration; NR5G SA requires full 5G
+    # registration. Neither is achievable without a SIM.
+    #
+    # The 10-second post-COPS=2 sleep used in Modes A and B is also skipped —
+    # that sleep exists to let the network detach settle, which does not apply
+    # here since no detach is issued.
     elif mode_c:
         print(f"[SESSION][C] No SIM detected — skipping AT+COPS=2. "
               f"LTE bands will scan in LIMSRV state and return real RF measurements.")
 
     # ══════════════════════════════════════════════════════════════════════════
     # Mode B — LTE Only
+    # NOTE: This mode has not been tested against hardware.
     # ══════════════════════════════════════════════════════════════════════════
     else:
 

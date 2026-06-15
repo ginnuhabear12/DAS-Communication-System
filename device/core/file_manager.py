@@ -1,23 +1,40 @@
 """
-file_manager.py — KPI File Management for DAS Communication System
-------------------------------------------------------------------
-Handles two writes per 5-minute window:
-    1. Overwrite device_data.json  → updates the live GUI
-    2. Append to kpi_YYYY-MM-DD.json → builds the daily KPI log on microSD
-    3. Cleanup → enforces 7-day rolling retention
+Module: file_manager.py
+Purpose: KPI file management for the DAS Communication System.
+         Handles two writes per 5-minute averaged window and enforces
+         rolling log retention:
+             1. Overwrite device_data.json  → updates the live GUI dashboard
+             2. Append to YYYYMMDD_kpi.json → builds the daily KPI log on microSD
+             3. Cleanup                     → enforces 7-day rolling retention
 
 Error Handling Philosophy:
-    - Every filesystem operation is individually protected.
-    - Cache (_gui_cache, _daily_cache) is updated from memory every cycle
-      before the write attempt, unconditionally — so the cache always holds
-      the most current intended state regardless of write outcome.
-    - On read failure: retry once for OSError (transient hardware glitch),
-      no retry for JSONDecodeError or PermissionError (retrying won't help).
-      Fall back to cache if available, defaults/empty structure if first boot.
-    - On write failure: retry once, then send SNMP runtime trap every cycle
-      the failure persists so the operator is alerted.
-    - All SNMP trap sends are wrapped so a trap failure never interrupts
-      the main error handling path.
+    Every filesystem operation is individually protected with try/except.
+    The design separates read failures, write failures, and directory failures
+    so each is handled with the appropriate retry and fallback strategy:
+
+    Cache (_gui_cache, _daily_cache):
+        Updated from the in-memory data object every cycle before the write
+        attempt, unconditionally. This means the cache always holds the most
+        current intended state regardless of whether the disk write succeeded.
+        If writes fail for multiple cycles, all entries accumulate in the cache
+        and are written in full when the filesystem recovers — nothing is lost.
+
+    On read failure:
+        OSError       → retry once (may be a transient hardware glitch).
+        JSONDecodeError / PermissionError → no retry (retrying reads the
+            same corrupt/inaccessible content). Fall back to cache if available,
+            or to hardcoded defaults / empty structure on first boot.
+
+    On write failure:
+        Retry once, then send an SNMP runtime trap every cycle the failure
+        persists so the operator is alerted.
+
+    SNMP trap sends:
+        All wrapped in _send_trap() so a trap failure never interrupts
+        the main error handling path.
+
+NOTE: This module has been tested with LTE-only (Mode C, no SIM) data.
+      The NR5G branch in _averaged_to_dict() is implemented but untested.
 """
 
 import json
@@ -34,8 +51,14 @@ def _ts():
     """Return current timestamp in HH:MM:SS.mmm format."""
     return datetime.now().strftime("%H:%M:%S.%f")[:-3]
 
-# FIX: Protected snmpSend import — if pysnmp or snmpSend is unavailable,
-# fall back to a no-op stub so file_manager continues operating.
+# ══════════════════════════════════════════════════════════════════════════════
+# SNMP Import with Fallback
+# ══════════════════════════════════════════════════════════════════════════════
+# snmpSend is imported inside a try/except so that file_manager continues
+# operating even if pysnmp or snmpSend itself is unavailable (e.g. on a
+# development machine without the SNMP stack installed). In that case,
+# SNMP_READY is set to False and send_runtime_alarm is replaced with a
+# no-op stub that logs what would have been sent instead of transmitting it.
 try:
     from snmpSend import send_runtime_alarm, SNMP_READY  # ADDED SNMP_READY
 except Exception as _snmp_err:
@@ -47,7 +70,9 @@ except Exception as _snmp_err:
               f"{component} | {detail}")
 
 
-# ── File Paths ────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# File Path and Retry Configuration
+# ══════════════════════════════════════════════════════════════════════════════
 KPI_DIR      = "/home/das/DAS-Communication-System/device/data/kpi_data" 
 <<<<<<< HEAD
 GUI_JSON_PATH = "/home/das/DAS-Communication-System/device/data/device_data.json"
@@ -62,25 +87,35 @@ MAX_DAYS     = 7
 _RETRY_SLEEP_SECONDS = 2
 _WRITE_RETRY_COUNT   = 1   # one retry after initial failure
 
-# ── In-memory caches ──────────────────────────────────────────────────────────
-# Both caches start as None — only populated after the first successful
-# in-memory data build. On first boot, hardcoded defaults or empty structures
-# are used instead.
+# ══════════════════════════════════════════════════════════════════════════════
+# In-Memory Caches
+# ══════════════════════════════════════════════════════════════════════════════
+# Both caches start as None and are only populated after the first successful
+# in-memory data build during normal operation. On first boot, hardcoded
+# defaults or empty structures are used in their place.
 #
-# Cache update happens every cycle from the in-memory data object before the
-# write attempt — unconditionally — so the cache always reflects the most
-# current intended state regardless of whether the write to disk succeeded.
-# This means if writes fail for multiple cycles, all entries accumulate in
-# the cache and are written in full when the filesystem recovers.
+# Cache update rule: updated every cycle from the in-memory data object
+# BEFORE the write attempt, unconditionally. This ensures the cache always
+# reflects the current intended state even when disk writes are failing.
+# When the filesystem recovers, the full accumulated state is written at once.
 _gui_cache   = None   # Holds full data dict last built for GUI JSON
 _daily_cache = None   # Holds full daily_data dict including all entries
 
 
-# ── Internal: SNMP trap helper ────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+# Internal Helpers
+# ══════════════════════════════════════════════════════════════════════════════
 def _send_trap(component: str, detail: str) -> None:
     """
-    Wraps send_runtime_alarm so a trap send failure never interrupts
-    the calling error handler. Always safe to call from any except block.
+    Safe wrapper around send_runtime_alarm().
+
+    Ensures that a failure to send an SNMP trap never interrupts or
+    propagates out of the calling except block. Always safe to call
+    from within any error handler in this module.
+
+    Args:
+        component: Short label identifying what failed (e.g. "GUI JSON write").
+        detail:    Human-readable description of the failure for the alarm log.
     """
     try:
         send_runtime_alarm(component=component, detail=detail)
@@ -91,11 +126,24 @@ def _send_trap(component: str, detail: str) -> None:
 # ── Internal: Conversion helper ───────────────────────────────────────────────
 def _averaged_to_dict(avg) -> dict:
     """
-    Converts an AveragedLTEKPI or AveragedNR5GKPI object into a dictionary
-    for JSON serialization. None KPI values are preserved as JSON null.
+    Convert an AveragedLTEKPI or AveragedNR5GKPI object to a plain dict
+    for JSON serialization.
 
-    SUBJECT TO CHANGE — field names and structure to be confirmed
-    with partner once GUI multi-band support is implemented.
+    None KPI field values (produced when a metric was invalid for the window)
+    are preserved as-is — json.dump() serializes Python None as JSON null,
+    which is the intended representation for missing/invalid averaged data.
+
+    The LTE path has been tested. The NR5G path is implemented but untested.
+
+    NOTE — SUBJECT TO CHANGE: Field names and dict structure to be confirmed
+    with partner once GUI multi-band support is fully implemented. Any change
+    here must be reflected in the GUI's JSON parsing logic.
+
+    Args:
+        avg: An AveragedLTEKPI or AveragedNR5GKPI instance from alarms.py.
+
+    Returns:
+        dict: Serializable representation of the averaged KPI result.
     """
     base = {
         "rat":  avg.rat,
@@ -123,26 +171,28 @@ def _averaged_to_dict(avg) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# update_gui_json
+# GUI JSON Update
 # ══════════════════════════════════════════════════════════════════════════════
-
 def update_gui_json(averaged_results: list) -> None:
     """
-    Overwrites the bands section of device_data_test.json with the latest
-    time-averaged values. All other fields are preserved from the existing
-    file or from cache if the file cannot be read.
+    Overwrite the bands section of device_data.json with the latest
+    5-minute averaged KPI values. All other fields (device_status, logs,
+    site_name, etc.) are preserved from the existing file or from cache
+    if the file cannot be read.
 
-    Flow:
-        1. Attempt read — with retry/fallback logic per error type
-        2. Update in-memory data with new KPI values and timestamp
-        3. Update _gui_cache from memory — always, every cycle
-        4. Attempt write — retry once on failure, trap every cycle it persists
+    This is called once per 5-minute window by full_script.py, immediately
+    after process_window() returns. The GUI reads this file to display
+    live KPI data — it is always overwritten in full, never appended to.
+
+    Processing flow:
+        1. Read existing file — with per-error-type retry/fallback logic
+        2. Update bands, last_update, snmp_status, device_id, site_name in memory
+        3. Update _gui_cache unconditionally from the in-memory data object
+        4. Write to file — retry once on failure, trap every cycle it persists
 
     Args:
-        averaged_results: List of AveragedLTEKPI / AveragedNR5GKPI objects.
-
-    SUBJECT TO CHANGE — JSON file path and structure to be confirmed
-    with partner once GUI multi-band support is implemented.
+        averaged_results: List of AveragedLTEKPI / AveragedNR5GKPI objects
+                          returned by process_window() in alarms.py.
     """
     global _gui_cache
 
@@ -171,7 +221,8 @@ def update_gui_json(averaged_results: list) -> None:
             data = json.load(f)
 
     except OSError as e:
-        # OSError can be transient (EIO hardware glitch) — retry once.
+        # OSError (including EIO) can be transient on microSD — retry once.
+        # If the retry also fails, fall back to cache or defaults and send trap.
         print(f"{_ts()} [FILE] GUI JSON read OSError: {e} — retrying in {_RETRY_SLEEP_SECONDS}s...")
         time.sleep(_RETRY_SLEEP_SECONDS)
         try:
@@ -195,7 +246,8 @@ def update_gui_json(averaged_results: list) -> None:
         data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
 
     except PermissionError as e:
-        # Permission error — retrying won't fix it, operator must intervene.
+        # Permission error — retrying won't change the OS-level permission.
+        # Operator must investigate (wrong file ownership, read-only mount, etc.)
         print(f"{_ts()} [FILE] GUI JSON read PermissionError: {e} — using cache or defaults.")
         _send_trap(
             component = "GUI JSON read",
@@ -217,7 +269,9 @@ def update_gui_json(averaged_results: list) -> None:
         )
         data = _gui_cache if _gui_cache is not None else dict(_DEFAULT_GUI_STRUCTURE)
 
-    # ── Step 2: Update in-memory data ─────────────────────────────────────────
+    # ── Step 2: Update In-Memory Data ─────────────────────────────────────────
+    # end_time of the first averaged result is used as the window timestamp —
+    # all bands share the same session window so any result's end_time is equivalent.
     data["last_update"] = averaged_results[0].end_time.strftime("%Y-%m-%d %H:%M:%S")
     data["bands"]       = [_averaged_to_dict(avg) for avg in averaged_results]
     data["snmp_status"] = "RUNNING" if SNMP_READY else "DOWN"  # ADDED
@@ -230,10 +284,10 @@ def update_gui_json(averaged_results: list) -> None:
     except Exception:
         pass
 
-    # ── Step 3: Update cache — always, every cycle, before write ──────────────
-    # Cache is updated unconditionally from the in-memory data object.
-    # Even if the write below fails, the cache holds the current intended
-    # state so it accumulates correctly across failing cycles.
+    # ── Step 3: Update Cache — Unconditionally, Before Write ──────────────────
+    # Cache reflects the current intended state regardless of write outcome.
+    # If the write below fails, the next cycle's cache will include this
+    # cycle's data plus the next, ensuring nothing is lost on recovery.
     _gui_cache = data
 
     # ── Step 4: Write to file — with one retry ────────────────────────────────
@@ -250,7 +304,8 @@ def update_gui_json(averaged_results: list) -> None:
                       f"retrying in {_RETRY_SLEEP_SECONDS}s...")
                 time.sleep(_RETRY_SLEEP_SECONDS)
             else:
-                # All write attempts failed — trap every cycle it persists.
+                # Retry also failed — send trap. Trap fires every cycle the
+                # failure persists so the operator is continuously alerted.
                 print(f"{_ts()} [FILE] GUI JSON write failed after retry: {write_e}")
                 _send_trap(
                     component = "GUI JSON write",
@@ -260,25 +315,35 @@ def update_gui_json(averaged_results: list) -> None:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# append_to_daily_file
+# Daily KPI File Append
 # ══════════════════════════════════════════════════════════════════════════════
 
 def append_to_daily_file(averaged_results: list) -> None:
     """
-    Appends the current window's time-averaged KPI values to today's daily file.
+    Append the current window's averaged KPI values to today's daily log file.
 
-    Flow:
+    Daily files are named YYYYMMDD_kpi.json and stored in KPI_DIR. Each call
+    appends one entry (a start_time, end_time, and list of band results) to
+    the "entries" array. After a successful write, the 7-day retention cleanup
+    is run to delete the oldest file if more than MAX_DAYS files exist.
+
+    Unlike update_gui_json (which overwrites), this function reads the existing
+    file, appends the new entry in memory, then writes the full updated structure
+    back. This preserves all previous entries from the current day in a single file.
+
+    Processing flow:
         1. Attempt os.makedirs — track failure, still proceed to cache update
-        2. If makedirs succeeded: attempt read with retry/fallback logic
-           If makedirs failed: use cache or empty structure (no file to read)
+        2. Read existing file (if makedirs succeeded and file exists) with
+           per-error-type retry/fallback; use cache or empty structure otherwise
         3. Append current entry to daily_data in memory
-        4. Update _daily_cache — always, every cycle, unconditionally
-        5. If makedirs failed: send trap and return (can't write without directory)
-        6. Attempt write — retry once on failure, trap every cycle it persists
-        7. 7-day cleanup — trap if fails, always continue
+        4. Update _daily_cache unconditionally from in-memory data
+        5. If makedirs failed: send trap and return (cannot write without directory)
+        6. Write to file — retry once on failure, trap every cycle it persists
+        7. 7-day cleanup — trap if it fails, always continue regardless
 
     Args:
-        averaged_results: List of AveragedLTEKPI / AveragedNR5GKPI objects.
+        averaged_results: List of AveragedLTEKPI / AveragedNR5GKPI objects
+                          returned by process_window() in alarms.py.
     """
     global _daily_cache
 
@@ -289,9 +354,10 @@ def append_to_daily_file(averaged_results: list) -> None:
     today    = date.today().strftime("%Y%m%d")
     filepath = os.path.join(KPI_DIR, f"{today}_kpi.json")
 
-    # ── Step 1: Attempt os.makedirs ───────────────────────────────────────────
-    # Tracked separately so cache update (step 4) still happens even if
-    # the directory cannot be created. Cache must always reflect current data.
+    # ── Step 1: Ensure Directory Exists ───────────────────────────────────────
+    # Tracked separately so the cache update in Step 4 still happens even if
+    # the directory cannot be created — the cache must always be current.
+    # exist_ok=True means no error is raised if the directory already exists.
     makedirs_failed = False
     try:
         os.makedirs(KPI_DIR, exist_ok=True)
@@ -303,7 +369,9 @@ def append_to_daily_file(averaged_results: list) -> None:
     daily_data = None
 
     if makedirs_failed:
-        # Directory doesn't exist — no file to read, use cache or empty structure.
+        # Directory doesn't exist — no file to read.
+        # Use cache to preserve entries accumulated so far today, or
+        # start a fresh empty structure if this is the first entry.
         daily_data = _daily_cache if _daily_cache is not None else {
             "date": today, "entries": []
         }
@@ -337,10 +405,9 @@ def append_to_daily_file(averaged_results: list) -> None:
                     }
 
             except json.JSONDecodeError as e:
-                # File is corrupted — use cache to recover all previous entries.
-                # Cache holds everything up to the last successful write so
-                # data loss is minimal (at most one entry from the failed write
-                # that caused the corruption).
+                # File is corrupted — no retry. Use cache to recover as many
+                # previous entries as possible. Data loss is at most one entry
+                # (the write that corrupted the file).
                 print(f"{_ts()} [FILE] Daily file corrupted (JSONDecodeError): {e} — "
                       f"recovering from cache.")
                 _send_trap(
@@ -352,8 +419,9 @@ def append_to_daily_file(averaged_results: list) -> None:
                 }
 
             except PermissionError as e:
-                # Permission error on read — still attempt write separately
-                # since read/write permissions are independent in Linux.
+                # Read permission error — still attempt the write separately since
+                # read and write permissions are independent in Linux. The write
+                # may succeed even if the read failed.
                 print(f"{_ts()} [FILE] Daily file read PermissionError: {e} — "
                       f"using cache, will still attempt write.")
                 _send_trap(
@@ -382,10 +450,14 @@ def append_to_daily_file(averaged_results: list) -> None:
 
         else:
             # File doesn't exist yet — first entry of the day or first boot.
+            # A new file will be created during the write step below.
             daily_data = {"date": today, "entries": []}
             print(f"[FILE] New daily KPI file will be created → {filepath}")
 
-    # ── Step 3: Append current entry to in-memory data ────────────────────────
+    # ── Step 3: Append Current Entry to In-Memory Data ────────────────────────
+    # Build one entry dict for this window and add it to the entries list.
+    # start_time and end_time bound the 5-minute averaging window.
+    # bands holds the per-band averaged KPI dicts from _averaged_to_dict().
     entry = {
         "start_time": averaged_results[0].start_time.strftime("%H:%M:%S"),
         "end_time":   averaged_results[0].end_time.strftime("%H:%M:%S"),
@@ -393,14 +465,16 @@ def append_to_daily_file(averaged_results: list) -> None:
     }
     daily_data["entries"].append(entry)
 
-    # ── Step 4: Update cache — always, every cycle, unconditionally ───────────
-    # Cache updates from the in-memory daily_data object before any write
-    # attempt. This ensures the cache accumulates all entries even across
-    # cycles where the write fails, so when the filesystem recovers,
-    # the full history is written at once with nothing missing.
+    # ── Step 4: Update Cache — Unconditionally, Before Write ──────────────────
+    # Cache reflects the full intended state of today's file including this
+    # entry. If the write fails, the next cycle's cache will include both this
+    # entry and the next, so the full history is written when the disk recovers.
     _daily_cache = daily_data
 
-    # ── Step 5: Return if makedirs failed — can't write without directory ─────
+    # ── Step 5: Return Early if Directory Creation Failed ─────────────────────
+    # Cannot write to a file in a directory that doesn't exist.
+    # Data is held in _daily_cache only — it will be lost on power-off if the
+    # filesystem issue is not resolved. Trap fires to alert the operator.
     if makedirs_failed:
         _send_trap(
             component = "daily file makedirs",
@@ -408,7 +482,10 @@ def append_to_daily_file(averaged_results: list) -> None:
         )
         return
 
-    # ── Step 6: Write to file — with one retry ────────────────────────────────
+    # ── Step 6: Write to File — With One Retry ────────────────────────────────
+    # Writes the full daily_data structure (all entries today) back to disk.
+    # write_succeeded controls whether the cleanup step runs — cleanup is
+    # skipped if the write failed since the on-disk file state is uncertain.
     write_succeeded = False
     for write_attempt in range(_WRITE_RETRY_COUNT + 1):
         try:
@@ -436,7 +513,14 @@ def append_to_daily_file(averaged_results: list) -> None:
         # Write failed — skip cleanup since the file state on disk is uncertain.
         return
 
-    # ── Step 7: 7-day retention cleanup ──────────────────────────────────────
+    # ── Step 7: 7-Day Retention Cleanup ───────────────────────────────────────
+    # Runs after every successful write. Finds all daily KPI files sorted
+    # alphabetically (YYYYMMDD prefix makes this equivalent to chronological order)
+    # and deletes the oldest if the count exceeds MAX_DAYS.
+    # Failure here does not affect this cycle's written data — old files will
+    # simply accumulate until the operator resolves the underlying filesystem issue.
+    # No trap sent — the script retries cleanup automatically every 5 minutes,
+    # so transient failures self-resolve without operator intervention.
     try:
         files = sorted(glob.glob(os.path.join(KPI_DIR, "*_kpi.json")))
         if len(files) > MAX_DAYS:
@@ -456,18 +540,22 @@ def append_to_daily_file(averaged_results: list) -> None:
 
 def update_vpn_status(vpn_status: str) -> None:
     """
-    Updates only the vpn_status field in device_data_test.json without
-    modifying other fields. Uses the same robust read/write pattern as
-    update_gui_json with retry and fallback logic.
+    Update only the vpn_status field in device_data.json without modifying
+    any other fields. Called by full_script.py whenever the VPN tunnel
+    state changes so the GUI dashboard reflects current connectivity.
 
-    Flow:
-        1. Attempt read — with retry/fallback logic per error type
-        2. Update vpn_status field in-memory
-        3. Update _gui_cache from memory — always, every cycle
-        4. Attempt write — retry once on failure, trap every cycle it persists
+    Uses the same read → update → cache → write pattern as update_gui_json()
+    with identical retry and fallback logic. See update_gui_json() for the
+    full rationale behind each step.
+
+    Processing flow:
+        1. Read existing file — with per-error-type retry/fallback logic
+        2. Update vpn_status field in memory
+        3. Update _gui_cache unconditionally from the in-memory data object
+        4. Write to file — retry once on failure, trap every cycle it persists
 
     Args:
-        vpn_status: Status string — "ACTIVE" or "DOWN"
+        vpn_status: Status string to write — "ACTIVE" or "DOWN".
     """
     global _gui_cache
 

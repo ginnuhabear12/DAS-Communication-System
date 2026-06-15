@@ -11,7 +11,11 @@ A Python-based edge device system for monitoring Distributed Antenna System (DAS
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
 - [Hardware](#hardware)
+  - [Package Contents](#package-contents)
+  - [Hardware Description](#hardware-description)
 - [Installation](#installation)
+  - [Hardware Assembly](#hardware-assembly)
+  - [Software Installation](#software-installation)
 - [Configuration](#configuration)
 - [Running the System](#running-the-system)
 - [Systemd Services](#systemd-services)
@@ -154,27 +158,81 @@ Key packages include:
 
 ## Hardware
 
-| Component | Details |
-|-----------|---------|
-| Host device | Raspberry Pi (or any Linux SBC) running as user `das` |
-| Cellular modem | Quectel RM5xx / EC2x series (USB serial on `/dev/ttyUSB2`) |
-| Network interface | `eth0` for LAN; `tun0` for VPN tunnel |
-| Storage | microSD card (min. 4 GB recommended) |
+### Package Contents
 
-The modem must appear on `/dev/ttyUSB2` (the AT command port). The system also checks `/dev/ttyUSB0`–`/dev/ttyUSB3` for modem presence during initialization.
+Verify the following items are included before beginning assembly:
+
+| Item | Quantity |
+|------|----------|
+| Raspberry Pi 5 | 1 |
+| Waveshare PoE HAT (G) | 1 |
+| Raspberry Pi Active Cooler | 1 |
+| Waveshare PCIe TO 4G/5G M.2 USB3.2 HAT+ | 1 |
+| Quectel RM520N-GL Modem | 1 |
+| Siretta ASMGA010XB113S11 | 2 |
+| Antenna Siretta ECHO 47 | 2 |
+| SanDisk MicroSD Max Endurance | 1 |
+| Weather Proof Box | 1 |
+| PoE Injector | 1 |
+| Ethernet Cable | 2 |
+| PCIe Cable | 1 |
+
+### Hardware Description
+
+#### Front Panel
+
+| Component | Function |
+|-----------|----------|
+| Ethernet Port | PoE Power and Network |
+| Antenna Port A | Cellular Reception |
+| Antenna Port B | Cellular Reception |
+
+#### Internal Components
+
+| Component | Purpose |
+|-----------|---------|
+| Raspberry Pi 5 | Main computer that runs the monitoring software, collects data, and controls the system. |
+| Waveshare PoE HAT (G) | Provides power and network connectivity through a single Ethernet cable. |
+| Raspberry Pi Active Cooler | Fan and heatsink used to keep the Raspberry Pi cool during operation. |
+| Waveshare PCIe TO 4G/5G M.2 USB3.2 HAT+ | Interface board that connects the 5G modem to the Raspberry Pi. |
+| Quectel RM520N-GL Modem | 5G/LTE modem used to measure cellular signal strength and quality. |
+| Siretta ASMGA010XB113S11 | External antenna that receives cellular signals for the modem. |
+| Antenna Siretta ECHO 47 | Wideband LTE/5G antenna designed to receive signals across multiple cellular frequency bands. |
+| SanDisk MicroSD Max Endurance | Stores the operating system, software, configuration files, and monitoring data. |
+
+> The modem must enumerate on `/dev/ttyUSB2` (the AT command port). The system also checks `/dev/ttyUSB0`–`/dev/ttyUSB3` for modem presence during initialization.
 
 ---
 
 ## Installation
 
-### 1. Clone the repository
+### Hardware Assembly
+
+**Required components:** Raspberry Pi 5 × 1, Raspberry Pi Active Cooler, Waveshare PoE HAT (G), Waveshare PCIe TO 4G/5G M.2 USB3.2 HAT+, Quectel RM520N-GL Modem, PCIe Cable, antenna cables, antennas, PoE injector.
+
+1. Place the Raspberry Pi 5 Active Cooler onto the Raspberry Pi 5 and connect the fan wires to the FAN interface. Do not remove the thermal pads.
+2. Add the GPIO extension header.
+3. Using the hardware from the PoE HAT package, screw the 4 long mounts (with 4 short screws) onto the top side of the Raspberry Pi 5.
+4. Place the PoE HAT onto the GPIO and PoE interfaces of the Raspberry Pi 5.
+5. Screw the 4 mount-with-screw standoffs onto the previous mounts to extend the stack.
+6. Connect the PCIe cable to the PCIe interface on the Raspberry Pi 5.
+7. Place the 4G/5G HAT onto the standoffs and screw it securely in place.
+8. Connect the other end of the PCIe cable to the PCIe interface on the 5G HAT.
+9. Insert the Quectel RM520N-GL modem into the HAT's M.2 interface and screw it securely onto the HAT.
+10. Connect the antenna cables to the **ANT0** and **ANT1** interfaces on the modem.
+11. Secure the antennas to the other ends of the antenna cables.
+12. Connect an **IEEE 802.3at rated PoE injector** to the Raspberry Pi 5's Ethernet interface to supply power and network connectivity.
+
+### Software Installation
+
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/ginnuhabear12/DAS-Communication-System.git /home/das/DAS-Communication-System
 cd /home/das/DAS-Communication-System
 ```
 
-### 2. Create a Python virtual environment (optional but recommended)
+#### 2. Create a Python virtual environment (optional but recommended)
 
 ```bash
 python3 -m venv device/core/.venv
@@ -182,13 +240,13 @@ source device/core/.venv/bin/activate
 pip install -r device/core/requirements.txt
 ```
 
-### 3. Create required directories
+#### 3. Create required directories
 
 ```bash
 mkdir -p data/kpi_data logs /run/das
 ```
 
-### 4. Install systemd services
+#### 4. Install systemd services
 
 ```bash
 sudo cp device/etc/systemd/system/das-*.service /etc/systemd/system/

@@ -1,32 +1,37 @@
 """
-snmpSend.py — SNMP Trap Sender for DAS Communication System
-------------------------------------------------------------
-Provides three public alarm functions for use across the system:
+Module: snmpSend.py
+Purpose: SNMP trap sender for the DAS Communication System.
+         Provides three public alarm functions used across all modules
+         to report KPI and system failures to the Network Management System (NMS).
 
-    send_invalid_kpi_alarm()  — fires when a KPI has too many invalid samples
-    send_threshold_alarm()    — fires when a time-averaged KPI is below threshold
-    send_runtime_alarm()      — fires when a system/modem-level runtime failure
-                                occurs (e.g. COPS command failure, file write
-                                error, serial port issue). Has no band or KPI
-                                context — carries component + detail instead.
+Public API (call these from other modules):
+    send_invalid_kpi_alarm()  — KPI has too many consecutive invalid samples
+    send_threshold_alarm()    — time-averaged KPI has fallen below threshold
+    send_runtime_alarm()      — system or modem-level failure with no band/KPI context
+                                (e.g. COPS command failure, file write error, serial issue)
 
 OID Structure:
     Enterprise root  :  1.3.6.1.4.1.12345
-    ├── .1  Trap OIDs
-    │     ├── .1  trapInvalidKPI     (1.3.6.1.4.1.12345.1.1)
-    │     ├── .2  trapThresholdKPI   (1.3.6.1.4.1.12345.1.2)
-    │     └── .3  trapRuntime        (1.3.6.1.4.1.12345.1.3)  ← NEW
-    └── .2  Varbind OIDs
-          ├── .1.0  band             Integer32  — band number        (KPI traps)
-          ├── .2.0  kpi              OctetString — KPI name          (KPI traps)
-          ├── .3.0  alarmType        OctetString — alarm category    (KPI traps)
-          ├── .4.0  detail           OctetString — human-readable detail (all traps)
-          └── .5.0  component        OctetString — what failed       (runtime traps)
+    ├── .1  Trap type OIDs — identify which alarm category this trap represents
+    │     ├── .1  trapInvalidKPI    (1.3.6.1.4.1.12345.1.1)
+    │     ├── .2  trapThresholdKPI  (1.3.6.1.4.1.12345.1.2)
+    │     └── .3  trapRuntime       (1.3.6.1.4.1.12345.1.3)
+    └── .2  Varbind OIDs — data fields carried inside each trap
+          ├── .1.0  band       Integer32   — band number              (KPI traps only)
+          ├── .2.0  kpi        OctetString — KPI name                 (KPI traps only)
+          ├── .3.0  alarmType  OctetString — alarm category           (KPI traps only)
+          ├── .4.0  detail     OctetString — human-readable detail    (all traps)
+          └── .5.0  component  OctetString — failed system component  (runtime traps only)
 
-Production changes needed:
-    - Set NMS_IP to the company server IP
-    - Change NMS_PORT from 1162 (test) to 162 (production)
-    - Replace enterprise OID 12345 with your assigned PEN if applicable
+Production checklist (must be done before live deployment):
+    [ ] Set NMS_IP to the company NMS server IP (currently falls back to 10.8.0.1)
+    [ ] Change NMS_PORT from 1162 (test) to 162 (production standard)
+    [ ] Replace enterprise OID root 12345 with your assigned IANA PEN if applicable
+    [ ] Change COMMUNITY from "public" to a deployment-specific community string
+
+NOTE: SNMP trap delivery has been tested in the LTE-only (Mode C, no SIM) path.
+      The trap format and OID structure have not been validated against the final
+      NMS configuration — confirm with the network team before production deployment.
 """
 
 import asyncio
@@ -47,14 +52,23 @@ from constants import CONFIG_PATH
 import time
 
 
-import time  # ADD to existing imports at top
+# ══════════════════════════════════════════════════════════════════════════════
+# NMS Configuration
+# Loads the SNMP manager IP from the GUI config file at module import time.
+# All other SNMP parameters are hardcoded here — see production checklist above.
+# ══════════════════════════════════════════════════════════════════════════════
+_FALLBACK_IP         = "10.8.0.1"  # Used when config cannot be read — VPN gateway default
+_RETRY_SLEEP_SECONDS = 2           # Seconds to wait before retrying a failed config read
 
-# ── Configuration ─────────────────────────────────────────────────────────────
-_FALLBACK_IP         = "10.8.0.1"
-_RETRY_SLEEP_SECONDS = 2
+# SNMP_READY is exported and read by file_manager.py to decide whether to show
+# "RUNNING" or "DOWN" in the GUI snmp_status field. Set to False on any config
+# load failure so the GUI accurately reflects that SNMP may not be functional.
+SNMP_READY = True
 
-SNMP_READY = True  # Set False on any config load failure — read by file_manager
-
+# Attempt to load the NMS IP from the config file at import time.
+# Each exception type is handled separately because the correct fallback
+# strategy differs — OSError may be transient (retry once), while
+# JSONDecodeError and KeyError are deterministic failures (no retry).
 try:
     with open(CONFIG_PATH, "r") as f:
         _config = json.load(f)
@@ -70,6 +84,8 @@ except OSError as e:
         NMS_IP = _config["snmp_host"]
         print(f"[SNMP] Config read retry succeeded.")
     except Exception as retry_e:
+        # Retry also failed — fall back to the hardcoded VPN gateway IP.
+        # Traps will still be attempted but may not reach the NMS.
         print(f"[SNMP WARNING] Config read retry failed: {retry_e} — using fallback NMS_IP {_FALLBACK_IP}")
         NMS_IP     = _FALLBACK_IP
         SNMP_READY = False
@@ -97,8 +113,8 @@ except Exception as e:
     NMS_IP     = _FALLBACK_IP
     SNMP_READY = False
 
-NMS_PORT  = 1162               # Change to 162 in production
-COMMUNITY = "public"
+NMS_PORT  = 1162      # Trap destination port 
+COMMUNITY = "public"  # SNMPv2c community string 
 
 # ── OID Definitions ───────────────────────────────────────────────────────────
 # Enterprise root: 1.3.6.1.4.1.12345
@@ -121,6 +137,7 @@ OID_VAR_COMPONENT = "1.3.6.1.4.1.12345.2.5.0"  # failed component (OctetString)
 # Internal: KPI Trap Sender (band + kpi context)
 # ══════════════════════════════════════════════════════════════════════════════
 
+# ── KPI Trap (band + KPI context) ────────────────────────────────
 async def _send_kpi_trap_async(
     trap_oid:   str,
     band:       int,
@@ -129,15 +146,21 @@ async def _send_kpi_trap_async(
     detail:     str,
 ) -> None:
     """
-    Builds and sends one SNMPv2c KPI trap. Called internally — do not call directly.
-    Used by send_invalid_kpi_alarm and send_threshold_alarm.
+    Async core that builds and sends one SNMPv2c KPI trap.
+    Not called directly — use send_invalid_kpi_alarm() or send_threshold_alarm().
+
+    Varbinds sent:
+        OID_VAR_BAND   — band number (Integer32)
+        OID_VAR_KPI    — KPI name string (OctetString)
+        OID_VAR_ALARM  — alarm category string (OctetString)
+        OID_VAR_DETAIL — human-readable detail string (OctetString)
 
     Args:
-        trap_oid:   OID that identifies the trap type (INVALID or THRESHOLD).
-        band:       Band number.
-        kpi:        KPI name string (e.g. "RSRP", "SS_RSRP").
+        trap_oid:   OID identifying the trap type (INVALID or THRESHOLD).
+        band:       Band number the alarm applies to.
+        kpi:        KPI name string (e.g. "RSRP", "SS_SINR").
         alarm_type: Alarm category string ("INVALID" or "THRESHOLD").
-        detail:     Detail message string carried in the varbind.
+        detail:     Human-readable description of the alarm condition.
     """
     snmpEngine = SnmpEngine()
 
@@ -157,8 +180,13 @@ async def _send_kpi_trap_async(
         ),
     )
 
+    # closeDispatcher() releases the asyncio transport created by SnmpEngine.
+    # Required when using asyncio to prevent resource leak warnings.
     snmpEngine.closeDispatcher()
 
+    # errorIndication covers transport-level failures (host unreachable, timeout).
+    # errorStatus covers SNMP protocol-level errors from the agent/NMS.
+    # Neither raises an exception — pysnmp returns them as return values.
     if errorIndication:
         print(f"[SNMP ERROR] KPI trap failed ({alarm_type} | Band {band} | {kpi}): {errorIndication}")
     elif errorStatus:
@@ -168,27 +196,33 @@ async def _send_kpi_trap_async(
 
 
 def _send_kpi_trap(trap_oid: str, band: int, kpi: str, alarm_type: str, detail: str) -> None:
-    """Synchronous wrapper around _send_kpi_trap_async for use in non-async code."""
+    """
+    Synchronous wrapper around _send_kpi_trap_async().
+    Runs the async function in a new event loop via asyncio.run() so callers
+    do not need to use async/await. Blocks until the trap is sent or fails.
+    """
     asyncio.run(_send_kpi_trap_async(trap_oid, band, kpi, alarm_type, detail))
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Internal: Runtime Trap Sender (no band/kpi context)
-# ══════════════════════════════════════════════════════════════════════════════
-
+# ── Runtime Trap (system/modem context, no band or KPI) ──────────
 async def _send_runtime_trap_async(component: str, detail: str) -> None:
     """
-    Builds and sends one SNMPv2c runtime trap. Called internally — do not call directly.
-    Used by send_runtime_alarm for system/modem level failures that have no
-    band or KPI context (e.g. COPS command failure, file write error).
+    Async core that builds and sends one SNMPv2c runtime trap.
+    Not called directly — use send_runtime_alarm().
+
+    Used for system and modem-level failures that have no band or KPI context
+    (e.g. COPS command failure, file write error, Pi restart, serial port loss).
 
     Varbinds sent:
-        OID_VAR_COMPONENT — what failed (e.g. "AT+COPS=0", "GUI file write")
+        OID_VAR_COMPONENT — what failed (e.g. "AT+COPS=0", "GUI JSON write")
         OID_VAR_DETAIL    — what happened (e.g. "no response after 120s")
+
+    Note: band, kpi, and alarmType varbinds are intentionally omitted —
+    runtime traps have no RF context and using the KPI OIDs would be misleading.
 
     Args:
         component: The system component or command that failed.
-        detail:    Human-readable description of the failure.
+        detail:    Human-readable description of the failure condition.
     """
     snmpEngine = SnmpEngine()
 
@@ -217,22 +251,36 @@ async def _send_runtime_trap_async(component: str, detail: str) -> None:
 
 
 def _send_runtime_trap(component: str, detail: str) -> None:
-    """Synchronous wrapper around _send_runtime_trap_async for use in non-async code."""
+    """
+    Synchronous wrapper around _send_runtime_trap_async().
+    Runs the async function in a new event loop via asyncio.run() so callers
+    do not need to use async/await. Blocks until the trap is sent or fails.
+    """
     asyncio.run(_send_runtime_trap_async(component, detail))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Public API
+# These are the only functions that should be imported and called by other
+# modules. They validate/format their arguments and delegate to the internal
+# senders in Section C.
 # ══════════════════════════════════════════════════════════════════════════════
 
 def send_invalid_kpi_alarm(band: int, kpi: str, invalid_count: int) -> None:
     """
-    Send an SNMP trap for a KPI with too many consecutive invalid samples.
+    Send an SNMP trap reporting a KPI with too many consecutive invalid samples.
+
+    Called by check_kpi() in alarms.py when the last 3 of 5 samples for a
+    given KPI on a given band all exceed the INVALID_SENTINEL threshold (500).
+    The trap uses OID_TRAP_INVALID so the NMS can distinguish it from a
+    threshold violation.
 
     Args:
-        band:          Band number.
-        kpi:           KPI name (e.g. "RSRP", "SS_RSRP").
-        invalid_count: Number of consecutive invalid samples detected (typically 3).
+        band:          Band number the invalid KPI belongs to.
+        kpi:           KPI name string (e.g. "RSRP", "RSRQ", "SS_SINR").
+        invalid_count: Number of samples in the window that exceeded
+                       INVALID_SENTINEL — included in the detail string
+                       for operator context.
     """
     detail = f"{invalid_count} of 5 samples invalid (last 3 consecutive)"
     _send_kpi_trap(
@@ -246,13 +294,17 @@ def send_invalid_kpi_alarm(band: int, kpi: str, invalid_count: int) -> None:
 
 def send_threshold_alarm(band: int, kpi: str, avg_value: float, threshold: float) -> None:
     """
-    Send an SNMP trap for a KPI whose time-averaged value is below threshold.
+    Send an SNMP trap reporting a KPI whose 5-sample average is below threshold.
+
+    Called by check_kpi() in alarms.py when a valid average is computed but
+    falls below the deployment threshold for that KPI. The trap uses
+    OID_TRAP_THRESHOLD so the NMS can distinguish it from an invalid-data alarm.
 
     Args:
-        band:      Band number.
-        kpi:       KPI name (e.g. "SINR", "SS_RSRP").
-        avg_value: The computed average value.
-        threshold: The threshold it failed to meet.
+        band:      Band number the threshold violation applies to.
+        kpi:       KPI name string (e.g. "SINR", "RSRP", "SS_RSRQ").
+        avg_value: The computed 5-sample average that fell below threshold.
+        threshold: The minimum acceptable value that was not met.
     """
     detail = f"avg = {avg_value:.1f}, below threshold ({threshold:.1f})"
     _send_kpi_trap(
@@ -268,20 +320,27 @@ def send_runtime_alarm(component: str, detail: str) -> None:
     """
     Send an SNMP trap for a system or modem-level runtime failure.
 
-    This is the general-purpose alarm for failures that have no band or KPI
-    context — use it anywhere in the codebase when a command, file operation,
-    or system component fails and Infolink needs to be notified.
+    This is the general-purpose alarm for any failure that has no band or KPI
+    context. Import and call this from any module when a command, file
+    operation, or system component fails and the NMS needs to be notified.
 
-    Examples:
-        send_runtime_alarm("AT+COPS=0",     "no modem response after 120s — retrying")
-        send_runtime_alarm("AT+CFUN=1",     "modem returned ERROR after 3 attempts")
-        send_runtime_alarm("GUI file write","disk full — GUI not updated this cycle")
-        send_runtime_alarm("serial port",   "connection lost — attempting reconnect")
+    The trap uses OID_TRAP_RUNTIME, which carries only component and detail
+    varbinds — no band, kpi, or alarmType fields are included since those
+    concepts don't apply to system-level events.
+
+    Usage examples:
+        send_runtime_alarm("AT+COPS=0",      "no modem response after 120s — retrying")
+        send_runtime_alarm("AT+CFUN=1",      "modem returned ERROR after 3 attempts")
+        send_runtime_alarm("GUI JSON write",  "disk full — GUI not updated this cycle")
+        send_runtime_alarm("serial port",     "SerialException — USB may be disconnected")
+        send_runtime_alarm("Pi restart",      "modem unresponsive after 300s — rebooting")
 
     Args:
         component: The command, module, or system component that failed.
-                   Keep it short and specific so the NMS can filter by it.
-        detail:    Human-readable description of what went wrong.
+                   Keep it short and consistent — the NMS may filter or
+                   group alarms by this field.
+        detail:    Human-readable description of what went wrong and any
+                   recovery action being taken.
     """
     _send_runtime_trap(component=component, detail=detail)
 

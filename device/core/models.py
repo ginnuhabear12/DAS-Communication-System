@@ -1,14 +1,20 @@
 """
-Module: models/core.py
-Purpose: Defines all objects in the system and set parameters - runtime data
-
+Module: models.py
+Purpose: Defines all data structures (dataclasses and plain classes) used at runtime.
+         These objects represent KPI readings, averaged results, alarms, device config,
+         and system health — they are instantiated and passed between modules but contain
+         no business logic themselves.
 """
+
 
 from datetime import datetime   
 from dataclasses import dataclass
 from typing import Optional
 
- 
+# ══════════════════════════════════════════════════════════════════════════════
+# Raw (Instantaneous) KPI Classes
+# These are populated directly from QENG AT command responses, one per sample.
+# ══════════════════════════════════════════════════════════════════════════════ 
 @dataclass
 class KPIReading:
     """
@@ -29,6 +35,7 @@ class KPIReading:
 class LTEKPI(KPIReading):
     """
     Instantaneous LTE sample from QENG.
+    Inherits timestamp, rat, band, and pci from KPIReading.
  
     Attributes:
         earfcn: LTE frequency channel number.
@@ -51,6 +58,7 @@ class LTEKPI(KPIReading):
 class NR5GKPI(KPIReading):
     """
     Instantaneous NR5G sample from QENG.
+    Inherits timestamp, rat, band, and pci from KPIReading.
     RSSI is omitted — not reported in QENG NR5G results.
  
     Attributes:
@@ -69,12 +77,15 @@ class NR5GKPI(KPIReading):
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Averaged KPI Classes
+# These are computed after a full sampling session completes (typically 5 samples).
+# They are what gets stored, reported via SNMP, and evaluated against thresholds.
 # ══════════════════════════════════════════════════════════════════════════════
  
 @dataclass
 class AveragedKPI:
     """
-    Base class for a time-window averaged KPI result.
+    Base class for a time-window-averaged KPI result.
+    Produced by averaging the raw KPIReadings from a SamplingSession.
  
     Attributes:
         start_time:   Timestamp of the first sample in the window.
@@ -95,7 +106,8 @@ class AveragedKPI:
 @dataclass
 class AveragedLTEKPI(AveragedKPI):
     """
-    Averaged result for one LTE band window.
+    Averaged KPI result for one LTE band over a sampling window.
+    Inherits start_time, end_time, rat, band, pci, and sample_count from AveragedKPI.
  
     KPI fields are None when the majority of that window's
     samples were invalid — meaning an INVALID_KPI alarm was
@@ -118,8 +130,9 @@ class AveragedLTEKPI(AveragedKPI):
 @dataclass
 class AveragedNR5GKPI(AveragedKPI):
     """
-    Averaged result for one NR5G band window.
-    No avg_rssi — RSSI is not reported in QENG NR5G results.
+    Averaged KPI result for one NR5G band over a sampling window.
+    Inherits start_time, end_time, rat, band, pci, and sample_count from AveragedKPI.
+    No avg_rssi field — RSSI is not reported in QENG NR5G results.
  
     Attributes:
         arfcn:       NR5G absolute radio frequency channel number.
@@ -178,9 +191,27 @@ class SystemHealthStatus:
     temperature_c: float
     power_ok: bool
 
+# ══════════════════════════════════════════════════════════════════════════════
+# Sampling Session
+# Intermediate container used during active KPI collection before averaging.
+# ══════════════════════════════════════════════════════════════════════════════
+
 @dataclass
-class SamplingSession: # Cleaner architecture. Helps debugging. Helps test reproducibility. #this just shows the data in a specific window before being averaged #called by AveragedKPI to be used
+class SamplingSession:
+    """
+    Holds the raw KPIReadings collected during one active sampling window
+    before they are averaged into an AveragedKPI result.
+
+    Keeping this as a separate object (rather than averaging inline) improves
+    debuggability, makes unit testing easier, and gives a clear handoff point
+    between the collection phase and the averaging/reporting phase.
+
+    Attributes:
+        session_start: Timestamp when this sampling window began.
+        readings:      List of raw KPIReading objects collected so far in this session.
+                       Passed to the averaging logic once SAMPLES_PER_SESSION is reached.
+    """
     session_start: datetime
-    readings: list[KPIReading]
+    readings:      list[KPIReading]
 
 
